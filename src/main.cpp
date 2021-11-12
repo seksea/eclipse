@@ -1,4 +1,5 @@
 #include "hooks.hpp"
+#include "util/log.hpp"
 
 #include <dlfcn.h>
 #include <thread>
@@ -9,15 +10,17 @@ void mainThread() {
     /* if serverbrowser is not open then wait, (serverbrowser is last to be loaded) */
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))
         usleep(500000);
+    LOG("Loading csgo-cheat...");
     Hooks::init();
-    puts("\e[32mSuccessfully loaded csgo-cheat\e[0m\n");
+    LOG("Successfully loaded csgo-cheat!");
 }
 
 /* Called on uninject, if you ld_preload with this, then it will call it as soon as you inject, so only have this if PRELOAD compile def is not set */
 #ifndef PRELOAD
 void __attribute__((destructor)) unload() {
+    LOG("Unloading csgo-cheat...");
     Hooks::unload();
-    puts("\e[32mUnloading csgo-cheat...\e[0m\n");
+    LOG("Unloaded csgo-cheat!");
 }
 #endif
 

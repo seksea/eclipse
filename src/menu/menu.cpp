@@ -17,6 +17,13 @@ namespace Menu {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
             ImGui::StyleColorsDark();
+
+
+            ImGui::GetStyle().WindowPadding = ImVec2(3, 3);
+            ImGui::GetStyle().WindowRounding = 0;
+            ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+
+
             ImGui_ImplOpenGL3_Init("#version 100");
             ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
             initialised = true;
@@ -24,15 +31,33 @@ namespace Menu {
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
+        ImGui::NewFrame();
 
         int w, h;
         SDL_GetWindowSize(window, &w, &h);
         ImGui::GetIO().DisplaySize = ImVec2((float)w, (float)h);
 
-        ImGui::NewFrame();
-        
-        ImGui::Text("ahhhhhhhhh");
+        if (ImGui::IsKeyPressed(SDL_SCANCODE_INSERT, false)) {
+            menuOpen = !menuOpen;
+        }
 
+        if (menuOpen) {
+            ImGui::GetIO().MouseDrawCursor = true;
+            ImGui::Begin("csgo-cheat", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Text("csgo-cheat");
+
+            ImGui::BeginChild("tabs", ImVec2(80, 400), true);
+            ImGui::EndChild();
+            ImGui::SameLine();
+            ImGui::BeginChild("content", ImVec2(500, 400), true);
+            ImGui::EndChild();
+
+            ImGui::End();
+        }
+        else {
+            ImGui::GetIO().MouseDrawCursor = false;
+        }
+        
         ImGui::ShowDemoWindow();
 
         ImGui::Render();
