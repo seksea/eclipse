@@ -5,6 +5,7 @@
 #include "imgui/GL/gl3w.h"
 #include "menu.hpp"
 #include "fonts.hpp"
+#include "config.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -38,6 +39,8 @@ namespace Menu {
             ImGui::GetStyle().FrameRounding = 1;
             ImGui::GetStyle().WindowBorderSize = 0;
             ImGui::GetStyle().FrameBorderSize = 1;
+            ImGui::GetStyle().ScrollbarRounding = 0;
+            ImGui::GetStyle().ScrollbarSize = 3;
 
             ImVec4* colors = ImGui::GetStyle().Colors;
             colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.16f, 1.00f);
@@ -47,9 +50,15 @@ namespace Menu {
             colors[ImGuiCol_FrameBg]                = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
             colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
             colors[ImGuiCol_FrameBgActive]          = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_Button]                 = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_ButtonHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
+            colors[ImGuiCol_ButtonActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+
+
 
             ImGui_ImplOpenGL3_Init("#version 100");
             ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
+            Config::refreshConfigList();
             initialised = true;
         }
 
@@ -197,13 +206,50 @@ namespace Menu {
                 case 3: {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
-                    BEGINGROUPBOX("configs", ImVec2(216, 141));
-                    
+                    BEGINGROUPBOX("configs", ImVec2(216, 163));
+
+                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+                    ImGui::ListBoxHeader("configlist", ImVec2(0, 70));
+                    for (std::string file : Config::cfgFiles) {
+                        if (ImGui::Button(file.c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
+                            strcpy(Config::selectedCfg, file.c_str());
+                        }
+                    }
+                    ImGui::ListBoxFooter();
+                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+                    ImGui::InputText("##cfgname", Config::selectedCfg, sizeof(Config::selectedCfg));
+                    if (ImGui::Button("sadsfve", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                        Config::saveConfig(Config::selectedCfg);
+                        Config::refreshConfigList();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("load", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                        Config::loadConfig(Config::selectedCfg);
+                        Config::refreshConfigList();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("delete", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                        char path[512];
+                        strcpy(path, getenv("HOME"));
+                        strcat(path, "/.csgo-cheat/");
+                        std::filesystem::create_directory(path);
+                        strcat(path, "configs/");
+                        std::filesystem::create_directory(path);
+                        strcat(path, Config::selectedCfg);
+
+                        if (Config::selectedCfg[0] != '\0' && std::filesystem::exists(path))
+                            std::filesystem::remove(path);
+                        Config::refreshConfigList();
+                    }
+                    if (ImGui::Button("refresh", ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
+                        Config::refreshConfigList();
+                    }
+
                     ENDGROUPBOX();
 
-                    ImGui::SetCursorPos(ImVec2(6, 153));
+                    ImGui::SetCursorPos(ImVec2(6, 173));
 
-                    BEGINGROUPBOX("scripts", ImVec2(216, 240));
+                    BEGINGROUPBOX("scripts", ImVec2(216, 220));
                     
                     ENDGROUPBOX();
 
