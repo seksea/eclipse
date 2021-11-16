@@ -31,4 +31,4 @@ include_directories(/usr/local/include /usr/include/freetype2)
 link_directories(/usr/local/lib)
 
 add_library(csgo-cheat SHARED ${SOURCES})
-target_link_libraries(csgo-cheat dl pthread SDL2 GL freetype)
+target_link_libraries(csgo-cheat dl pthread SDL2 GL freetype luajit-5.1)
