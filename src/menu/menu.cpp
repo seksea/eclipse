@@ -6,7 +6,7 @@
 #include "menu.hpp"
 #include "fonts.hpp"
 
-#define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::Text(name); ImGui::Separator()
+#define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
 #define CHECKBOX(name, var) ImGui::Checkbox(name, var)
 
@@ -25,7 +25,7 @@ namespace Menu {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
             ImGui::StyleColorsDark();
-
+            
             ImFontConfig fontConfig;
             fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
@@ -72,22 +72,105 @@ namespace Menu {
 
             ImGui::BeginChild("content", ImVec2(450, 400), true);
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.16f, 1.00f));
-            BEGINGROUPBOX("aimbot", ImVec2(438, 260));
-            static bool pog = false;
-            CHECKBOX("enabled", &pog);
-            ENDGROUPBOX();
+            switch (curTab) {
+                case 0: {
+                    BEGINGROUPBOX("aimbot", ImVec2(438, 250));
+                    static bool pog = false;
+                    CHECKBOX("enabled", &pog);
+                    ENDGROUPBOX();
 
-            ImGui::SetCursorPos(ImVec2(6, 272));
+                    ImGui::SetCursorPos(ImVec2(6, 262));
 
-            BEGINGROUPBOX("other", ImVec2(216, 121));
-            
-            ENDGROUPBOX();
+                    BEGINGROUPBOX("other", ImVec2(216, 131));
+                    
+                    ENDGROUPBOX();
 
-            ImGui::SetCursorPos(ImVec2(228, 272));
+                    ImGui::SetCursorPos(ImVec2(228, 262));
 
-            BEGINGROUPBOX("triggerbot", ImVec2(216, 121));
-            
-            ENDGROUPBOX();
+                    BEGINGROUPBOX("triggerbot", ImVec2(216, 131));
+                    
+                    ENDGROUPBOX();
+                    break;
+                }
+                case 1: {
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+                    ImGui::BeginChild("tabs", ImVec2(ImGui::GetWindowContentRegionWidth(), 30), true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8, 0.8, 0.8, 0.8));
+                    static int curSubTab = 0;
+                    static int lastCurSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("enemies", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("teammates", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 1;
+                    if (lastCurSubTab == 1) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 2) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("world", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 2;
+                    if (lastCurSubTab == 2) ImGui::PopStyleColor();
+                    lastCurSubTab = curSubTab;
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleVar();
+                    ImGui::EndChild();
+                    ImGui::PopStyleVar();
+
+                    switch (curSubTab) {
+                        case 0: {
+                            ImGui::SetCursorPos(ImVec2(6, 42));
+
+                            BEGINGROUPBOX("ESP", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(228, 42));
+
+                            BEGINGROUPBOX("chams", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 1: {
+                            ImGui::SetCursorPos(ImVec2(6, 42));
+
+                            BEGINGROUPBOX("ESP", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(228, 42));
+
+                            BEGINGROUPBOX("chams", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 2: {
+                            ImGui::SetCursorPos(ImVec2(6, 42));
+
+                            BEGINGROUPBOX("world", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(228, 42));
+
+                            BEGINGROUPBOX("self", ImVec2(216, 351));
+                            
+                            ENDGROUPBOX();
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
 
             ImGui::PopStyleColor();
             ImGui::EndChild();
@@ -99,13 +182,25 @@ namespace Menu {
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
-            if (ImGui::Button("legit", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) { curTab = 0; }
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8, 0.8, 0.8, 0.8));
+            static int lastCurTab = 0;
+            if (lastCurTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            if (ImGui::Button("legit", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) curTab = 0;
+            if (lastCurTab == 0) ImGui::PopStyleColor();
             ImGui::SameLine();
-            if (ImGui::Button("visuals", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) { curTab = 1; }
+            if (lastCurTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            if (ImGui::Button("visuals", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) curTab = 1;
+            if (lastCurTab == 1) ImGui::PopStyleColor();
             ImGui::SameLine();
-            if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) { curTab = 2; }
+            if (lastCurTab == 2) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) curTab = 2;
+            if (lastCurTab == 2) ImGui::PopStyleColor();
             ImGui::SameLine();
-            if (ImGui::Button("config/scripts", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) { curTab = 3; }
+            if (lastCurTab == 3) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            if (ImGui::Button("config/scripts", ImVec2(ImGui::GetWindowWidth()/4, ImGui::GetWindowHeight()))) curTab = 3;
+            if (lastCurTab == 3) ImGui::PopStyleColor();
+            lastCurTab = curTab;
+            ImGui::PopStyleColor();
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
