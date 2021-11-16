@@ -25,7 +25,7 @@ namespace Menu {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
             ImGui::StyleColorsDark();
-            
+
             ImFontConfig fontConfig;
             fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
@@ -74,6 +74,8 @@ namespace Menu {
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.16f, 1.00f));
             switch (curTab) {
                 case 0: {
+                    ImGui::SetCursorPos(ImVec2(6, 6));
+
                     BEGINGROUPBOX("aimbot", ImVec2(438, 250));
                     static bool pog = false;
                     CHECKBOX("enabled", &pog);
@@ -93,6 +95,8 @@ namespace Menu {
                     break;
                 }
                 case 1: {
+                    ImGui::SetCursorPos(ImVec2(6, 6));
+
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
                     ImGui::BeginChild("tabs", ImVec2(ImGui::GetWindowContentRegionWidth(), 30), true);
                     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -168,6 +172,46 @@ namespace Menu {
                             break;
                         }
                     }
+                    break;
+                }
+                case 2: {
+                    ImGui::SetCursorPos(ImVec2(6, 6));
+
+                    BEGINGROUPBOX("misc", ImVec2(438, 250));
+                    
+                    ENDGROUPBOX();
+
+                    ImGui::SetCursorPos(ImVec2(6, 262));
+
+                    BEGINGROUPBOX("clantag", ImVec2(216, 131));
+                    
+                    ENDGROUPBOX();
+
+                    ImGui::SetCursorPos(ImVec2(228, 262));
+
+                    BEGINGROUPBOX("movement", ImVec2(216, 131));
+                    
+                    ENDGROUPBOX();
+                    break;
+                }
+                case 3: {
+                    ImGui::SetCursorPos(ImVec2(6, 6));
+
+                    BEGINGROUPBOX("configs", ImVec2(216, 141));
+                    
+                    ENDGROUPBOX();
+
+                    ImGui::SetCursorPos(ImVec2(6, 153));
+
+                    BEGINGROUPBOX("scripts", ImVec2(216, 240));
+                    
+                    ENDGROUPBOX();
+
+                    ImGui::SetCursorPos(ImVec2(228, 6));
+
+                    BEGINGROUPBOX("script UI", ImVec2(216, 387));
+                    
+                    ENDGROUPBOX();
                     break;
                 }
             }
