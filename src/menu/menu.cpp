@@ -6,6 +6,7 @@
 #include "menu.hpp"
 #include "fonts.hpp"
 #include "config.hpp"
+#include "../features/lua.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -54,17 +55,18 @@ namespace Menu {
             colors[ImGuiCol_ButtonHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
             colors[ImGuiCol_ButtonActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
 
-
-
             ImGui_ImplOpenGL3_Init("#version 100");
             ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
             Config::refreshConfigList();
+            Lua::refreshLuaList();
             initialised = true;
         }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
+
+        Lua::handleHook("draw");
 
         int w, h;
         SDL_GetWindowSize(window, &w, &h);
@@ -86,8 +88,7 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
                     BEGINGROUPBOX("aimbot", ImVec2(438, 250));
-                    static bool pog = false;
-                    CHECKBOX("enabled", &pog);
+                    CHECKBOX("enabled", &CONFIGBOOL("aimbot enabled"));
                     ENDGROUPBOX();
 
                     ImGui::SetCursorPos(ImVec2(6, 262));
@@ -210,6 +211,7 @@ namespace Menu {
 
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     ImGui::ListBoxHeader("configlist", ImVec2(0, 70));
+                    ImGui::SetCursorPosY(6);
                     for (std::string file : Config::cfgFiles) {
                         if (ImGui::Button(file.c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
                             strcpy(Config::selectedCfg, file.c_str());
@@ -218,7 +220,7 @@ namespace Menu {
                     ImGui::ListBoxFooter();
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     ImGui::InputText("##cfgname", Config::selectedCfg, sizeof(Config::selectedCfg));
-                    if (ImGui::Button("sadsfve", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                    if (ImGui::Button("save", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
                         Config::saveConfig(Config::selectedCfg);
                         Config::refreshConfigList();
                     }
@@ -251,12 +253,37 @@ namespace Menu {
 
                     BEGINGROUPBOX("scripts", ImVec2(216, 220));
                     
+                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+                    ImGui::ListBoxHeader("lualist", ImVec2(0, 164));
+                    ImGui::SetCursorPosY(6);
+                    for (std::string file : Lua::luaFiles) {
+                        char temp[128] = "luafiles - ";
+                        strcat(temp, file.c_str());
+                        strcat(temp, "enabled");
+                        ImGui::Checkbox(file.c_str(), &CONFIGBOOL(temp));
+                        if (Lua::scripts.find(file) != Lua::scripts.end()) {
+                            if (!CONFIGBOOL(temp)) {
+                                Lua::scripts.erase(file);
+                            }
+                        }
+                        else {
+                            if (CONFIGBOOL(temp)) {
+                                Lua::scripts.insert(std::pair<std::string, Lua::LuaEngine>(file, Lua::LuaEngine(file)));
+                            }
+                        }
+                    }
+                    ImGui::ListBoxFooter();
+                    if (ImGui::Button("refresh", ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
+                        Lua::refreshLuaList();
+                    }
+
                     ENDGROUPBOX();
 
                     ImGui::SetCursorPos(ImVec2(228, 6));
 
                     BEGINGROUPBOX("script UI", ImVec2(216, 387));
-                    
+                    Lua::handleHook("UI");
+
                     ENDGROUPBOX();
                     break;
                 }
