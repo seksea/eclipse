@@ -14,10 +14,10 @@ namespace Lua {
     }
     namespace UI {
         ImVec2 getMenuPos() {
-            return ImGui::GetWindowPos();
+            return Menu::windowPos;
         }
         ImVec2 getMenuSize() {
-            return ImGui::GetWindowSize();
+            return Menu::windowSize;
         }
         bool isMenuOpen() {
             return Menu::menuOpen;
@@ -65,7 +65,7 @@ namespace Lua {
             strcpy(buf, CONFIGSTR(configVarName).c_str());
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-            ImGui::InputText("##pog", buf, sizeof(buf));
+            ImGui::InputText(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
         }
         void textInputMultiline(const char* label, const char* configVarName) {
@@ -75,7 +75,7 @@ namespace Lua {
             strcpy(buf, CONFIGSTR(configVarName).c_str());
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-            ImGui::InputTextMultiline("##pog", buf, sizeof(buf));
+            ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
         }
     }
@@ -84,6 +84,7 @@ namespace Lua {
         void rectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float thickness, float rounding)   { curDrawList->AddRect(min, max, color, rounding, 0, thickness); }
         void filledRectangle(ImVec2 min, ImVec2 max, ImColor color)                                     { curDrawList->AddRectFilled(min, max, color); }
         void filledRectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float rounding)              { curDrawList->AddRectFilled(min, max, color, rounding); }
+        void gradientFilledRectangle(ImVec2 min, ImVec2 max, ImColor tl, ImColor tr, ImColor bl, ImColor br) { curDrawList->AddRectFilledMultiColor(min, max, tl, tr, br, bl); }
         
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
@@ -154,6 +155,7 @@ namespace Lua {
                 .addFunction("rectangleRounded", Draw::rectangleRounded)
                 .addFunction("filledRectangle", Draw::filledRectangle)
                 .addFunction("filledRectangleRounded", Draw::filledRectangleRounded)
+                .addFunction("gradientFilledRectangle", Draw::gradientFilledRectangle)
 
                 .addFunction("circle", Draw::circle)
                 .addFunction("filledCircle", Draw::filledCircle)

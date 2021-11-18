@@ -63,7 +63,7 @@ namespace Config {
             case Config::INT: configItems.insert(std::pair<std::string, ConfigItem>(name, 0)); break;
             case Config::FLOAT: configItems.insert(std::pair<std::string, ConfigItem>(name, 0.f)); break;
             case Config::BOOL: configItems.insert(std::pair<std::string, ConfigItem>(name, false)); break;
-            case Config::STR: configItems.insert(std::pair<std::string, ConfigItem>(name, "")); break;
+            case Config::STR: configItems.insert(std::pair<std::string, ConfigItem>(name, std::string(""))); break;
             case Config::COLOR: configItems.insert(std::pair<std::string, ConfigItem>(name, ImColor(0, 0, 0))); break;
         }
 
@@ -94,7 +94,7 @@ namespace Config {
             case Config::INT: j[configItem.first] = configItem.second.intValue; break;
             case Config::FLOAT: j[configItem.first] = configItem.second.floatValue; break;
             case Config::BOOL: j[configItem.first] = configItem.second.boolValue; break;
-            case Config::STR: j[configItem.first] = configItem.second.strValue; break;
+            case Config::STR: j[configItem.first] = configItem.second.strValue.c_str(); break;
             case Config::COLOR: {
                 j[configItem.first]["r"] = configItem.second.colValue.Value.x;
                 j[configItem.first]["g"] = configItem.second.colValue.Value.y;

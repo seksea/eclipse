@@ -85,6 +85,8 @@ namespace Menu {
         if (menuOpen) {
             ImGui::GetIO().MouseDrawCursor = true;
             ImGui::Begin("csgo-cheat", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+            windowPos = ImGui::GetWindowPos();
+            windowSize = ImGui::GetWindowSize();
             ImGui::GetForegroundDrawList()->AddRect(ImVec2(ImGui::GetWindowPos().x + 1, ImGui::GetWindowPos().y + 1), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 1, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 1), ImColor(0.09f, 0.09f, 0.09f));
 
             ImGui::BeginChild("content", ImVec2(450, 400), true);
@@ -213,7 +215,7 @@ namespace Menu {
                 case 3: {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
-                    BEGINGROUPBOX("configs", ImVec2(216, 163));
+                    BEGINGROUPBOX("configs", ImVec2(166, 163));
 
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     if (ImGui::BeginListBox("configlist", ImVec2(0, 70))) {
@@ -258,7 +260,7 @@ namespace Menu {
 
                     ImGui::SetCursorPos(ImVec2(6, 173));
 
-                    BEGINGROUPBOX("scripts", ImVec2(216, 220));
+                    BEGINGROUPBOX("scripts", ImVec2(166, 220));
                     
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     if (ImGui::BeginListBox("configlist", ImVec2(0, 164))) {
@@ -287,9 +289,9 @@ namespace Menu {
 
                     ENDGROUPBOX();
 
-                    ImGui::SetCursorPos(ImVec2(228, 6));
+                    ImGui::SetCursorPos(ImVec2(178, 6));
 
-                    BEGINGROUPBOX("script UI", ImVec2(216, 387));
+                    BEGINGROUPBOX("script UI", ImVec2(266, 387));
                     Lua::handleHook("UI");
 
                     ENDGROUPBOX();
