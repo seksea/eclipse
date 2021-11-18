@@ -1,5 +1,4 @@
-// https://github.com/kunitoki/LuaBridge3
-// Copyright 2020, Lucio Asnaghi
+// https://github.com/vinniefalco/LuaBridge
 // Copyright 2012, Vinnie Falco <vinnie.falco@gmail.com>
 // Copyright 2004-11 by Raw Material Software Ltd.
 // SPDX-License-Identifier: MIT
@@ -356,9 +355,7 @@ bool operator!=(ReferenceCountedObjectClass* object1,
 template<class T>
 struct ContainerTraits<RefCountedObjectPtr<T>>
 {
-    using Type = T;
-
-    static RefCountedObjectPtr<T> construct(T* c) { return c; }
+    typedef T Type;
 
     static T* get(RefCountedObjectPtr<T> const& c) { return c.getObject(); }
 };

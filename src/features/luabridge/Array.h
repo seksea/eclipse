@@ -1,5 +1,5 @@
-// https://github.com/kunitoki/LuaBridge3
-// Copyright 2020, Lucio Asnaghi
+// https://github.com/vinniefalco/LuaBridge
+//
 // Copyright 2020, Dmitry Tarakanov
 // SPDX-License-Identifier: MIT
 
@@ -11,60 +11,45 @@
 
 namespace luabridge {
 
-//=================================================================================================
-/**
- * @brief Stack specialization for `std::array`.
- */
-template <class T, std::size_t Size>
-struct Stack<std::array<T, Size>>
+template<class T, std::size_t s>
+struct Stack<std::array<T, s>>
 {
-    using Type = std::array<T, Size>;
-
-    static bool push(lua_State* L, const Type& array, std::error_code& ec)
+    static void push(lua_State* L, std::array<T, s> const& array)
     {
-        const int initialStackSize = lua_gettop(L);
-        
-        lua_createtable(L, static_cast<int>(Size), 0);
-
-        for (std::size_t i = 0; i < Size; ++i)
+        lua_createtable(L, static_cast<int>(s), 0);
+        for (std::size_t i = 0; i < s; ++i)
         {
             lua_pushinteger(L, static_cast<lua_Integer>(i + 1));
-
-            std::error_code errorCode;
-            bool result = Stack<T>::push(L, array[i], errorCode);
-            if (!result)
-            {
-                ec = errorCode;
-                lua_pop(L, lua_gettop(L) - initialStackSize);
-                return false;
-            }
-
+            Stack<T>::push(L, array[i]);
             lua_settable(L, -3);
         }
-        
-        return true;
     }
 
-    static Type get(lua_State* L, int index)
+    static std::array<T, s> get(lua_State* L, int index)
     {
         if (!lua_istable(L, index))
-            luaL_error(L, "#%d argment must be a table", index);
-
-        if (get_length(L, index) != Size)
-            luaL_error(L, "table size should be %d but is %d", Size, get_length(L, index));
-
-        Type array;
-
-        int absIndex = lua_absindex(L, index);
-        lua_pushnil(L);
-
-        int arrayIndex = 0;
-        while (lua_next(L, absIndex) != 0)
         {
-            array[arrayIndex++] = Stack<T>::get(L, -1);
-            lua_pop(L, 1);
+            luaL_error(L, "#%d argments must be table", index);
         }
 
+        std::size_t const tableSize = static_cast<std::size_t>(get_length(L, index));
+
+        if (tableSize != s)
+        {
+            luaL_error(L, "array size should be %d ", s);
+        }
+
+        std::array<T, s> array;
+
+        int const absindex = lua_absindex(L, index);
+        lua_pushnil(L);
+        int arrayIndex = 0;
+        while (lua_next(L, absindex) != 0)
+        {
+            array[arrayIndex] = Stack<T>::get(L, -1);
+            lua_pop(L, 1);
+            ++arrayIndex;
+        }
         return array;
     }
 };

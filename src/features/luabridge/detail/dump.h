@@ -1,5 +1,4 @@
-// https://github.com/kunitoki/LuaBridge3
-// Copyright 2020, Lucio Asnaghi
+// https://github.com/vinniefalco/LuaBridge
 // Copyright 2019, Dmitry Tarakanov
 // Copyright 2012, Vinnie Falco <vinnie.falco@gmail.com>
 // Copyright 2007, Nathan Reed
@@ -13,6 +12,7 @@
 #include <string>
 
 namespace luabridge {
+
 namespace debug {
 
 inline void putIndent(std::ostream& stream, unsigned level)
@@ -117,4 +117,5 @@ inline void dumpState(lua_State* L, std::ostream& stream = std::cerr)
 }
 
 } // namespace debug
+
 } // namespace luabridge

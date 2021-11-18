@@ -1,5 +1,4 @@
-// https://github.com/kunitoki/LuaBridge3
-// Copyright 2020, Lucio Asnaghi
+// https://github.com/vinniefalco/LuaBridge
 // Copyright 2019, Dmitry Tarakanov
 // Copyright 2012, Vinnie Falco <vinnie.falco@gmail.com>
 // SPDX-License-Identifier: MIT
@@ -8,97 +7,106 @@
 
 #include "Config.h"
 
-#include <memory>
+#include <string>
 
 namespace luabridge {
 
-//=================================================================================================
+//------------------------------------------------------------------------------
 /**
- * @brief Container traits.
- *
- * Unspecialized ContainerTraits has the isNotContainer typedef for SFINAE. All user defined containers must supply an appropriate
- * specialization for ContinerTraits (without the alias isNotContainer). The containers that come with LuaBridge also come with the
- * appropriate ContainerTraits specialization.
- *
- * @note See the corresponding declaration for details.
- *
- * A specialization of ContainerTraits for some generic type ContainerType looks like this:
- *
- * @code
- *
- *  template <class T>
- *  struct ContainerTraits<ContainerType<T>>
- *  {
- *    using Type = T;
- *
- *    static ContainerType<T> construct(T* c)
- *    {
- *      return c; // Implementation-dependent on ContainerType
- *    }
- *
- *    static T* get(const ContainerType<T>& c)
- *    {
- *      return c.get(); // Implementation-dependent on ContainerType
- *    }
- *  };
- *
- * @endcode
- */
-template <class T>
+    Container traits.
+
+    Unspecialized ContainerTraits has the isNotContainer typedef for SFINAE.
+    All user defined containers must supply an appropriate specialization for
+    ContinerTraits (without the typedef isNotContainer). The containers that
+    come with LuaBridge also come with the appropriate ContainerTraits
+    specialization. See the corresponding declaration for details.
+
+    A specialization of ContainerTraits for some generic type ContainerType
+    looks like this:
+
+        template <class T>
+        struct ContainerTraits <ContainerType <T>>
+        {
+          typedef typename T Type;
+
+          static T* get (ContainerType <T> const& c)
+          {
+            return c.get (); // Implementation-dependent on ContainerType
+          }
+        };
+*/
+template<class T>
 struct ContainerTraits
 {
-    using IsNotContainer = bool;
-
-    using Type = T;
-};
-
-/**
- * @brief Register shared_ptr support as container.
- *
- * @tparam T Class that is hold by the shared_ptr, must inherit from std::enable_shared_from_this.
- */
-template <class T>
-struct ContainerTraits<std::shared_ptr<T>>
-{
-    static_assert(std::is_base_of_v<std::enable_shared_from_this<T>, T>);
-    
-    using Type = T;
-
-    static std::shared_ptr<T> construct(T* t)
-    {
-        return t->shared_from_this();
-    }
-
-    static T* get(const std::shared_ptr<T>& c)
-    {
-        return c.get();
-    }
+    typedef bool isNotContainer;
+    typedef T Type;
 };
 
 namespace detail {
 
-//=================================================================================================
+//------------------------------------------------------------------------------
 /**
- * @brief Determine if type T is a container.
- *
- * To be considered a container, there must be a specialization of ContainerTraits with the required fields.
- */
-template <class T>
-class IsContainer
+    Type traits.
+
+    Specializations return information about a type.
+*/
+struct TypeTraits
 {
-private:
-    typedef char yes[1]; // sizeof (yes) == 1
-    typedef char no[2]; // sizeof (no)  == 2
+    /** Determine if type T is a container.
 
-    template <class C>
-    static constexpr no& test(typename C::IsNotContainer*);
+        To be considered a container, there must be a specialization of
+        ContainerTraits with the required fields.
+    */
+    template<typename T>
+    class isContainer
+    {
+    private:
+        typedef char yes[1]; // sizeof (yes) == 1
+        typedef char no[2]; // sizeof (no)  == 2
 
-    template <class>
-    static constexpr yes& test(...);
+        template<typename C>
+        static no& test(typename C::isNotContainer*);
 
-public:
-    static constexpr bool value = sizeof(test<ContainerTraits<T>>(0)) == sizeof(yes);
+        template<typename>
+        static yes& test(...);
+
+    public:
+        static const bool value = sizeof(test<ContainerTraits<T>>(0)) == sizeof(yes);
+    };
+
+    /** Determine if T is const qualified.
+     */
+    /** @{ */
+    template<class T>
+    struct isConst
+    {
+        static bool const value = false;
+    };
+
+    template<class T>
+    struct isConst<T const>
+    {
+        static bool const value = true;
+    };
+    /** @} */
+
+    /** Remove the const qualifier from T.
+     */
+    /** @{ */
+    template<class T>
+    struct removeConst
+    {
+        typedef T Type;
+    };
+
+    template<class T>
+    struct removeConst<T const>
+    {
+        typedef T Type;
+    };
+    /**@}*/
 };
 
 } // namespace detail
+
 } // namespace luabridge

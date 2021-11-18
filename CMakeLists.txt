@@ -12,13 +12,13 @@ if(USE_CLANG STREQUAL "true")
   set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
   set(CMAKE_C_FLAGS_RELEASE "-W -Wall -Wextra -O3 -march=native -mtune=native -fvisibility=hidden -flto")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fno-rtti -std=c++2a -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -std=c++2a -Wall -Wextra")
 else()
   set(CMAKE_C_COMPILER "/usr/bin/gcc")
   set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
   set(CMAKE_C_FLAGS_RELEASE "-W -Wall -Wextra -O3 -march=native -mtune=native -s -fvisibility=hidden -flto -fwhole-program -Wl,--strip-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} --no-gnu-unique -fno-rtti -std=c++2a")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} --no-gnu-unique -std=c++2a")
 endif()
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")

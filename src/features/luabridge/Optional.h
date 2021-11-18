@@ -1,5 +1,5 @@
-// https://github.com/kunitoki/LuaBridge3
-// Copyright 2020, Lucio Asnaghi
+// https://github.com/vinniefalco/LuaBridge
+// Copyright 2021, Stefan Frings
 // SPDX-License-Identifier: MIT
 
 #pragma once
@@ -10,29 +10,30 @@
 
 namespace luabridge {
 
-//=================================================================================================
-/**
- * @brief Stack specialization for `std::optional`.
- */
-template <class T>
+template<class T>
 struct Stack<std::optional<T>>
 {
-    using Type = std::optional<T>;
-    
-    static bool push(lua_State* L, const Type& value, std::error_code& ec)
+    static void push(lua_State* L, std::optional<T> const& optional)
     {
-        if (value)
-            return Stack<T>::push(L, *value, ec);
-
-        lua_pushnil(L);
-        return true;
+        if (optional)
+        {
+            Stack<T>::push(L, *optional);
+        }
+        else
+        {
+            lua_pushnil(L);
+        }
     }
 
-    static Type get(lua_State* L, int index)
+    static std::optional<T> get(lua_State* L, int index)
     {
-        if (lua_type(L, index) == LUA_TNIL)
+        if (lua_isnil(L, index))
+        {
+            lua_pop(L, 1);
+
             return std::nullopt;
-        
+        }
+
         return Stack<T>::get(L, index);
     }
 

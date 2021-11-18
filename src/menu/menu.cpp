@@ -66,6 +66,7 @@ namespace Menu {
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
 
+        Lua::curDrawList = ImGui::GetBackgroundDrawList();
         Lua::handleHook("draw");
 
         int w, h;
@@ -334,6 +335,9 @@ namespace Menu {
         
         ImGui::ShowDemoWindow();
 
+        Lua::curDrawList = ImGui::GetForegroundDrawList();
+        Lua::handleHook("drawabove");
+        
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }

@@ -1,7 +1,6 @@
 #include "lua.hpp"
 #include "luabridge/LuaBridge.h"
 #include "../util/log.hpp"
-#include "../menu/imgui/imgui.h"
 #include "../menu/config.hpp"
 
 namespace Lua {
@@ -43,17 +42,45 @@ namespace Lua {
         bool checkbox(const char* label, const char* configVarName) {
             return ImGui::Checkbox(label, &CONFIGBOOL(configVarName));
         }
-    }
-    namespace Draw {
-        void filledRectangle(int x, int y, int x2, int y2, unsigned int color) {
-            ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(x, y), ImVec2(x2, y2), ImColor(color));
+        bool button(const char* label) {
+            return ImGui::Button(label, ImVec2(ImGui::GetWindowContentRegionWidth(), 16));
         }
     }
+    namespace Draw {
+        void rectangle(ImVec2 min, ImVec2 max, ImColor color, float thickness)                          { curDrawList->AddRect(min, max, color, 0, 0, thickness); }
+        void rectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float thickness, float rounding)   { curDrawList->AddRect(min, max, color, rounding, 0, thickness); }
+        void filledRectangle(ImVec2 min, ImVec2 max, ImColor color)                                     { curDrawList->AddRectFilled(min, max, color); }
+        void filledRectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float rounding)              { curDrawList->AddRectFilled(min, max, color, rounding); }
+        
+        void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
+        void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
+        void text(ImVec2 pos, ImColor color, const char* text)                                          { curDrawList->AddText(pos, color, text); }
+        void shadowText(ImVec2 pos, ImColor color, const char* text) {
+            curDrawList->AddText(ImVec2(pos.x + 1, pos.y + 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(pos, color, text);
+        }
+        void outlineText(ImVec2 pos, ImColor color, const char* text) {
+            curDrawList->AddText(ImVec2(pos.x - 1, pos.y - 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x + 1, pos.y + 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x - 1, pos.y + 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x + 1, pos.y - 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(pos, color, text);
+        }
+    }
     
 
     void bridge(lua_State* L) {
         luabridge::getGlobalNamespace(L)
+            .beginClass<ImVec2>("vec2")
+                .addConstructor<void (*) (float, float)>()
+            .endClass()
+            .beginClass<ImVec4>("vec4")
+                .addConstructor<void (*) (float, float, float, float)>()
+            .endClass()
+            .beginClass<ImColor>("color")
+                .addConstructor<void (*) (float, float, float, float)>()
+            .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
             .endNamespace()
@@ -68,9 +95,20 @@ namespace Lua {
                 .addFunction("setConfigStr", UI::setConfigStr)
                 .addFunction("label", UI::label)
                 .addFunction("checkbox", UI::checkbox)
+                .addFunction("button", UI::button)
             .endNamespace()
             .beginNamespace("draw")
+                .addFunction("rectangle", Draw::rectangle)
+                .addFunction("rectangleRounded", Draw::rectangleRounded)
                 .addFunction("filledRectangle", Draw::filledRectangle)
+                .addFunction("filledRectangleRounded", Draw::filledRectangleRounded)
+
+                .addFunction("circle", Draw::circle)
+                .addFunction("filledCircle", Draw::filledCircle)
+
+                .addFunction("text", Draw::text)
+                .addFunction("shadowText", Draw::shadowText)
+                .addFunction("outlineText", Draw::outlineText)
             .endNamespace();
     }
 

@@ -8,7 +8,11 @@
 #include <luajit-2.0/lua.hpp>
 #include <luajit-2.0/lualib.h>
 
+#include "../menu/imgui/imgui.h"
+
 namespace Lua {
+    inline ImDrawList* curDrawList;
+
     class LuaEngine {
         public:
         lua_State* state;
