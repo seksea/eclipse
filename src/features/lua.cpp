@@ -2,6 +2,7 @@
 #include "luabridge/LuaBridge.h"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
+#include "../menu/menu.hpp"
 
 namespace Lua {
     LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
@@ -12,6 +13,15 @@ namespace Lua {
         }
     }
     namespace UI {
+        ImVec2 getMenuPos() {
+            return ImGui::GetWindowPos();
+        }
+        ImVec2 getMenuSize() {
+            return ImGui::GetWindowSize();
+        }
+        bool isMenuOpen() {
+            return Menu::menuOpen;
+        }
         bool getConfigBool(const char* var) {
             return CONFIGBOOL(var);
         }
@@ -36,6 +46,9 @@ namespace Lua {
         void setConfigStr(const char* var, const char* val) {
             CONFIGSTR(var) = val;
         }
+        void separator() {
+            ImGui::Separator();
+        }
         void label(const char* label) {
             ImGui::TextWrapped("%s", label);
         }
@@ -44,6 +57,26 @@ namespace Lua {
         }
         bool button(const char* label) {
             return ImGui::Button(label, ImVec2(ImGui::GetWindowContentRegionWidth(), 16));
+        }
+        void textInput(const char* label, const char* configVarName) {
+            char labelBuf[64] = "##";
+            strcat(labelBuf, label);
+            char buf[1024];
+            strcpy(buf, CONFIGSTR(configVarName).c_str());
+            ImGui::Text("%s", label);
+            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::InputText("##pog", buf, sizeof(buf));
+            CONFIGSTR(configVarName) = buf;
+        }
+        void textInputMultiline(const char* label, const char* configVarName) {
+            char labelBuf[64] = "##";
+            strcat(labelBuf, label);
+            char buf[1024];
+            strcpy(buf, CONFIGSTR(configVarName).c_str());
+            ImGui::Text("%s", label);
+            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::InputTextMultiline("##pog", buf, sizeof(buf));
+            CONFIGSTR(configVarName) = buf;
         }
     }
     namespace Draw {
@@ -61,22 +94,35 @@ namespace Lua {
             curDrawList->AddText(pos, color, text);
         }
         void outlineText(ImVec2 pos, ImColor color, const char* text) {
-            curDrawList->AddText(ImVec2(pos.x - 1, pos.y - 1), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x + 1, pos.y + 1), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x - 1, pos.y + 1), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x + 1, pos.y - 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x - 1, pos.y), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x + 1, pos.y), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x, pos.y - 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x, pos.y + 1), ImColor(0, 0, 0), text);
             curDrawList->AddText(pos, color, text);
         }
-    }
-    
+
+        ImVec2 getScreenSize() {
+            return ImGui::GetIO().DisplaySize;
+        }
+
+        float deltaTime() {
+            return ImGui::GetIO().DeltaTime;
+        }
+    }    
 
     void bridge(lua_State* L) {
         luabridge::getGlobalNamespace(L)
             .beginClass<ImVec2>("vec2")
                 .addConstructor<void (*) (float, float)>()
+                .addProperty("x", &ImVec2::x)
+                .addProperty("y", &ImVec2::y)
             .endClass()
             .beginClass<ImVec4>("vec4")
                 .addConstructor<void (*) (float, float, float, float)>()
+                .addProperty("x", &ImVec4::x)
+                .addProperty("y", &ImVec4::y)
+                .addProperty("z", &ImVec4::z)
+                .addProperty("w", &ImVec4::w)
             .endClass()
             .beginClass<ImColor>("color")
                 .addConstructor<void (*) (float, float, float, float)>()
@@ -85,6 +131,9 @@ namespace Lua {
                 .addFunction("registerHook", Cheat::registerHook)
             .endNamespace()
             .beginNamespace("ui")
+                .addFunction("getMenuPos", UI::getMenuPos)
+                .addFunction("getMenuSize", UI::getMenuSize)
+                .addFunction("isMenuOpen", UI::isMenuOpen)
                 .addFunction("getConfigBool", UI::getConfigBool)
                 .addFunction("setConfigBool", UI::setConfigBool)
                 .addFunction("getConfigFloat", UI::getConfigFloat)
@@ -93,9 +142,12 @@ namespace Lua {
                 .addFunction("setConfigInt", UI::setConfigInt)
                 .addFunction("getConfigStr", UI::getConfigStr)
                 .addFunction("setConfigStr", UI::setConfigStr)
+                .addFunction("separator", UI::separator)
                 .addFunction("label", UI::label)
                 .addFunction("checkbox", UI::checkbox)
                 .addFunction("button", UI::button)
+                .addFunction("textInput", UI::textInput)
+                .addFunction("textInputMultiline", UI::textInputMultiline)
             .endNamespace()
             .beginNamespace("draw")
                 .addFunction("rectangle", Draw::rectangle)
@@ -109,18 +161,36 @@ namespace Lua {
                 .addFunction("text", Draw::text)
                 .addFunction("shadowText", Draw::shadowText)
                 .addFunction("outlineText", Draw::outlineText)
+
+                .addFunction("getScreenSize", Draw::getScreenSize)
+                .addFunction("deltaTime", Draw::deltaTime)
+                .addFunction("HSVtoColor", ImColor::HSV)
             .endNamespace();
     }
 
     void handleHook(const char* hook) {
         for (auto& engine : scripts) {
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
+                luabridge::LuaRef funcRef = luabridge::getGlobal(engine.second.state, engine.second.hooks.at(hook).c_str());
                 if (strstr(hook, "UI")) {
-                    ImGui::Text("%s", engine.first.c_str());
+                    if (ImGui::CollapsingHeader(engine.first.c_str())) {
+                        try {
+                            funcRef();
+                        }
+                        catch (luabridge::LuaException const& e) {
+                            ERR("lua error: %s", e.what());
+                        }
+                    }
                     ImGui::Separator();
                 }
-                luabridge::LuaRef funcRef = luabridge::getGlobal(engine.second.state, engine.second.hooks.at(hook).c_str());
-                funcRef();
+                else {
+                    try {
+                        funcRef();
+                    }
+                    catch (luabridge::LuaException const& e) {
+                        ERR("lua error: %s", e.what());
+                    }
+                }
             }
         }
     }
@@ -140,6 +210,8 @@ namespace Lua {
         bridge(state); // add c++ funcs to lua
         
         curEngineBeingRan = this;
-        luaL_dofile(state, path);
+        if (luaL_dofile(state, path)) {
+            ERR("lua error: %s", lua_tostring(state, -1));
+        }
     }
 }

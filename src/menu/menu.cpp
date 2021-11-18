@@ -54,6 +54,11 @@ namespace Menu {
             colors[ImGuiCol_Button]                 = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
             colors[ImGuiCol_ButtonHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
             colors[ImGuiCol_ButtonActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+            colors[ImGuiCol_Header]                 = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_HeaderHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
+            colors[ImGuiCol_HeaderActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+
+
 
             ImGui_ImplOpenGL3_Init("#version 100");
             ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
@@ -211,14 +216,15 @@ namespace Menu {
                     BEGINGROUPBOX("configs", ImVec2(216, 163));
 
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-                    ImGui::ListBoxHeader("configlist", ImVec2(0, 70));
-                    ImGui::SetCursorPosY(6);
-                    for (std::string file : Config::cfgFiles) {
-                        if (ImGui::Button(file.c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
-                            strcpy(Config::selectedCfg, file.c_str());
+                    if (ImGui::BeginListBox("configlist", ImVec2(0, 70))) {
+                        ImGui::SetCursorPosY(6);
+                        for (std::string file : Config::cfgFiles) {
+                            if (ImGui::Button(file.c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
+                                strcpy(Config::selectedCfg, file.c_str());
+                            }
                         }
+                        ImGui::EndListBox();
                     }
-                    ImGui::ListBoxFooter();
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     ImGui::InputText("##cfgname", Config::selectedCfg, sizeof(Config::selectedCfg));
                     if (ImGui::Button("save", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
@@ -255,25 +261,26 @@ namespace Menu {
                     BEGINGROUPBOX("scripts", ImVec2(216, 220));
                     
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-                    ImGui::ListBoxHeader("lualist", ImVec2(0, 164));
-                    ImGui::SetCursorPosY(6);
-                    for (std::string file : Lua::luaFiles) {
-                        char temp[128] = "luafiles - ";
-                        strcat(temp, file.c_str());
-                        strcat(temp, "enabled");
-                        ImGui::Checkbox(file.c_str(), &CONFIGBOOL(temp));
-                        if (Lua::scripts.find(file) != Lua::scripts.end()) {
-                            if (!CONFIGBOOL(temp)) {
-                                Lua::scripts.erase(file);
+                    if (ImGui::BeginListBox("configlist", ImVec2(0, 164))) {
+                        ImGui::SetCursorPosY(6);
+                        for (std::string file : Lua::luaFiles) {
+                            char temp[128] = "luafiles - ";
+                            strcat(temp, file.c_str());
+                            strcat(temp, "enabled");
+                            ImGui::Checkbox(file.c_str(), &CONFIGBOOL(temp));
+                            if (Lua::scripts.find(file) != Lua::scripts.end()) {
+                                if (!CONFIGBOOL(temp)) {
+                                    Lua::scripts.erase(file);
+                                }
+                            }
+                            else {
+                                if (CONFIGBOOL(temp)) {
+                                    Lua::scripts.insert(std::pair<std::string, Lua::LuaEngine>(file, Lua::LuaEngine(file)));
+                                }
                             }
                         }
-                        else {
-                            if (CONFIGBOOL(temp)) {
-                                Lua::scripts.insert(std::pair<std::string, Lua::LuaEngine>(file, Lua::LuaEngine(file)));
-                            }
-                        }
+                        ImGui::EndListBox();
                     }
-                    ImGui::ListBoxFooter();
                     if (ImGui::Button("refresh", ImVec2(ImGui::GetWindowContentRegionWidth(), 16))) {
                         Lua::refreshLuaList();
                     }
@@ -337,7 +344,7 @@ namespace Menu {
 
         Lua::curDrawList = ImGui::GetForegroundDrawList();
         Lua::handleHook("drawabove");
-        
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
