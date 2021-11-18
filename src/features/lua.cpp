@@ -78,6 +78,20 @@ namespace Lua {
             ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
         }
+        void sliderInt(const char* label, const char* configVarName, int min, int max, const char* format) {
+            char labelBuf[64] = "##";
+            strcat(labelBuf, label);
+            ImGui::Text("%s", label);
+            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SliderInt(labelBuf, &CONFIGINT(configVarName), min, max, format);
+        }
+        void sliderFloat(const char* label, const char* configVarName, float min, float max, const char* format) {
+            char labelBuf[64] = "##";
+            strcat(labelBuf, label);
+            ImGui::Text("%s", label);
+            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SliderFloat(labelBuf, &CONFIGFLOAT(configVarName), min, max, format);
+        }
     }
     namespace Draw {
         void rectangle(ImVec2 min, ImVec2 max, ImColor color, float thickness)                          { curDrawList->AddRect(min, max, color, 0, 0, thickness); }
@@ -149,6 +163,8 @@ namespace Lua {
                 .addFunction("button", UI::button)
                 .addFunction("textInput", UI::textInput)
                 .addFunction("textInputMultiline", UI::textInputMultiline)
+                .addFunction("sliderInt", UI::sliderInt)
+                .addFunction("sliderFloat", UI::sliderFloat)
             .endNamespace()
             .beginNamespace("draw")
                 .addFunction("rectangle", Draw::rectangle)

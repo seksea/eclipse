@@ -7,7 +7,7 @@
 #include "imgui/imgui.h"
 
 #define CONFIGINT(name) Config::getConfigItem(name, Config::INT)->intValue
-#define CONFIGFLOAT(name) Config::getConfigItem(name, Config::INT)->floatValue
+#define CONFIGFLOAT(name) Config::getConfigItem(name, Config::FLOAT)->floatValue
 #define CONFIGBOOL(name) Config::getConfigItem(name, Config::BOOL)->boolValue
 #define CONFIGSTR(name) Config::getConfigItem(name, Config::STR)->strValue
 #define CONFIGCOL(name) Config::getConfigItem(name, Config::COLOR)->colValue
