@@ -270,6 +270,39 @@ namespace Menu {
                             strcat(temp, file.c_str());
                             strcat(temp, "enabled");
                             ImGui::Checkbox(file.c_str(), &CONFIGBOOL(temp));
+                            if (ImGui::IsItemHovered() ) {
+                                char path[512];
+                                strcpy(path, getenv("HOME"));
+                                strcat(path, "/.csgo-cheat/");
+                                std::filesystem::create_directory(path);
+                                strcat(path, "scripts/");
+                                std::filesystem::create_directory(path);
+                                strcat(path, file.c_str());
+
+                                std::ifstream infile(path);
+                                if (infile.good()) {
+                                    std::string line;
+                                    getline(infile, line);
+                                    if (line.rfind("--name ", 0) == 0) {
+                                        ImGui::BeginTooltip();
+                                        ImGui::PushTextWrapPos(280);
+                                        ImGui::Text("%s", line.substr(7).c_str());
+                                        getline(infile, line);
+                                        if (line.rfind("--desc ", 0) == 0) {
+                                            ImGui::Separator();
+                                            ImGui::Text("%s", line.substr(7).c_str());
+                                            getline(infile, line);
+                                            if (line.rfind("--author ", 0) == 0) {
+                                                ImGui::Text(" - %s", line.substr(9).c_str());
+                                            }
+                                        }
+                                        ImGui::PopTextWrapPos();
+                                        ImGui::EndTooltip();
+                                    }
+                                }
+                                infile.close();
+
+                            }
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
                                     Lua::scripts.erase(file);

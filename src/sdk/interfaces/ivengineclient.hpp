@@ -73,7 +73,7 @@ public:
     VFUNC(int, getMaxClients, 20, (), (this))
     VFUNC(bool, isInGame, 26, (), (this))
     VFUNC(bool, isConnected, 27, (), (this))
-    VFUNC(const matrix3x4_t&, worldToScreenMatrix, 37, (), (this))
+    VFUNC(const VMatrix&, worldToScreenMatrix, 37, (), (this))
     VFUNC(void*, getBSPTreeQuery, 43, (), (this))
     VFUNC(const char*, getLevelName, 53, (), (this))
     //VFUNC(NetworkChannel*, getNetworkChannel, 78, (), (this))
