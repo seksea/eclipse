@@ -1,5 +1,6 @@
 #include "lua.hpp"
 #include "luabridge/LuaBridge.h"
+#include "../interfaces.hpp"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
@@ -10,6 +11,9 @@ namespace Lua {
     namespace Cheat {
         void registerHook(const char* hook, const char* funcName) {
             curEngineBeingRan->hooks.insert(std::pair<std::string, std::string>(hook, funcName));
+        }
+        uintptr_t getInterface(const char* file, const char* name) {
+            return (uintptr_t)Interfaces::getInterface<void*>(file, name);
         }
     }
     namespace UI {
@@ -144,6 +148,7 @@ namespace Lua {
             .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
+                .addFunction("getInterface", Cheat::getInterface)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)

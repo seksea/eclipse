@@ -1,5 +1,6 @@
 #include "hooks.hpp"
 #include "util/log.hpp"
+#include "interfaces.hpp"
 
 #include <dlfcn.h>
 #include <thread>
@@ -12,6 +13,7 @@ void mainThread() {
         usleep(500000);
     LOG("Loading csgo-cheat...");
     Hooks::init();
+    Interfaces::init();
     LOG("Successfully loaded csgo-cheat!");
 }
 
