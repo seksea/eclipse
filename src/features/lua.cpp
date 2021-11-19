@@ -4,6 +4,7 @@
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
+#include "../menu/imgui/imgui_internal.h"
 
 namespace Lua {
     LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
@@ -50,6 +51,21 @@ namespace Lua {
         void setConfigStr(const char* var, const char* val) {
             CONFIGSTR(var) = val;
         }
+        void beginWindow(const char* title) {
+            ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus);
+        }
+        void endWindow() {
+            ImGui::End();
+        }
+        void sameLine() {
+            ImGui::SameLine();
+        }
+        void columns(int count, bool border) {
+            ImGui::Columns(count, nullptr, border);
+        }
+        void nextColumn() {
+            ImGui::NextColumn();
+        }
         void separator() {
             ImGui::Separator();
         }
@@ -60,7 +76,7 @@ namespace Lua {
             return ImGui::Checkbox(label, &CONFIGBOOL(configVarName));
         }
         bool button(const char* label) {
-            return ImGui::Button(label, ImVec2(ImGui::GetWindowContentRegionWidth(), 16));
+            return ImGui::Button(label, ImVec2(ImGui::GetContentRegionAvailWidth(), 16));
         }
         void textInput(const char* label, const char* configVarName) {
             char labelBuf[64] = "##";
@@ -68,7 +84,7 @@ namespace Lua {
             char buf[1024];
             strcpy(buf, CONFIGSTR(configVarName).c_str());
             ImGui::Text("%s", label);
-            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::InputText(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
         }
@@ -78,7 +94,7 @@ namespace Lua {
             char buf[1024];
             strcpy(buf, CONFIGSTR(configVarName).c_str());
             ImGui::Text("%s", label);
-            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
         }
@@ -86,14 +102,14 @@ namespace Lua {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             ImGui::Text("%s", label);
-            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::SliderInt(labelBuf, &CONFIGINT(configVarName), min, max, format);
         }
         void sliderFloat(const char* label, const char* configVarName, float min, float max, const char* format) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             ImGui::Text("%s", label);
-            ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::SliderFloat(labelBuf, &CONFIGFLOAT(configVarName), min, max, format);
         }
     }
@@ -162,6 +178,11 @@ namespace Lua {
                 .addFunction("setConfigInt", UI::setConfigInt)
                 .addFunction("getConfigStr", UI::getConfigStr)
                 .addFunction("setConfigStr", UI::setConfigStr)
+                .addFunction("beginWindow", UI::beginWindow)
+                .addFunction("endWindow", UI::endWindow)
+                .addFunction("sameLine", UI::sameLine)
+                .addFunction("columns", UI::columns)
+                .addFunction("nextColumn", UI::nextColumn)
                 .addFunction("separator", UI::separator)
                 .addFunction("label", UI::label)
                 .addFunction("checkbox", UI::checkbox)
@@ -195,23 +216,33 @@ namespace Lua {
         for (auto& engine : scripts) {
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
                 luabridge::LuaRef funcRef = luabridge::getGlobal(engine.second.state, engine.second.hooks.at(hook).c_str());
+                int oldStackSize = 0;
+                if (strstr(hook, "draw"))
+                    oldStackSize = ImGui::GetCurrentContext()->CurrentWindowStack.Size;
+
                 if (strstr(hook, "UI")) {
                     if (ImGui::CollapsingHeader(engine.first.c_str())) {
                         try {
                             funcRef();
                         }
                         catch (luabridge::LuaException const& e) {
-                            ERR("lua error: %s", e.what());
+                            ERR("lua error (%s): %s", engine.first.c_str(), e.what());
                         }
                     }
                     ImGui::Separator();
                 }
                 else {
-                    try {
+                    try { 
                         funcRef();
                     }
                     catch (luabridge::LuaException const& e) {
-                        ERR("lua error: %s", e.what());
+                        ERR("lua error (%s): %s", engine.first.c_str(), e.what());
+                    }
+                }
+                if (strstr(hook, "draw")) {
+                    while (ImGui::GetCurrentContext()->CurrentWindowStack.Size > oldStackSize) {
+                        ImGui::End();
+                        WARN("lua %s: ui.beginWindow missing ui.endWindow", engine.first.c_str());
                     }
                 }
             }
