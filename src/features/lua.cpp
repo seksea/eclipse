@@ -161,6 +161,7 @@ namespace Lua {
             .endClass()
             .beginClass<ImColor>("color")
                 .addConstructor<void (*) (float, float, float, float)>()
+                .addProperty("value", &ImColor::Value)
             .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
