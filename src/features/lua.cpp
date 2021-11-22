@@ -51,6 +51,12 @@ namespace Lua {
         void setConfigStr(const char* var, const char* val) {
             CONFIGSTR(var) = val;
         }
+        ImColor getConfigCol(const char* var) {
+            return CONFIGCOL(var);
+        }
+        void setConfigCol(const char* var, ImColor val) {
+            CONFIGCOL(var) = val;
+        }
         void beginWindow(const char* title) {
             ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus);
         }
@@ -77,6 +83,9 @@ namespace Lua {
         }
         bool button(const char* label) {
             return ImGui::Button(label, ImVec2(ImGui::GetContentRegionAvailWidth(), 16));
+        }
+        bool colorPicker(const char* label, const char* configVarName) {
+            return ImGui::ColorEdit4(label, (float*)&CONFIGCOL(configVarName).Value, ImGuiColorEditFlags_NoInputs);
         }
         void textInput(const char* label, const char* configVarName) {
             char labelBuf[64] = "##";
@@ -179,6 +188,8 @@ namespace Lua {
                 .addFunction("setConfigInt", UI::setConfigInt)
                 .addFunction("getConfigStr", UI::getConfigStr)
                 .addFunction("setConfigStr", UI::setConfigStr)
+                .addFunction("getConfigCol", UI::getConfigCol)
+                .addFunction("setConfigCol", UI::setConfigCol)
                 .addFunction("beginWindow", UI::beginWindow)
                 .addFunction("endWindow", UI::endWindow)
                 .addFunction("sameLine", UI::sameLine)
@@ -188,6 +199,7 @@ namespace Lua {
                 .addFunction("label", UI::label)
                 .addFunction("checkbox", UI::checkbox)
                 .addFunction("button", UI::button)
+                .addFunction("colorPicker", UI::colorPicker)
                 .addFunction("textInput", UI::textInput)
                 .addFunction("textInputMultiline", UI::textInputMultiline)
                 .addFunction("sliderInt", UI::sliderInt)
