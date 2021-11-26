@@ -79,15 +79,17 @@ namespace Lua {
             ImGui::TextWrapped("%s", label);
         }
         bool checkbox(const char* label, const char* configVarName) {
-            return ImGui::Checkbox(label, &CONFIGBOOL(configVarName));
+            ImGui::Checkbox(label, &CONFIGBOOL(configVarName));
+            return CONFIGBOOL(configVarName);
         }
         bool button(const char* label) {
             return ImGui::Button(label, ImVec2(ImGui::GetContentRegionAvailWidth(), 16));
         }
-        bool colorPicker(const char* label, const char* configVarName) {
-            return ImGui::ColorEdit4(label, (float*)&CONFIGCOL(configVarName).Value, ImGuiColorEditFlags_NoInputs);
+        ImColor colorPicker(const char* label, const char* configVarName) {
+            ImGui::ColorEdit4(label, (float*)&CONFIGCOL(configVarName).Value, ImGuiColorEditFlags_NoInputs);
+            return CONFIGCOL(configVarName);
         }
-        void textInput(const char* label, const char* configVarName) {
+        const char* textInput(const char* label, const char* configVarName) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             char buf[1024];
@@ -96,8 +98,9 @@ namespace Lua {
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::InputText(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
+            return CONFIGSTR(configVarName).c_str();
         }
-        void textInputMultiline(const char* label, const char* configVarName) {
+        const char* textInputMultiline(const char* label, const char* configVarName) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             char buf[1024];
@@ -106,20 +109,23 @@ namespace Lua {
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf));
             CONFIGSTR(configVarName) = buf;
+            return CONFIGSTR(configVarName).c_str();
         }
-        void sliderInt(const char* label, const char* configVarName, int min, int max, const char* format) {
+        int sliderInt(const char* label, const char* configVarName, int min, int max, const char* format) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::SliderInt(labelBuf, &CONFIGINT(configVarName), min, max, format);
+            return CONFIGINT(configVarName);
         }
-        void sliderFloat(const char* label, const char* configVarName, float min, float max, const char* format) {
+        float sliderFloat(const char* label, const char* configVarName, float min, float max, const char* format) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
             ImGui::SliderFloat(labelBuf, &CONFIGFLOAT(configVarName), min, max, format);
+            return CONFIGFLOAT(configVarName);
         }
     }
     namespace Draw {
@@ -263,21 +269,24 @@ namespace Lua {
     }
 
     LuaEngine::LuaEngine(std::string filename) {
-        char path[512];
+        char path[512], filepath[512];
         strcpy(path, getenv("HOME"));
         strcat(path, "/.csgo-cheat/");
         std::filesystem::create_directory(path);
         strcat(path, "scripts/");
         std::filesystem::create_directory(path);
-        strcat(path, filename.c_str());
+        strcpy(filepath, path);
+        strcat(filepath, filename.c_str());
 
         state = luaL_newstate();
         luaL_openlibs(state);
         
         bridge(state); // add c++ funcs to lua
         
+        luaL_dostring(state, (std::string("package.path = \"") + std::string(path) + std::string("?.lua;\" .. package.path")).c_str());
+
         curEngineBeingRan = this;
-        if (luaL_dofile(state, path)) {
+        if (luaL_dofile(state, filepath)) {
             ERR("lua error: %s", lua_tostring(state, -1));
         }
     }
