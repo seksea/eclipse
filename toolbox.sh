@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gdb="$(dirname "$0")/gdb" # For using a gdb build such as the cathook one (The one included)
-libname="libgamemodeauto.so.0" # Pretend to be gamemode, change this to another lib that may be in /maps (if already using real gamemode, I'd suggest using libMangoHud.so)
+libname="libMangoHud.so" # Pretend to be gamemode, change this to another lib that may be in /maps (if already using real gamemode, I'd suggest using libMangoHud.so)
 csgo_pid=$(pidof csgo_linux64)
 
 # Set to true to compile with clang. (if changing to true, make sure to delete the build directory from gcc)

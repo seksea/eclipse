@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <cstddef>
 
 namespace VirtualMethod
 {
@@ -22,4 +23,12 @@ namespace Memory {
     namespace VMT {
         void* hook(void* instance, void* hook, int offset);
     }
+
+    inline void**& getVTable(void* c, size_t offset = 0) {
+        return *reinterpret_cast<void***>((size_t)c + offset);
+    }
+
+    inline uintptr_t getAbsoluteAddress(uintptr_t ptr, int offset, int size) {
+        return ptr + *reinterpret_cast<int32_t*>(ptr + offset) + size;
+    };
 }

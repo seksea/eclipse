@@ -78,7 +78,7 @@ namespace Menu {
         SDL_GetWindowSize(window, &w, &h);
         ImGui::GetIO().DisplaySize = ImVec2((float)w, (float)h);
 
-        if (ImGui::IsKeyPressed(SDL_SCANCODE_INSERT, false)) {
+        if (ImGui::IsKeyPressed(SDL_SCANCODE_HOME, false)) {
             menuOpen = !menuOpen;
         }
 

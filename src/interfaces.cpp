@@ -13,6 +13,14 @@ namespace Interfaces {
     void init() {
         LOG("Initialising interfaces...");
         engine = getInterface<IVEngineClient>("./bin/linux64/engine_client.so", "VEngineClient");
+        client = getInterface<IBaseClientDLL>("./csgo/bin/linux64/client_client.so", "VClient");
+
+        /* Get IClientMode */
+        uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
+        typedef IClientMode* (*GetClientMode)();
+        GetClientMode getClientMode = reinterpret_cast<GetClientMode>(Memory::getAbsoluteAddress(HudProcessInput + 11, 1, 5));
+        clientMode = getClientMode();
+        LOG(" ClientMode %lx", (uintptr_t)clientMode);
         LOG("Initialised interfaces!");
     }
 }

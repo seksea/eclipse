@@ -9,6 +9,9 @@
 
 namespace Interfaces {
     inline IVEngineClient* engine;
+    inline class IBaseClientDLL* client;
+    
+    inline class IClientMode* clientMode;
 
     void init();
 
