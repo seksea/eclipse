@@ -12,8 +12,8 @@ void mainThread() {
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))
         usleep(500000);
     LOG("Loading csgo-cheat...");
-    Hooks::init();
     Interfaces::init();
+    Hooks::init();
     LOG("Successfully loaded csgo-cheat!");
 }
 

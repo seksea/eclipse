@@ -1,9 +1,16 @@
 #include <type_traits>
 #include <SDL2/SDL.h>
+#include "interfaces.hpp"
 
 namespace Hooks {
     void init();
     void unload();
+
+    namespace CreateMove {
+        using func = bool(*)(void* thisptr, float flInputSampleTime, CUserCmd* cmd);
+        inline func original;
+        bool hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd);
+    }
 
     namespace SDL {
         bool initSDL();

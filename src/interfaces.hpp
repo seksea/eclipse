@@ -1,17 +1,19 @@
+#pragma once
 #include <cstdint>
 #include <cstring>
 #include <dlfcn.h>
 #include <string>
 
 #include "sdk/interfaces/ivengineclient.hpp"
+#include "sdk/interfaces/iclientmode.hpp"
 #include "util/log.hpp"
 
 
 namespace Interfaces {
     inline IVEngineClient* engine;
     inline class IBaseClientDLL* client;
-    
-    inline class IClientMode* clientMode;
+
+    inline IClientMode* clientMode;
 
     void init();
 
