@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <fstream>
@@ -9,9 +10,11 @@
 #include <luajit-2.0/lualib.h>
 
 #include "../menu/imgui/imgui.h"
+#include "../interfaces.hpp"
 
 namespace Lua {
     inline ImDrawList* curDrawList;
+    inline CUserCmd* curCmd;
 
     class LuaEngine {
         public:

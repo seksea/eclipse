@@ -4,8 +4,8 @@
 struct CUserCmd
 {
 	virtual ~CUserCmd() {};
-	int command_number;
-	int tick_count;
+	int commandnumber;
+	int tickcount;
 	QAngle viewangles;
 	QAngle aimdirection;
 	float forwardmove;
@@ -15,7 +15,7 @@ struct CUserCmd
 	unsigned char impulse;
 	int weaponselect;
 	int weaponsubtype;
-	int random_seed;
+	int randomseed;
 	short mousedx;
 	short mousedy;
 	bool hasbeenpredicted;

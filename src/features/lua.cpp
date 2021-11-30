@@ -16,6 +16,14 @@ namespace Lua {
         uintptr_t getInterface(const char* file, const char* name) {
             return (uintptr_t)Interfaces::getInterface<void*>(file, name);
         }
+
+        CUserCmd getCmd() {
+            return *curCmd;
+        }
+
+        void setCmd(CUserCmd cmd) {
+            memcpy(curCmd, &cmd, sizeof(CUserCmd));
+        }
     }
     namespace UI {
         ImVec2 getMenuPos() {
@@ -178,9 +186,44 @@ namespace Lua {
                 .addConstructor<void (*) (float, float, float, float)>()
                 .addProperty("value", &ImColor::Value)
             .endClass()
+            .beginClass<Vector>("vector")
+                .addConstructor<void (*) (float, float, float)>()
+                .addProperty("x", &Vector::x)
+                .addProperty("y", &Vector::y)
+                .addProperty("z", &Vector::z)
+                .addFunction("length", &Vector::Length)
+                .addFunction("length2D", &Vector::Length2D)
+            .endClass()
+            .beginClass<QAngle>("qAngle")
+                .addConstructor<void (*) (float, float, float)>()
+                .addProperty("x", &QAngle::x)
+                .addProperty("y", &QAngle::y)
+                .addProperty("z", &QAngle::z)
+                .addFunction("length", &QAngle::Length)
+            .endClass()
+            .beginClass<CUserCmd>("userCmd")
+                .addProperty("commandnumber", &CUserCmd::commandnumber)
+                .addProperty("tickcount", &CUserCmd::tickcount)
+                .addProperty("viewangles", &CUserCmd::viewangles)
+                .addProperty("aimdirection", &CUserCmd::aimdirection)
+                .addProperty("forwardmove", &CUserCmd::forwardmove)
+                .addProperty("sidemove", &CUserCmd::sidemove)
+                .addProperty("upmove", &CUserCmd::upmove)
+                .addProperty("buttons", &CUserCmd::buttons)
+                .addProperty("impulse", &CUserCmd::impulse)
+                .addProperty("weaponselect", &CUserCmd::weaponselect)
+                .addProperty("upmove", &CUserCmd::randomseed)
+                .addProperty("mousedx", &CUserCmd::mousedx)
+                .addProperty("mousedy", &CUserCmd::mousedy)
+                .addProperty("hasbeenpredicted", &CUserCmd::hasbeenpredicted)
+                .addProperty("headangles", &CUserCmd::headangles)
+                .addProperty("headoffset", &CUserCmd::headoffset)
+            .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
                 .addFunction("getInterface", Cheat::getInterface)
+                .addFunction("getCmd", Cheat::getCmd)
+                .addFunction("setCmd", Cheat::setCmd)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)

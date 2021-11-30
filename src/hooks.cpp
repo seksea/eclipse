@@ -23,6 +23,7 @@ namespace Hooks {
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
+        Lua::curCmd = cmd;
         Lua::handleHook("createMove");
 
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
