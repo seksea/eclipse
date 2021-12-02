@@ -5,13 +5,18 @@
 #include <string>
 
 #include "sdk/interfaces/ivengineclient.hpp"
+#include "sdk/interfaces/icliententitylist.hpp"
+#include "sdk/interfaces/ibaseclientdll.hpp"
+
 #include "sdk/interfaces/iclientmode.hpp"
+
 #include "util/log.hpp"
 
 
 namespace Interfaces {
     inline IVEngineClient* engine;
-    inline class IBaseClientDLL* client;
+    inline IBaseClientDLL* client;
+    inline IClientEntityList* entityList;
 
     inline IClientMode* clientMode;
 

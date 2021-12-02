@@ -1,13 +1,42 @@
 #include "lua.hpp"
 #include "luabridge/LuaBridge.h"
+#include "luabridge/detail/LuaRef.h"
+#include "luabridge/Vector.h"
 #include "../interfaces.hpp"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
 #include "../menu/imgui/imgui_internal.h"
+#include "../sdk/entity.hpp"
+#include "../sdk/netvars.hpp"
 
 namespace Lua {
     LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
+
+    class LuaEntity {
+        public:
+        Entity* e;
+        uintptr_t ffiPtr() {return (uintptr_t)e;}
+        bool exists() {return e;}
+        bool dormant() {return e->dormant();}
+        bool sane() {return e && !e->dormant();}
+        int index() {return e->index();}
+        Vector origin() {return e->origin();}
+
+        template <typename T>
+        T getProp(const char* table, const char* varName) {
+            return *reinterpret_cast<T*>((uintptr_t)e + Netvars::netvars[std::pair<std::string_view, std::string_view>(table, varName)].second);
+        }
+
+        template <typename T>
+        void setProp(const char* table, const char* varName, T value) {
+            *reinterpret_cast<T*>((uintptr_t)e + Netvars::netvars[std::pair<std::string_view, std::string_view>(table, varName)].second) = value;
+        }
+
+        LuaEntity(Entity* ent) {
+            e = ent;
+        }
+    };
 
     namespace Cheat {
         void registerHook(const char* hook, const char* funcName) {
@@ -23,6 +52,35 @@ namespace Lua {
 
         void setCmd(CUserCmd cmd) {
             memcpy(curCmd, &cmd, sizeof(CUserCmd));
+        }
+
+        LuaEntity getEntity(int i) {
+            Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+            if (ent) {
+                return LuaEntity(ent);
+            }
+        }
+
+        std::vector<LuaEntity> getEntities() {
+            std::vector<LuaEntity> entities;
+            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
+                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+                if (ent) {
+                    entities.push_back(LuaEntity(ent));
+                }
+            }
+            return entities;
+        }
+
+        std::vector<LuaEntity> getEntitiesByClassID(int classID) {
+            std::vector<LuaEntity> entities;
+            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
+                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+                if (ent && ent->clientClass()->m_ClassID == classID) {
+                    entities.push_back(LuaEntity(ent));
+                }
+            }
+            return entities;
         }
     }
     namespace UI {
@@ -219,11 +277,36 @@ namespace Lua {
                 .addProperty("headangles", &CUserCmd::headangles)
                 .addProperty("headoffset", &CUserCmd::headoffset)
             .endClass()
+            .beginClass<LuaEntity>("Entity")
+                .addFunction("ffiPtr", &LuaEntity::ffiPtr)
+                .addFunction("exists", &LuaEntity::exists)
+                .addFunction("dormant", &LuaEntity::dormant)
+                .addFunction("sane", &LuaEntity::exists)
+                .addFunction("index", &LuaEntity::index)
+                .addFunction("origin", &LuaEntity::origin)
+                .addFunction("getPropBool", &LuaEntity::getProp<bool>)
+                .addFunction("getPropInt", &LuaEntity::getProp<int>)
+                .addFunction("getPropFloat", &LuaEntity::getProp<float>)
+                .addFunction("getPropFloat", &LuaEntity::getProp<float>)
+                .addFunction("getPropPtr", &LuaEntity::getProp<unsigned int>)
+                .addFunction("getPropQAngle", &LuaEntity::getProp<QAngle>)
+                .addFunction("getPropVector", &LuaEntity::getProp<Vector>)
+                .addFunction("setPropBool", &LuaEntity::setProp<bool>)
+                .addFunction("setPropInt", &LuaEntity::setProp<int>)
+                .addFunction("setPropFloat", &LuaEntity::setProp<float>)
+                .addFunction("setPropFloat", &LuaEntity::setProp<float>)
+                .addFunction("setPropPtr", &LuaEntity::setProp<unsigned int>)
+                .addFunction("setPropQAngle", &LuaEntity::setProp<QAngle>)
+                .addFunction("setPropVector", &LuaEntity::setProp<Vector>)
+            .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
                 .addFunction("getInterface", Cheat::getInterface)
                 .addFunction("getCmd", Cheat::getCmd)
                 .addFunction("setCmd", Cheat::setCmd)
+                .addFunction("getEntity", Cheat::getEntity)
+                .addFunction("getEntities", Cheat::getEntities)
+                .addFunction("getEntitiesByClassID", Cheat::getEntitiesByClassID)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)

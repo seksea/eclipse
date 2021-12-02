@@ -1,6 +1,7 @@
 #include "hooks.hpp"
 #include "util/log.hpp"
 #include "interfaces.hpp"
+#include "sdk/netvars.hpp"
 
 #include <dlfcn.h>
 #include <thread>
@@ -13,6 +14,7 @@ void mainThread() {
         usleep(500000);
     LOG("Loading csgo-cheat...");
     Interfaces::init();
+    Netvars::init();
     Hooks::init();
     LOG("Successfully loaded csgo-cheat!");
 }

@@ -14,6 +14,7 @@ namespace Interfaces {
         LOG("Initialising interfaces...");
         engine = getInterface<IVEngineClient>("./bin/linux64/engine_client.so", "VEngineClient");
         client = getInterface<IBaseClientDLL>("./csgo/bin/linux64/client_client.so", "VClient");
+        entityList = getInterface<IClientEntityList>("./csgo/bin/linux64/client_client.so", "VClientEntityList");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
