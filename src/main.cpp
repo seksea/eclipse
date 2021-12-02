@@ -3,6 +3,8 @@
 #include "interfaces.hpp"
 #include "sdk/netvars.hpp"
 
+#include <discord_rpc.h>
+
 #include <dlfcn.h>
 #include <thread>
 #include <string>

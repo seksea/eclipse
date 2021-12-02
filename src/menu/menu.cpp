@@ -7,6 +7,7 @@
 #include "fonts.hpp"
 #include "config.hpp"
 #include "../features/lua.hpp"
+#include "../features/discordrpc.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -70,6 +71,13 @@ namespace Menu {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
+
+        static float timeSinceLastTick = 0.f;
+        timeSinceLastTick += ImGui::GetIO().DeltaTime;
+        if (timeSinceLastTick > 5.f) {
+            DiscordRPC::tick(); // tick every 5 seconds for discord RPC
+            timeSinceLastTick = 0.f;
+        }
 
         Lua::curDrawList = ImGui::GetBackgroundDrawList();
         Lua::handleHook("draw");

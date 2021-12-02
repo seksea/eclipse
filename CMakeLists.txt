@@ -28,7 +28,7 @@ file(GLOB_RECURSE CSOURCES "${CMAKE_SOURCE_DIR}/src/*.c")
 list(APPEND SOURCES ${CSOURCES})
 
 include_directories(/usr/local/include /usr/include/freetype2)
-link_directories(/usr/local/lib)
+link_directories(/usr/local/lib src)
 
 add_library(csgo-cheat SHARED ${SOURCES})
-target_link_libraries(csgo-cheat dl pthread SDL2 GL freetype luajit-5.1)
+target_link_libraries(csgo-cheat dl pthread SDL2 GL freetype luajit-5.1 gamesdk)
