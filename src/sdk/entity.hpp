@@ -1,9 +1,11 @@
 #pragma once
 #include <cstdint>
-#include "vector.h"
+#include "math.hpp"
 #include "../util/memory.hpp"
 #include "../interfaces.hpp"
+#include "netvars.hpp"
 
+#include "allnetvars.hpp"
 class ICollideable {
 public:
 	virtual void pad0();
@@ -13,6 +15,7 @@ public:
 
 class Entity {
     public:
+	ALL_NETVARS;
 
 	void* networkable() {
 		return reinterpret_cast<void*>(uintptr_t(this) + 16);

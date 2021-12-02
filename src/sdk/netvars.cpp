@@ -32,8 +32,15 @@ namespace Netvars {
             dumpOffsetsFromTable(cur->m_pRecvTable);
         }
 
-        for (auto& nvar: netvars) {
-            LOG(" %s %s | %lx", nvar.first.first.data(), nvar.first.second.data(), nvar.second.second);
-        }
+        /*for (auto& nvar: netvars) {
+            printf("	NETVAR(\"%s\", \"%s\", n%s__%s, %s) \\\n", 
+				nvar.first.first.data(), nvar.first.second.data(),
+				nvar.first.first.data(), nvar.first.second.data(),
+				nvar.second.first->m_RecvType == DPT_Int ? "int" :
+				nvar.second.first->m_RecvType == DPT_Float ? "float" : 
+				nvar.second.first->m_RecvType == DPT_Vector ? "Vector" :
+				nvar.second.first->m_RecvType == DPT_VectorXY ? "QAngle" : "void*");
+        }*/
+		LOG("Initialised Netvars.");
     }
 }

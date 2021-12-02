@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "../../util/memory.hpp"
-#include "../vector.h"
+#include "../math.hpp"
 
 #define FULLUPDATE() Offsets::getLocalClient(-1)->m_nDeltaTick = -1
 
