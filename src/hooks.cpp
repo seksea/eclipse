@@ -31,8 +31,9 @@ namespace Hooks {
         cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
         cmd->viewangles.y = fmod(cmd->viewangles.y + 180.f, 360.f) - 180.f; // normalize y before clamping
-
-        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f); // clamp to avoid untrusted ban
+        
+        // clamp to avoid untrusted ban
+        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
         cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
         cmd->viewangles.z = 0.0f;
 

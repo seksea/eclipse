@@ -21,6 +21,7 @@ namespace Lua {
         bool dormant() {return e->dormant();}
         bool sane() {return e && !e->dormant();}
         int index() {return e->index();}
+        
         Vector origin() {return e->origin();}
 
         template <typename T>
@@ -42,17 +43,11 @@ namespace Lua {
         void registerHook(const char* hook, const char* funcName) {
             curEngineBeingRan->hooks.insert(std::pair<std::string, std::string>(hook, funcName));
         }
-        uintptr_t getInterface(const char* file, const char* name) {
-            return (uintptr_t)Interfaces::getInterface<void*>(file, name);
-        }
 
-        CUserCmd getCmd() {
-            return *curCmd;
-        }
+        uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
 
-        void setCmd(CUserCmd cmd) {
-            memcpy(curCmd, &cmd, sizeof(CUserCmd));
-        }
+        CUserCmd getCmd() { return *curCmd; }
+        void setCmd(CUserCmd cmd) { memcpy((void*)curCmd, (void*)&cmd, sizeof(CUserCmd)); }
 
         LuaEntity getEntity(int i) {
             Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
@@ -84,66 +79,26 @@ namespace Lua {
         }
     }
     namespace UI {
-        ImVec2 getMenuPos() {
-            return Menu::windowPos;
-        }
-        ImVec2 getMenuSize() {
-            return Menu::windowSize;
-        }
-        bool isMenuOpen() {
-            return Menu::menuOpen;
-        }
-        bool getConfigBool(const char* var) {
-            return CONFIGBOOL(var);
-        }
-        void setConfigBool(const char* var, bool val) {
-            CONFIGBOOL(var) = val;
-        }
-        float getConfigFloat(const char* var) {
-            return CONFIGFLOAT(var);
-        }
-        void setConfigFloat(const char* var, float val) {
-            CONFIGFLOAT(var) = val;
-        }
-        int getConfigInt(const char* var) {
-            return CONFIGINT(var);
-        }
-        void setConfigInt(const char* var, int val) {
-            CONFIGINT(var) = val;
-        }
-        const char* getConfigStr(const char* var) {
-            return CONFIGSTR(var).c_str();
-        }
-        void setConfigStr(const char* var, const char* val) {
-            CONFIGSTR(var) = val;
-        }
-        ImColor getConfigCol(const char* var) {
-            return CONFIGCOL(var);
-        }
-        void setConfigCol(const char* var, ImColor val) {
-            CONFIGCOL(var) = val;
-        }
-        void beginWindow(const char* title) {
-            ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus);
-        }
-        void endWindow() {
-            ImGui::End();
-        }
-        void sameLine() {
-            ImGui::SameLine();
-        }
-        void columns(int count, bool border) {
-            ImGui::Columns(count, nullptr, border);
-        }
-        void nextColumn() {
-            ImGui::NextColumn();
-        }
-        void separator() {
-            ImGui::Separator();
-        }
-        void label(const char* label) {
-            ImGui::TextWrapped("%s", label);
-        }
+        ImVec2 getMenuPos() { return Menu::windowPos; }
+        ImVec2 getMenuSize() { return Menu::windowSize; }
+        bool isMenuOpen() { return Menu::menuOpen; }
+        bool getConfigBool(const char* var) { return CONFIGBOOL(var); }
+        void setConfigBool(const char* var, bool val) { CONFIGBOOL(var) = val; }
+        float getConfigFloat(const char* var) { return CONFIGFLOAT(var); }
+        void setConfigFloat(const char* var, float val) { CONFIGFLOAT(var) = val; }
+        int getConfigInt(const char* var) { return CONFIGINT(var); }
+        void setConfigInt(const char* var, int val) { CONFIGINT(var) = val; }
+        const char* getConfigStr(const char* var) { return CONFIGSTR(var).c_str(); }
+        void setConfigStr(const char* var, const char* val) { CONFIGSTR(var) = val; }
+        ImColor getConfigCol(const char* var) { return CONFIGCOL(var); }
+        void setConfigCol(const char* var, ImColor val) { CONFIGCOL(var) = val; }
+        void beginWindow(const char* title) { ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus); }
+        void endWindow() { ImGui::End(); }
+        void sameLine() { ImGui::SameLine(); }
+        void columns(int count, bool border) { ImGui::Columns(count, nullptr, border); }
+        void nextColumn() { ImGui::NextColumn(); }
+        void separator() { ImGui::Separator(); }
+        void label(const char* label) { ImGui::TextWrapped("%s", label); }
         bool checkbox(const char* label, const char* configVarName) {
             ImGui::Checkbox(label, &CONFIGBOOL(configVarName));
             return CONFIGBOOL(configVarName);
@@ -204,6 +159,7 @@ namespace Lua {
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
+        ImVec2 calcTextSize(const char* text)                                                             { return ImGui::CalcTextSize(text); }
         void text(ImVec2 pos, ImColor color, const char* text)                                          { curDrawList->AddText(pos, color, text); }
         void shadowText(ImVec2 pos, ImColor color, const char* text) {
             curDrawList->AddText(ImVec2(pos.x + 1, pos.y + 1), ImColor(0, 0, 0), text);
@@ -347,6 +303,7 @@ namespace Lua {
                 .addFunction("circle", Draw::circle)
                 .addFunction("filledCircle", Draw::filledCircle)
 
+                .addFunction("calcTextSize", Draw::calcTextSize)
                 .addFunction("text", Draw::text)
                 .addFunction("shadowText", Draw::shadowText)
                 .addFunction("outlineText", Draw::outlineText)
