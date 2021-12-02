@@ -1,8 +1,6 @@
 {
-    "invites" : [
-        
-    ],
-    "users" : {
+    "invites": {},
+    "users": {
         "679310900951253043": {
             "uid": 0,
             "invitedBy": "679310900951253043",
@@ -23,6 +21,22 @@
             "uid": 2,
             "invitedBy": "679310900951253043",
             "joinTime": 1638456526,
+            "subEnd": 0,
+            "banned": false,
+            "banReason": ""
+        },
+        "233663417502793741": {
+            "uid": 3,
+            "invitedBy": "679310900951253043",
+            "joinTime": 1638482066,
+            "subEnd": 0,
+            "banned": false,
+            "banReason": ""
+        },
+        "629371788354256898": {
+            "uid": 4,
+            "invitedBy": "679310900951253043",
+            "joinTime": 1638479275,
             "subEnd": 0,
             "banned": false,
             "banReason": ""
