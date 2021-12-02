@@ -11,7 +11,7 @@ namespace DiscordRPC {
         }
         discord::Activity activity{};
         activity.SetState("");
-        activity.SetDetails(Interfaces::engine->isInGame() ? Interfaces::engine->getLevelName() : "In the lobby.");
+        activity.SetDetails(Interfaces::engine->isInGame() ? Interfaces::engine->getLevelName() : "in the lobby");
         activity.GetAssets().SetLargeImage("eclipselogo");
         activity.GetAssets().SetLargeText("eclipse.wtf");
         activity.GetAssets().SetSmallImage(Interfaces::engine->isInGame() ? Interfaces::engine->getLevelName() : "");
