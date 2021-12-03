@@ -8,6 +8,7 @@
 #include "config.hpp"
 #include "../features/lua.hpp"
 #include "../features/discordrpc.hpp"
+#include "../sdk/entity.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -88,6 +89,17 @@ namespace Menu {
 
         if (ImGui::IsKeyPressed(SDL_SCANCODE_HOME, false)) {
             menuOpen = !menuOpen;
+        }
+
+        for (int i = 1; i < 20; i++) {
+            Entity* e = (Entity*)Interfaces::entityList->getClientEntity(i);
+            if (e) {
+                if (!e->dormant()) {
+                    ImVec4 bbox = getBoundingBox(e);
+                    if (bbox.x > 0)
+                        ImGui::GetBackgroundDrawList()->AddRect(ImVec2(bbox.x, bbox.y), ImVec2(bbox.z, bbox.w), ImColor(255, 255, 255, 255));
+                }
+            }
         }
 
         if (menuOpen) {

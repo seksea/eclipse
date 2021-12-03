@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "../menu/imgui/imgui.h"
 
 #pragma once
 
@@ -1639,3 +1640,5 @@ public:
 	float x, y, z, w;
 };
 
+class Entity;
+ImVec4 getBoundingBox(Entity* e);

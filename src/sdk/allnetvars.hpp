@@ -100,7 +100,7 @@
 	NETVAR("DT_BaseCombatWeapon", "m_iWorldModelIndex", nDT_BaseCombatWeapon__m_iWorldModelIndex, int) \
 	NETVAR("DT_BaseDoor", "m_flWaveHeight", nDT_BaseDoor__m_flWaveHeight, float) \
 	NETVAR("DT_BaseEntity", "AnimTimeMustBeFirst", nDT_BaseEntity__AnimTimeMustBeFirst, void*) \
-	NETVAR("DT_BaseEntity", "m_Collision", nDT_BaseEntity__m_Collision, void*) \
+	NETVAR("DT_BaseEntity", "m_Collision", nDT_BaseEntity__m_Collision, ICollideable) \
 	NETVAR("DT_BaseEntity", "m_CollisionGroup", nDT_BaseEntity__m_CollisionGroup, int) \
 	NETVAR("DT_BaseEntity", "m_angRotation", nDT_BaseEntity__m_angRotation, Vector) \
 	NETVAR("DT_BaseEntity", "m_bAlternateSorting", nDT_BaseEntity__m_bAlternateSorting, int) \
