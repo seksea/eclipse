@@ -1,8 +1,5 @@
 {
     "invites": {
-        "ecljs!30X.4YECtDqm2dBbAtFEkj!HVaQid": {
-            "owner": 679310900951253043
-        }
     },
     "users": {
         "679310900951253043": {
@@ -32,7 +29,7 @@
         "233663417502793741": {
             "uid": 3,
             "invitedBy": "679310900951253043",
-            "joinTime": 1638482066,
+            "joinTime": 1638533651,
             "subEnd": 0,
             "banned": false,
             "banReason": ""

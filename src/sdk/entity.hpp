@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <vector>
+#include <mutex>
 #include "math.hpp"
 #include "../util/memory.hpp"
 #include "../interfaces.hpp"
@@ -56,4 +58,9 @@ namespace EntityCache {
 			boundingBox = getBoundingBox(e);
 		}
 	};
+	
+	inline std::vector<CachedEntity> entityCache;
+	inline std::mutex entityCacheLock;
+
+	void cacheEntities();
 }

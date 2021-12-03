@@ -134,6 +134,7 @@ public:
 	float x, y, z;
 	Vector(void);
 	Vector(float X, float Y, float Z);
+    Vector(const float* clr);
 	void Init(float ix = 0.0f, float iy = 0.0f, float iz = 0.0f);
 	bool IsValid() const;
 	float operator[](int i) const;
@@ -192,6 +193,13 @@ inline Vector::Vector(float X, float Y, float Z)
 {
 	x = X; y = Y; z = Z;
 	CHECK_VALID(*this);
+}
+//===============================================
+inline Vector::Vector(const float* clr)
+{
+	x = clr[0];
+	y = clr[1];
+	z = clr[2];
 }
 //===============================================
 inline Vector::Vector(void){ Zero(); }
@@ -1639,6 +1647,13 @@ public:
 
 	float x, y, z, w;
 };
+
+inline void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& out)
+{
+    out[0] = in1.Dot(in2[0]) + in2[0][3];
+    out[1] = in1.Dot(in2[1]) + in2[1][3];
+    out[2] = in1.Dot(in2[2]) + in2[2][3];
+}
 
 class Entity;
 ImVec4 getBoundingBox(Entity* e);

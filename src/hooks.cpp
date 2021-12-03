@@ -1,27 +1,35 @@
 #include <algorithm>
+#include <unistd.h>
 
 #include "hooks.hpp"
 #include "util/log.hpp"
 #include "util/memory.hpp"
 #include "interfaces.hpp"
+#include "sdk/entity.hpp"
+#include "menu/menu.hpp"
 #include "features/lua.hpp"
 
 namespace Hooks {
     void init() {
         SDL::initSDL();
 
+        while (!Menu::initialised)
+            usleep(500000);
+
         LOG(" Hooking CreateMove...");
         CreateMove::original = (CreateMove::func)Memory::VMT::hook(Interfaces::clientMode, (void*)CreateMove::hook, 25);
     }
 
     void unload() {
+        SDL::unloadSDL();
         LOG(" Unhooking CreateMove...");
         Memory::VMT::hook(Interfaces::clientMode, (void*)CreateMove::original, 25);
-        SDL::unloadSDL();
     }
 
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
+
+        EntityCache::cacheEntities();
 
         Lua::curCmd = cmd;
         Lua::handleHook("createMove");

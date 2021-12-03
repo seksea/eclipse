@@ -75,6 +75,7 @@ async def on_message(message : discord.Message):
             if message.content[1:].lower().startswith("useinvite"):
                 db = loadDb()
                 if message.content.split(" ")[1] in db["invites"]:
+                    db["invites"].remove(message.content.split(" ")[1])
                     db["users"][str(message.author.id)] = {
                         "uid" : getHighestUid(db["users"]) + 1,
                         "invitedBy" : db["invites"][message.content.split(" ")[1]]["owner"],

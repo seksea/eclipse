@@ -26,8 +26,6 @@ void __attribute__((destructor)) unload() {
     LOG("Unloading csgo-cheat...");
     Hooks::unload();
     LOG("Unloaded csgo-cheat!");
-    DiscordRPC::core->~Core();
-    delete DiscordRPC::core;
 }
 #endif
 

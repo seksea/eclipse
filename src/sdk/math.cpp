@@ -25,42 +25,49 @@ bool worldToScreen( const Vector& origin, Vector& screen ) {
 ImVec4 getBoundingBox(Entity* e) {
 	Vector flb, brt, blb, frt, frb, brb, blt, flt; // think of these as Front-Left-Bottom/Front-Left-Top... Etc.
 
-	Vector min = e->nDT_BaseEntity__m_Collision().OBBMins() + e->origin();
-	Vector max = e->nDT_BaseEntity__m_Collision().OBBMaxs() + e->origin();
+	Vector min = e->nDT_BaseEntity__m_Collision().OBBMins();
+	Vector max = e->nDT_BaseEntity__m_Collision().OBBMaxs();
+	matrix3x4_t coordinateFrame = e->coordinateFrame();
 
-	Vector points[] = { Vector( min.x, min.y, min.z ),
-						Vector( min.x, max.y, min.z ),
-						Vector( max.x, max.y, min.z ),
-						Vector( max.x, min.y, min.z ),
-						Vector( max.x, max.y, max.z ),
-						Vector( min.x, max.y, max.z ),
-						Vector( min.x, min.y, max.z ),
-						Vector( max.x, min.y, max.z ) };
+    Vector points[] = {
+        Vector(min.x, min.y, min.z),
+        Vector(min.x, max.y, min.z),
+        Vector(max.x, max.y, min.z),
+        Vector(max.x, min.y, min.z),
+        Vector(max.x, max.y, max.z),
+        Vector(min.x, max.y, max.z),
+        Vector(min.x, min.y, max.z),
+        Vector(max.x, min.y, max.z)
+    };
 
-	// Get screen positions
-	if ( !worldToScreen( points[3], flb ) || !worldToScreen( points[5], brt )
-		 || !worldToScreen( points[0], blb ) || !worldToScreen( points[4], frt )
-		 || !worldToScreen( points[2], frb ) || !worldToScreen( points[1], brb )
-		 || !worldToScreen( points[6], blt ) || !worldToScreen( points[7], flt ) )
-		return ImVec4(-1000, -1000, -1000, -1000);
+    Vector pointsTransformed[8] = {};
+    for (int i = 0; i < 8; i++) {
+        VectorTransform(points[i], coordinateFrame, pointsTransformed[i]);
+    }
 
-	Vector arr[] = { flb, brt, blb, frt, frb, brb, blt, flt };
+    Vector screen_points[8] = {};
 
-	float left = flb.x;
-	float top = flb.y;
-	float right = flb.x;
-	float bottom = flb.y;
+    for (int i = 0; i < 8; i++) {
+        if (!worldToScreen(pointsTransformed[i], screen_points[i])) {
+            return ImVec4(-1, -1, -1, -1);
+        }
+    }
 
-	for ( int i = 1; i < 8; i++ ) {
-		if (left > arr[i].x)
-			left = arr[i].x;
-		if (bottom < arr[i].y)
-			bottom = arr[i].y;
-		if (right < arr[i].x)
-			right = arr[i].x;
-		if (top > arr[i].y)
-			top = arr[i].y;
-	}
+    auto left = screen_points[0].x;
+    auto top = screen_points[0].y;
+    auto right = screen_points[0].x;
+    auto bottom = screen_points[0].y;
 
-	return ImVec4(left, top, right, bottom);
+    for (int i = 0; i < 8; i++) {
+        if (left > screen_points[i].x)
+            left = screen_points[i].x;
+        if (top < screen_points[i].y)
+            top = screen_points[i].y;
+        if (right < screen_points[i].x)
+            right = screen_points[i].x;
+        if (bottom > screen_points[i].y)
+            bottom = screen_points[i].y;
+    }
+    
+    return ImVec4(left, top, right, bottom);
 }
