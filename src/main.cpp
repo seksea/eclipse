@@ -2,8 +2,7 @@
 #include "util/log.hpp"
 #include "interfaces.hpp"
 #include "sdk/netvars.hpp"
-
-#include <discord_rpc.h>
+#include "features/discordrpc.hpp"
 
 #include <dlfcn.h>
 #include <thread>
@@ -27,6 +26,8 @@ void __attribute__((destructor)) unload() {
     LOG("Unloading csgo-cheat...");
     Hooks::unload();
     LOG("Unloaded csgo-cheat!");
+    DiscordRPC::core->~Core();
+    delete DiscordRPC::core;
 }
 #endif
 

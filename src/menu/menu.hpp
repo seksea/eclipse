@@ -5,6 +5,7 @@ namespace Menu {
     inline bool initialised = false;
     inline bool menuOpen = true;
     inline int curTab = 0;
+    inline char curConfigLoaded[128] = "";
 
     inline ImVec2 windowPos, windowSize;
 

@@ -238,11 +238,13 @@ namespace Menu {
                     ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                     ImGui::InputText("##cfgname", Config::selectedCfg, sizeof(Config::selectedCfg));
                     if (ImGui::Button("save", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                        strcpy(curConfigLoaded, Config::selectedCfg);
                         Config::saveConfig(Config::selectedCfg);
                         Config::refreshConfigList();
                     }
                     ImGui::SameLine();
                     if (ImGui::Button("load", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
+                        strcpy(curConfigLoaded, Config::selectedCfg);
                         Config::loadConfig(Config::selectedCfg);
                         Config::refreshConfigList();
                     }

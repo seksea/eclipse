@@ -1,5 +1,6 @@
 #include "discordrpc.hpp"
 #include "../interfaces.hpp"
+#include "../menu/menu.hpp"
 #include <chrono>
 
 namespace DiscordRPC {
@@ -10,7 +11,12 @@ namespace DiscordRPC {
             init = true;
         }
         discord::Activity activity{};
-        activity.SetState("");
+        char stateStr[256] = "";
+        if (strlen(Menu::curConfigLoaded) > 0) {
+            strcat(stateStr, "loaded config: ");
+            strcat(stateStr, Menu::curConfigLoaded);
+        }
+        activity.SetState(stateStr);
         activity.SetDetails(Interfaces::engine->isInGame() ? Interfaces::engine->getLevelName() : "in the lobby");
         activity.GetAssets().SetLargeImage("eclipselogo");
         activity.GetAssets().SetLargeText("eclipse.wtf");
