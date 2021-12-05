@@ -69,6 +69,7 @@ public:
     VFUNC(void, getScreenSize, 5, (int& w, int& h), (this, &w, &h))
     VFUNC(bool, getPlayerInfo, 8, (int entityIndex, PlayerInfo& playerInfo), (this, entityIndex, &playerInfo))
     VFUNC(int, getPlayerForUserID, 9, (int userId), (this, userId))
+    VFUNC(int, getLocalPlayer, 12, (), (this))
     VFUNC(void, getViewAngles, 18, (Vector& angles), (this, &angles))
     VFUNC(int, getMaxClients, 20, (), (this))
     VFUNC(bool, isInGame, 26, (), (this))

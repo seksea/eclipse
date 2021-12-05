@@ -42,9 +42,12 @@ class Entity {
 };
 
 namespace EntityCache {
+	inline Entity* localPlayer;
+
 	struct CachedEntity {
 		int index;
 		int health;
+		bool teammate;
 		Vector origin;
 		int classID;
 		PlayerInfo info;
@@ -52,6 +55,7 @@ namespace EntityCache {
 		CachedEntity(Entity* e) {
 			this->index = e->index();
 			this->health = e->nDT_BasePlayer__m_iHealth();
+			this->teammate = e->nDT_BaseEntity__m_iTeamNum() == localPlayer->nDT_BaseEntity__m_iTeamNum();
 			this->origin = e->origin();
 			this->classID = e->clientClass()->m_ClassID;
 			Interfaces::engine->getPlayerInfo(this->index, this->info);

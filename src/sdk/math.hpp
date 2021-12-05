@@ -1657,3 +1657,4 @@ inline void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& o
 
 class Entity;
 ImVec4 getBoundingBox(Entity* e);
+bool worldToScreen(const Vector& origin, Vector& screen);

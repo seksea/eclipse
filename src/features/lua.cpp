@@ -8,6 +8,7 @@
 #include "../menu/menu.hpp"
 #include "../menu/imgui/imgui_internal.h"
 #include "../sdk/entity.hpp"
+#include "../sdk/math.hpp"
 #include "../sdk/netvars.hpp"
 
 namespace Lua {
@@ -21,6 +22,7 @@ namespace Lua {
         bool dormant() {return e->dormant();}
         bool sane() {return e && !e->dormant();}
         int index() {return e->index();}
+        ImVec4 getBBox() {return getBoundingBox(e);}
         
         Vector origin() {return e->origin();}
 
@@ -77,6 +79,7 @@ namespace Lua {
             }
             return entities;
         }
+        ImVec2 _worldToScreen(Vector pos) { Vector screenPos; worldToScreen(pos, screenPos); return ImVec2(screenPos.x, screenPos.y); }
     }
     namespace UI {
         ImVec2 getMenuPos() { return Menu::windowPos; }
@@ -159,7 +162,7 @@ namespace Lua {
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
-        ImVec2 calcTextSize(const char* text)                                                             { return ImGui::CalcTextSize(text); }
+        ImVec2 calcTextSize(const char* text)                                                           { return ImGui::CalcTextSize(text); }
         void text(ImVec2 pos, ImColor color, const char* text)                                          { curDrawList->AddText(pos, color, text); }
         void shadowText(ImVec2 pos, ImColor color, const char* text) {
             curDrawList->AddText(ImVec2(pos.x + 1, pos.y + 1), ImColor(0, 0, 0), text);
@@ -240,6 +243,7 @@ namespace Lua {
                 .addFunction("sane", &LuaEntity::exists)
                 .addFunction("index", &LuaEntity::index)
                 .addFunction("origin", &LuaEntity::origin)
+                .addFunction("getBBox", &LuaEntity::getBBox)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
                 .addFunction("getPropFloat", &LuaEntity::getProp<float>)
@@ -263,6 +267,7 @@ namespace Lua {
                 .addFunction("getEntity", Cheat::getEntity)
                 .addFunction("getEntities", Cheat::getEntities)
                 .addFunction("getEntitiesByClassID", Cheat::getEntitiesByClassID)
+                .addFunction("worldToScreen", Cheat::_worldToScreen)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)
@@ -315,6 +320,7 @@ namespace Lua {
     }
 
     void handleHook(const char* hook) {
+        std::lock_guard<std::mutex> lock(luaLock);
         for (auto& engine : scripts) {
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
                 luabridge::LuaRef funcRef = luabridge::getGlobal(engine.second.state, engine.second.hooks.at(hook).c_str());

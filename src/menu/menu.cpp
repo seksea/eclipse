@@ -14,6 +14,7 @@
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
 #define CHECKBOX(name, var) ImGui::Checkbox(name, var)
+#define COLORPICKER(name, var) ImGui::ColorEdit4(name, (float*)&var.Value, ImGuiColorEditFlags_NoInputs);
 
 namespace Menu {
     void onPollEvent(SDL_Event* event, const int result) {
@@ -159,11 +160,17 @@ namespace Menu {
                     ImGui::PopStyleVar();
 
                     switch (curSubTab) {
-                        case 0: {
+                        case 0: { // Enemy
                             ImGui::SetCursorPos(ImVec2(6, 42));
 
                             BEGINGROUPBOX("ESP", ImVec2(216, 351));
-                            
+                                COLORPICKER("##box color", CONFIGCOL("enemy esp box color"));
+                                ImGui::SameLine();
+                                CHECKBOX("box", &CONFIGBOOL("enemy esp box"));
+
+                                COLORPICKER("##name color", CONFIGCOL("enemy esp name color"));
+                                ImGui::SameLine();
+                                CHECKBOX("name", &CONFIGBOOL("enemy esp name"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -173,10 +180,17 @@ namespace Menu {
                             ENDGROUPBOX();
                             break;
                         }
-                        case 1: {
+                        case 1: { // Team
                             ImGui::SetCursorPos(ImVec2(6, 42));
 
                             BEGINGROUPBOX("ESP", ImVec2(216, 351));
+                                COLORPICKER("##box color", CONFIGCOL("team esp box color"));
+                                ImGui::SameLine();
+                                CHECKBOX("box", &CONFIGBOOL("team esp box"));
+
+                                COLORPICKER("##name color", CONFIGCOL("team esp name color"));
+                                ImGui::SameLine();
+                                CHECKBOX("name", &CONFIGBOOL("team esp name"));
                             
                             ENDGROUPBOX();
 

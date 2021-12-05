@@ -2,7 +2,7 @@
 #include "entity.hpp"
 #include "../menu/imgui/imgui.h"
 
-bool worldToScreen( const Vector& origin, Vector& screen ) {
+bool worldToScreen(const Vector& origin, Vector& screen) {
     VMatrix w2sm = Interfaces::engine->worldToScreenMatrix();
 	float w = w2sm[3][0] * origin.x
 			  + w2sm[3][1] * origin.y
@@ -61,13 +61,13 @@ ImVec4 getBoundingBox(Entity* e) {
     for (int i = 0; i < 8; i++) {
         if (left > screen_points[i].x)
             left = screen_points[i].x;
-        if (top < screen_points[i].y)
-            top = screen_points[i].y;
+        if (bottom < screen_points[i].y)
+            bottom = screen_points[i].y;
         if (right < screen_points[i].x)
             right = screen_points[i].x;
-        if (bottom > screen_points[i].y)
-            bottom = screen_points[i].y;
+        if (top > screen_points[i].y)
+            top = screen_points[i].y;
     }
     
-    return ImVec4(left, top, right, bottom);
+    return ImVec4(floor(left), floor(top), floor(right), floor(bottom));
 }

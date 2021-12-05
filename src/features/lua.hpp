@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <string.h>
 #include <map>
+#include <mutex>
 
 #include <luajit-2.0/lua.hpp>
 #include <luajit-2.0/lualib.h>
@@ -15,6 +16,8 @@
 namespace Lua {
     inline ImDrawList* curDrawList;
     inline CUserCmd* curCmd;
+
+    inline std::mutex luaLock;
 
     class LuaEngine {
         public:
