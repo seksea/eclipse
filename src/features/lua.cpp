@@ -169,10 +169,10 @@ namespace Lua {
             curDrawList->AddText(pos, color, text);
         }
         void outlineText(ImVec2 pos, ImColor color, const char* text) {
-            curDrawList->AddText(ImVec2(pos.x - 1, pos.y), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x + 1, pos.y), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x, pos.y - 1), ImColor(0, 0, 0), text);
-            curDrawList->AddText(ImVec2(pos.x, pos.y + 1), ImColor(0, 0, 0), text);
+            curDrawList->AddText(ImVec2(pos.x - 1, pos.y), ImColor(0.f, 0.f, 0.f, color.Value.w / 2), text);
+            curDrawList->AddText(ImVec2(pos.x + 1, pos.y), ImColor(0.f, 0.f, 0.f, color.Value.w / 2), text);
+            curDrawList->AddText(ImVec2(pos.x, pos.y - 1), ImColor(0.f, 0.f, 0.f, color.Value.w / 2), text);
+            curDrawList->AddText(ImVec2(pos.x, pos.y + 1), ImColor(0.f, 0.f, 0.f, color.Value.w / 2), text);
             curDrawList->AddText(pos, color, text);
         }
 

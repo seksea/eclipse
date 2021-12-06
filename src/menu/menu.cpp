@@ -171,6 +171,10 @@ namespace Menu {
                                 COLORPICKER("##name color", CONFIGCOL("enemy esp name color"));
                                 ImGui::SameLine();
                                 CHECKBOX("name", &CONFIGBOOL("enemy esp name"));
+
+                                COLORPICKER("##healthbar color", CONFIGCOL("enemy esp healthbar color"));
+                                ImGui::SameLine();
+                                CHECKBOX("healthbar", &CONFIGBOOL("enemy esp healthbar"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -192,6 +196,9 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("name", &CONFIGBOOL("team esp name"));
                             
+                                COLORPICKER("##healthbar color", CONFIGCOL("team esp healthbar color"));
+                                ImGui::SameLine();
+                                CHECKBOX("healthbar", &CONFIGBOOL("team esp healthbar"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
