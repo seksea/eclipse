@@ -7,6 +7,7 @@
 #include "sdk/interfaces/ivengineclient.hpp"
 #include "sdk/interfaces/icliententitylist.hpp"
 #include "sdk/interfaces/ibaseclientdll.hpp"
+#include "sdk/interfaces/icvar.hpp"
 
 #include "sdk/interfaces/iclientmode.hpp"
 
@@ -17,6 +18,7 @@ namespace Interfaces {
     inline IVEngineClient* engine;
     inline IBaseClientDLL* client;
     inline IClientEntityList* entityList;
+    inline ICvar* cvar;
 
     inline IClientMode* clientMode;
 

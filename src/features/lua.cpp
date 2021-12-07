@@ -41,6 +41,20 @@ namespace Lua {
         }
     };
 
+    class LuaConvar {
+        public:
+        Convar* c;
+        uintptr_t ffiPtr() {return (uintptr_t)c;}
+        float getFloat() {return c->getFloat();}
+        int getInt() {return c->getInt();}
+        void setString(const char* val) {c->setString(val);}
+        void setFloat(float val) {c->setFloat(val);}
+        void setInt(int val) {c->setInt(val);}
+        LuaConvar(Convar* convar) {
+            c = convar;
+        }
+    };
+
     namespace Cheat {
         void registerHook(const char* hook, const char* funcName) {
             curEngineBeingRan->hooks.insert(std::pair<std::string, std::string>(hook, funcName));
@@ -78,6 +92,10 @@ namespace Lua {
                 }
             }
             return entities;
+        }
+
+        LuaConvar getConvar(const char* name) {
+            return LuaConvar(Interfaces::cvar->findVar(name));
         }
         ImVec2 _worldToScreen(Vector pos) { Vector screenPos; worldToScreen(pos, screenPos); return ImVec2(screenPos.x, screenPos.y); }
     }
@@ -259,6 +277,14 @@ namespace Lua {
                 .addFunction("setPropQAngle", &LuaEntity::setProp<QAngle>)
                 .addFunction("setPropVector", &LuaEntity::setProp<Vector>)
             .endClass()
+            .beginClass<LuaConvar>("Convar")
+                .addFunction("ffiPtr", &LuaConvar::ffiPtr)
+                .addFunction("getFloat", &LuaConvar::getFloat)
+                .addFunction("getInt", &LuaConvar::getInt)
+                .addFunction("setString", &LuaConvar::setString)
+                .addFunction("setFloat", &LuaConvar::setFloat)
+                .addFunction("setInt", &LuaConvar::setInt)
+            .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)
                 .addFunction("getInterface", Cheat::getInterface)
@@ -267,6 +293,7 @@ namespace Lua {
                 .addFunction("getEntity", Cheat::getEntity)
                 .addFunction("getEntities", Cheat::getEntities)
                 .addFunction("getEntitiesByClassID", Cheat::getEntitiesByClassID)
+                .addFunction("getConvar", Cheat::getConvar)
                 .addFunction("worldToScreen", Cheat::_worldToScreen)
             .endNamespace()
             .beginNamespace("ui")
