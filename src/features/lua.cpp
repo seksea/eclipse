@@ -22,6 +22,8 @@ namespace Lua {
         bool dormant() {return e->dormant();}
         bool sane() {return e && !e->dormant();}
         int index() {return e->index();}
+        int classID() {return e->clientClass()->m_ClassID;}
+        const char* networkName() {return e->clientClass()->m_pNetworkName;}
         ImVec4 getBBox() {return getBoundingBox(e);}
         
         Vector origin() {return e->origin();}
@@ -261,6 +263,8 @@ namespace Lua {
                 .addFunction("sane", &LuaEntity::exists)
                 .addFunction("index", &LuaEntity::index)
                 .addFunction("origin", &LuaEntity::origin)
+                .addFunction("classID", &LuaEntity::classID)
+                .addFunction("networkName", &LuaEntity::networkName)
                 .addFunction("getBBox", &LuaEntity::getBBox)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)

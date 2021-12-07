@@ -340,6 +340,7 @@ namespace Menu {
                             }
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
+                                    Lua::handleHook("unload");
                                     Lua::scripts.erase(file);
                                 }
                             }
