@@ -10,6 +10,7 @@
 #include "../sdk/entity.hpp"
 #include "../sdk/math.hpp"
 #include "../sdk/netvars.hpp"
+#include "chams.hpp"
 
 namespace Lua {
     LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
@@ -298,6 +299,9 @@ namespace Lua {
                 .addFunction("getEntities", Cheat::getEntities)
                 .addFunction("getEntitiesByClassID", Cheat::getEntitiesByClassID)
                 .addFunction("getConvar", Cheat::getConvar)
+                .addFunction("patternScan", Memory::patternScan)
+                .addFunction("addMaterial", Chams::addMaterial)
+                .addFunction("removeMaterial", Chams::removeMaterial)
                 .addFunction("worldToScreen", Cheat::_worldToScreen)
             .endNamespace()
             .beginNamespace("ui")

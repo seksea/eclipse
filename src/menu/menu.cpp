@@ -11,6 +11,7 @@
 #include "../features/esp.hpp"
 #include "../features/chams.hpp"
 #include "../sdk/entity.hpp"
+#include "../features/luabridge/LuaBridge.h"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -346,7 +347,15 @@ namespace Menu {
                             }
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
-                                    Lua::handleHook("unload");
+                                    if (Lua::scripts[file].hooks.find("unload") != Lua::scripts[file].hooks.end()) {
+                                        luabridge::LuaRef funcRef = luabridge::getGlobal(Lua::scripts[file].state, Lua::scripts[file].hooks.at("unload").c_str());
+                                        try {
+                                            funcRef();
+                                        }
+                                        catch (luabridge::LuaException const& e) {
+                                            ERR("lua error (%s): %s", file, e.what());
+                                        }
+                                    }
                                     Lua::scripts.erase(file);
                                 }
                             }

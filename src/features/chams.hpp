@@ -1,11 +1,34 @@
 #pragma once
 #include "../interfaces.hpp"
+#include "../sdk/keyvalues.hpp"
 #include <map>
 #include <string>
 #include <vector>
 
 namespace Chams {
     inline std::map<std::string_view, IMaterial*> materials;
+
+    inline IMaterial* createMaterial(const char* materialName, const char* materialType, const char* material) {
+        KeyValues* keyValues = new KeyValues(materialName);
+
+        typedef void (*InitKeyValues)(KeyValues*, const char*);
+        static InitKeyValues initKeyValues = (InitKeyValues)Memory::patternScan("/client_client.so", "81 27 00 00 00 FF 55 31 C0 48 89 E5 5D");
+        initKeyValues(keyValues, materialType);
+
+        typedef void (*LoadFromBuffer)(KeyValues*, const char*, const char*, void*, const char*, void*);
+        static LoadFromBuffer loadFromBuffer = (LoadFromBuffer)Memory::patternScan("/client_client.so", "55 48 89 E5 41 57 41 56 41 55 41 54 49 89 D4 53 48 81 EC ? ? ? ? 48 85");
+        loadFromBuffer(keyValues, materialName, material, nullptr, nullptr, nullptr);
+
+        return Interfaces::materialSystem->createMaterial(materialName, keyValues);
+    }
+
+    inline void addMaterial(const char* materialName, const char* materialType, const char* material) {
+        materials[materialName] = createMaterial(materialName, materialType, material);
+    }
+    
+    inline void removeMaterial(const char* materialName) {
+        materials.erase(materialName);
+    }
 
     inline void chamsCombo(const char* label, std::string& var, ImColor& col) {
         ImGui::Text("%s", label);

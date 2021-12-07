@@ -32,6 +32,15 @@ namespace Chams {
         materials["normal"] = Interfaces::materialSystem->findMaterial("debug/debugambientcube", nullptr);
         materials["flat"] = Interfaces::materialSystem->findMaterial("debug/debugdrawflat", nullptr);
         materials["plastic"] = Interfaces::materialSystem->findMaterial("models/inventory_items/trophy_majors/gloss", nullptr);
+        addMaterial("eso glow", "VertexLitGeneric", 
+        R"#("VertexLitGeneric" {
+            "$additive" "1"
+            "$envmap" "models/effects/cube_white"
+            "$envmaptint" "[1 1 1]"
+            "$envmapfresnel" "1"
+            "$envmapfresnelminmaxexp" "[0 1 2]"
+            "$alpha" "0.8"
+        })#");
     }
 
     void doChams(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld) {
@@ -52,7 +61,7 @@ namespace Chams {
                 chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("ignorez chams color"), ENEMYTEAMCONFIGSTR("ignorez chams material"), true);
 
             chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("chams color"), ENEMYTEAMCONFIGSTR("chams material"));
-            
+
             if (ENEMYTEAMCONFIGSTR("overlay chams material").length() > 0)
                 chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("overlay chams color"), ENEMYTEAMCONFIGSTR("overlay chams material"));
         }
