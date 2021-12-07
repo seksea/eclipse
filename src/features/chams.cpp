@@ -2,6 +2,7 @@
 #include "../hooks.hpp"
 #include "../menu/config.hpp"
 #include "../sdk/entity.hpp"
+#include "backtrack.hpp"
 
 #define ENEMYTEAMCONFIGSTR(var) (ent->teammate() ? CONFIGSTR("team " var) : CONFIGSTR("enemy " var))
 #define ENEMYTEAMCONFIGCOL(var) (ent->teammate() ? CONFIGCOL("team " var) : CONFIGCOL("enemy " var))
@@ -50,7 +51,7 @@ namespace Chams {
         }
 
         Entity* ent = Interfaces::entityList->getClientEntity(pInfo.entity_index);
-        if (!ent) {
+        if (!ent || !EntityCache::localPlayer) {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
             return;
         }
@@ -64,6 +65,15 @@ namespace Chams {
 
             if (ENEMYTEAMCONFIGSTR("overlay chams material").length() > 0)
                 chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("overlay chams color"), ENEMYTEAMCONFIGSTR("overlay chams material"));
+            
+            if (CONFIGSTR("backtrack chams material").length() > 0) {
+                if (Backtrack::ticks.size() > 2) {
+                    Backtrack::Tick lastBacktrackTick = Backtrack::ticks[Backtrack::ticks.size() - 1];
+                    if (lastBacktrackTick.players.find(pInfo.entity_index) != lastBacktrackTick.players.end()) {
+                        chamEntity(thisptr, ctx, state, pInfo, lastBacktrackTick.players[pInfo.entity_index].boneMatrix, CONFIGCOL("backtrack chams color"), CONFIGSTR("backtrack chams material"));
+                    }
+                }
+            }
         }
         else {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);

@@ -28,6 +28,12 @@ namespace Interfaces {
         GetClientMode getClientMode = reinterpret_cast<GetClientMode>(Memory::getAbsoluteAddress(HudProcessInput + 11, 1, 5));
         clientMode = getClientMode();
         LOG(" ClientMode %lx", (uintptr_t)clientMode);
+
+        /* Get Globals */
+        uintptr_t hudUpdate = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[11]);
+        globals = *reinterpret_cast<GlobalVars**>(Memory::getAbsoluteAddress(hudUpdate + 13, 3, 7));
+        LOG(" Globals %lx", (uintptr_t)globals);
+
         LOG("Initialised interfaces!");
     }
 }

@@ -18,6 +18,8 @@
 #define CHECKBOX(name, var) ImGui::Checkbox(name, var)
 #define COMBOBOX(name, var, array) ImGui::Text(name); ImGui::Combo("##" name, var, array, IM_ARRAYSIZE(array));
 #define COLORPICKER(name, var) ImGui::ColorEdit4(name, (float*)&var.Value, ImGuiColorEditFlags_NoInputs);
+#define SLIDERINT(name, var, min, max, format) ImGui::Text("%s", name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::SliderInt("##" name, var, min, max, format);
+#define SLIDERFLOAT(name, var, min, max, format) ImGui::Text("%s", name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::SliderFloat("##" name, var, min, max, format);
 
 namespace Menu {
     void onPollEvent(SDL_Event* event, const int result) {
@@ -118,7 +120,8 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(6, 262));
 
                     BEGINGROUPBOX("other", ImVec2(216, 131));
-                    
+                        SLIDERFLOAT("backtrack", &CONFIGFLOAT("backtrack"), 0.f, 0.2f, "%.4f");
+                        Chams::chamsCombo("backtrack chams material", CONFIGSTR("backtrack chams material"), CONFIGCOL("backtrack chams color"));
                     ENDGROUPBOX();
 
                     ImGui::SetCursorPos(ImVec2(228, 262));
@@ -347,15 +350,15 @@ namespace Menu {
                             }
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
-                                    if (Lua::scripts[file].hooks.find("unload") != Lua::scripts[file].hooks.end()) {
+                                    /*if (Lua::scripts[file].hooks.find("unload") != Lua::scripts[file].hooks.end()) {
                                         luabridge::LuaRef funcRef = luabridge::getGlobal(Lua::scripts[file].state, Lua::scripts[file].hooks.at("unload").c_str());
                                         try {
                                             funcRef();
                                         }
                                         catch (luabridge::LuaException const& e) {
-                                            ERR("lua error (%s): %s", file, e.what());
+                                            ERR("lua error (%s): %s", file.c_str(), e.what());
                                         }
-                                    }
+                                    }*/
                                     Lua::scripts.erase(file);
                                 }
                             }

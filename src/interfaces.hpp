@@ -11,6 +11,7 @@
 #include "sdk/interfaces/ivmodelrender.hpp"
 #include "sdk/interfaces/imaterialsystem.hpp"
 
+#include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
 
 #include "util/log.hpp"
@@ -26,6 +27,7 @@ namespace Interfaces {
     inline IMaterialSystem* materialSystem;
     inline StudioRender* studioRender;
 
+    inline GlobalVars* globals;
     inline IClientMode* clientMode;
 
     void init();

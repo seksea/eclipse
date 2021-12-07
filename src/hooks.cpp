@@ -9,6 +9,7 @@
 #include "menu/menu.hpp"
 #include "features/lua.hpp"
 #include "features/chams.hpp"
+#include "features/backtrack.hpp"
 
 namespace Hooks {
     void init() {
@@ -35,6 +36,9 @@ namespace Hooks {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
         EntityCache::cacheEntities();
+
+        Backtrack::store(cmd);
+        Backtrack::run(cmd);
 
         Lua::curCmd = cmd;
         Lua::handleHook("createMove");

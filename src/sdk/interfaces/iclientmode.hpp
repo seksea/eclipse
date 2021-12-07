@@ -1,8 +1,11 @@
 #pragma once
 #include "../math.hpp"
 
-struct CUserCmd
-{
+#define TIME_TO_TICKS( t )		( static_cast<int>( 0.5f + static_cast<float>( t ) / Interfaces::globals->interval_per_tick ) )
+#define TICKS_TO_TIME( t )		( Interfaces::globals->interval_per_tick * static_cast<float>( t ) )
+#define ROUND_TO_TICKS( t )		( Interfaces::globals->interval_per_tick * TIME_TO_TICKS( t ) )
+
+struct CUserCmd {
 	virtual ~CUserCmd() {};
 	int commandnumber;
 	int tickcount;

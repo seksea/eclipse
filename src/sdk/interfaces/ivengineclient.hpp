@@ -3,42 +3,57 @@
 #include "../../util/memory.hpp"
 #include "../math.hpp"
 
-#define FULLUPDATE() Offsets::getLocalClient(-1)->m_nDeltaTick = -1
-
-class BaseClientState {
+class NetChannel {
 public:
-	char pad_0000[296]; //0x0000
-	class INetChannel* m_NetChannel; //0x0128
-	char pad_0130[124]; //0x0130
-	float m_flNextCmdTime; //0x01AC
-	int32_t m_nServerCount; //0x01B0
-	int32_t m_nCurrentSequence; //0x01B4
-	char pad_01B8[8]; //0x01B8
-	float clockOffset1; //0x01C0
-	float clockOffset2; //0x01C4
-	float clockOffset3; //0x01C8
-	float clockOffset4; //0x01CC
-	float clockOffset5; //0x01D0
-	float clockOffset6; //0x01D4
-	float clockOffset7; //0x01D8
-	float clockOffset8; //0x01DC
-	float clockOffset9; //0x01E0
-	float clockOffset10; //0x01E4
-	float clockOffset11; //0x01E8
-	float clockOffset12; //0x01EC
-	float clockOffset13; //0x01F0
-	float clockOffset14; //0x01F4
-	float clockOffset15; //0x01F8
-	float clockOffset16; //0x01FC
-	int32_t m_iCurClockOffset; //0x0200
-	int32_t m_nServerTick; //0x0204
-	int32_t m_nClientTick; //0x0208
-	int32_t m_nDeltaTick; //0x020C
-	bool m_bPaused; //0x0210
-	char pad_0211[15]; //0x0211
-	char m_szLevelName[260]; //0x0220
-	char m_szLevelNameShort[80]; //0x0324
-	char m_szGroupName[80]; //0x0374
+	enum
+	{
+		GENERIC = 0,	// must be first and is default group
+		LOCALPLAYER,	// bytes for local player entity update
+		OTHERPLAYERS,	// bytes for other players update
+		ENTITIES,		// all other entity bytes
+		SOUNDS,			// game sounds
+		EVENTS,			// event messages
+		TEMPENTS,		// temp entities
+		USERMESSAGES,	// user messages
+		ENTMESSAGES,	// entity messages
+		VOICE,			// voice data
+		STRINGTABLE,	// a stringtable update
+		MOVE,			// client move cmds
+		STRINGCMD,		// string command
+		SIGNON,			// various signondata
+		PAINTMAP,		// paintmap data
+		ENCRYPTED,		// encrypted data
+		TOTAL,			// must be last and is not a real group
+	};
+
+	virtual const char* getName() const = 0;			// get channel name
+	virtual const char* getAddress() const = 0;			// get channel IP address as string
+	virtual float		getTime() const = 0;			// current net time
+	virtual float		getTimeConnected() const = 0;	// get connection time in seconds
+	virtual int			getBufferSize() const = 0;		// netchannel packet history size
+	virtual int			getDataRate() const = 0;		// send data rate in byte/sec
+
+	virtual bool		isLoopback() const = 0;			// true if loopback channel
+	virtual bool		isTimingOut() const = 0;		// true if timing out
+	virtual bool		isPlayback() const = 0;			// true if demo playback
+	virtual float		getLatency(int iFlow) const = 0; // current latency (RTT), more accurate but jittering
+	virtual float		getAvgLatency(int iFlow) const = 0; // average packet latency in seconds
+	virtual float		getAvgLoss(int iFlow) const = 0; // avg packet loss[0..1]
+	virtual float		getAvgChoke(int iFlow) const = 0; // avg packet choke[0..1]
+	virtual float		getAvgData(int iFlow) const = 0; // data flow in bytes/sec
+	virtual float		getAvgPackets(int iFlow) const = 0; // avg packets/sec
+	virtual int			getTotalData(int iFlow) const = 0; // total flow in/out in bytes
+	virtual int			getTotalPackets(int iFlow) const = 0;
+	virtual int			getSequenceNr(int iFlow) const = 0; // last send seq number
+	virtual bool		isValidPacket(int iFlow, int nFrame) const = 0; // true if packet was not lost/dropped/chocked/flushed
+	virtual float		getPacketTime(int iFlow, int nFrame) const = 0; // time when packet was send
+	virtual int			getPacketBytes(int iFlow, int nFrame, int group) const = 0; // group size of this packet
+	virtual bool		getStreamProgress(int iFlow, int* piReceived, int* piTotal) const = 0; // TCP progress if transmitting
+	virtual float		getTimeSinceLastReceived() const = 0; // get time since last received packet in seconds
+	virtual	float		getCommandInterpolationAmount(int iFlow, int nFrame) const = 0;
+	virtual void		getPacketResponseLatency(int iFlow, int frame_number, int* pnLatencyMsecs, int* pnChoke) const = 0;
+	virtual void		getRemoteFramerate(float* pflFrameTime, float* pflFrameTimeStdDeviation, float* pflFrameStartTimeStdDeviation) const = 0;
+	virtual float		getTimeoutSeconds() const = 0;
 };
 
 // Engine player info, no game related infos here
@@ -77,7 +92,7 @@ public:
     VFUNC(const VMatrix&, worldToScreenMatrix, 37, (), (this))
     VFUNC(void*, getBSPTreeQuery, 43, (), (this))
     VFUNC(const char*, getLevelName, 53, (), (this))
-    //VFUNC(NetworkChannel*, getNetworkChannel, 78, (), (this))
+    VFUNC(NetChannel*, getNetworkChannel, 78, (), (this))
     VFUNC(void, clientCmdUnrestricted, 113, (const char* cmd, bool fromConsoleOrKeybind = false), (this, cmd, fromConsoleOrKeybind))
     //VFUNC_V(const SteamAPIContext*, getSteamAPIContext, 185, (), (this))
 };

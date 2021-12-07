@@ -1,5 +1,8 @@
 #pragma once
 #define ALL_NETVARS \
+	NETVAR("DT_BasePlayer", "m_nTickBase", nDT_BasePlayer__m_nTickBase, unsigned int) \
+	NETVAR("DT_BasePlayer", "m_aimPunchAngle", nDT_BasePlayer__m_aimPunchAngle, QAngle) \
+\
 	NETVAR("DT_AI_BaseNPC", "m_bFadeCorpse", nDT_AI_BaseNPC__m_bFadeCorpse, int) \
 	NETVAR("DT_AI_BaseNPC", "m_bImportanRagdoll", nDT_AI_BaseNPC__m_bImportanRagdoll, int) \
 	NETVAR("DT_AI_BaseNPC", "m_bIsMoving", nDT_AI_BaseNPC__m_bIsMoving, int) \

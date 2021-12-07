@@ -36,7 +36,7 @@ class Entity {
     VFUNC(int, index, 10, (), (networkable()))
 
     VFUNC(bool, shouldDraw, 5, (), (renderable()))
-    VFUNC(bool, setupBones, 10, (matrix3x4_t* boneMatrix, int maxBones, int boneMask, float curTime = 0), (renderable(), boneMatrix, maxBones, boneMask, curTime))
+    VFUNC(bool, setupBones, 13, (matrix3x4_t* boneMatrix, int maxBones, int boneMask, float curTime = 0), (renderable(), boneMatrix, maxBones, boneMask, curTime))
 
     VFUNC(Vector&, origin, 12, (), (this))
 
