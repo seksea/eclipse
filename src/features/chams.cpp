@@ -1,6 +1,10 @@
 #include "chams.hpp"
 #include "../hooks.hpp"
 #include "../menu/config.hpp"
+#include "../sdk/entity.hpp"
+
+#define ENEMYTEAMCONFIGSTR(var) (ent->teammate() ? CONFIGSTR("team " var) : CONFIGSTR("enemy " var))
+#define ENEMYTEAMCONFIGCOL(var) (ent->teammate() ? CONFIGCOL("team " var) : CONFIGCOL("enemy " var))
 
 namespace Chams {
     void chamEntity(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld, ImColor color, const std::string& materialName, bool ignoreZ = false) {
@@ -36,13 +40,21 @@ namespace Chams {
             return;
         }
 
+        Entity* ent = Interfaces::entityList->getClientEntity(pInfo.entity_index);
+        if (!ent) {
+            Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
+            return;
+        }
+
 	    const char* modelName = Interfaces::modelInfo->getModelName(pInfo.pModel);
 	    if (strstr(modelName, "models/player") && !strstr(modelName, "shadow")) {
-            if (CONFIGSTR("enemy ignorez chams material").length() > 0)
-                chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, CONFIGCOL("enemy ignorez chams color"), CONFIGSTR("enemy ignorez chams material"), true);
-            chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, CONFIGCOL("enemy chams color"), CONFIGSTR("enemy chams material"));
-            if (CONFIGSTR("enemy overlay chams material").length() > 0)
-                chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, CONFIGCOL("enemy overlay chams color"), CONFIGSTR("enemy overlay chams material"));
+            if (ENEMYTEAMCONFIGSTR("ignorez chams material").length() > 0)
+                chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("ignorez chams color"), ENEMYTEAMCONFIGSTR("ignorez chams material"), true);
+
+            chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("chams color"), ENEMYTEAMCONFIGSTR("chams material"));
+            
+            if (ENEMYTEAMCONFIGSTR("overlay chams material").length() > 0)
+                chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("overlay chams color"), ENEMYTEAMCONFIGSTR("overlay chams material"));
         }
         else {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);

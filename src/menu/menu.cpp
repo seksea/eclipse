@@ -208,7 +208,9 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(228, 42));
 
                             BEGINGROUPBOX("chams", ImVec2(216, 351));
-                            
+                                Chams::chamsCombo("chams material", CONFIGSTR("team chams material"), CONFIGCOL("team chams color"));
+                                Chams::chamsCombo("overlay chams material", CONFIGSTR("team overlay chams material"), CONFIGCOL("team overlay chams color"));
+                                Chams::chamsCombo("ignorez chams material", CONFIGSTR("team ignorez chams material"), CONFIGCOL("team ignorez chams color"));
                             ENDGROUPBOX();
                             break;
                         }

@@ -36,6 +36,10 @@ class Entity {
 
     VFUNC(Vector&, origin, 12, (), (this))
 
+	bool teammate() {
+		return this->nDT_BaseEntity__m_iTeamNum() == EntityCache::localPlayer->nDT_BaseEntity__m_iTeamNum();
+	}
+
 	const matrix3x4_t coordinateFrame() {
 		return *(matrix3x4_t*)((uintptr_t)this + 0x518);
 	}
@@ -55,7 +59,7 @@ namespace EntityCache {
 		CachedEntity(Entity* e) {
 			this->index = e->index();
 			this->health = e->nDT_BasePlayer__m_iHealth();
-			this->teammate = e->nDT_BaseEntity__m_iTeamNum() == localPlayer->nDT_BaseEntity__m_iTeamNum();
+			this->teammate = e->teammate;
 			this->origin = e->origin();
 			this->classID = e->clientClass()->m_ClassID;
 			Interfaces::engine->getPlayerInfo(this->index, this->info);
