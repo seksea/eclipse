@@ -15,6 +15,10 @@ public:
 	virtual const Vector& OBBMaxs() const;
 };
 
+namespace EntityCache {
+	inline Entity* localPlayer;
+}
+
 class Entity {
     public:
 	ALL_NETVARS;
@@ -46,8 +50,6 @@ class Entity {
 };
 
 namespace EntityCache {
-	inline Entity* localPlayer;
-
 	struct CachedEntity {
 		int index;
 		int health;
@@ -59,7 +61,7 @@ namespace EntityCache {
 		CachedEntity(Entity* e) {
 			this->index = e->index();
 			this->health = e->nDT_BasePlayer__m_iHealth();
-			this->teammate = e->teammate;
+			this->teammate = e->teammate();
 			this->origin = e->origin();
 			this->classID = e->clientClass()->m_ClassID;
 			Interfaces::engine->getPlayerInfo(this->index, this->info);
