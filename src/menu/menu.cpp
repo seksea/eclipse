@@ -9,11 +9,13 @@
 #include "../features/lua.hpp"
 #include "../features/discordrpc.hpp"
 #include "../features/esp.hpp"
+#include "../features/chams.hpp"
 #include "../sdk/entity.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
 #define CHECKBOX(name, var) ImGui::Checkbox(name, var)
+#define COMBOBOX(name, var, array) ImGui::Text(name); ImGui::Combo("##" name, var, array, IM_ARRAYSIZE(array));
 #define COLORPICKER(name, var) ImGui::ColorEdit4(name, (float*)&var.Value, ImGuiColorEditFlags_NoInputs);
 
 namespace Menu {
@@ -180,7 +182,9 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(228, 42));
 
                             BEGINGROUPBOX("chams", ImVec2(216, 351));
-                            
+                                Chams::chamsCombo("chams material", CONFIGSTR("enemy chams material"), CONFIGCOL("enemy chams color"));
+                                Chams::chamsCombo("overlay chams material", CONFIGSTR("enemy overlay chams material"), CONFIGCOL("enemy overlay chams color"));
+                                Chams::chamsCombo("ignorez chams material", CONFIGSTR("enemy ignorez chams material"), CONFIGCOL("enemy ignorez chams color"));
                             ENDGROUPBOX();
                             break;
                         }

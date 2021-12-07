@@ -12,6 +12,12 @@ namespace Hooks {
         bool hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd);
     }
 
+    namespace DrawModelExecute {
+        using func = void(*)(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld);
+        inline func original;
+        void hook(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld);
+    }
+
     namespace SDL {
         bool initSDL();
         inline uintptr_t swapWindowAddr;

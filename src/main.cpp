@@ -1,6 +1,7 @@
 #include "hooks.hpp"
 #include "util/log.hpp"
 #include "interfaces.hpp"
+#include "features/chams.hpp"
 #include "sdk/netvars.hpp"
 #include "features/discordrpc.hpp"
 
@@ -15,6 +16,7 @@ void mainThread() {
         usleep(500000);
     LOG("Loading csgo-cheat...");
     Interfaces::init();
+    Chams::createMaterials();
     Netvars::init();
     Hooks::init();
     LOG("Successfully loaded csgo-cheat!");

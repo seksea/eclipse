@@ -4,10 +4,12 @@
 #include <dlfcn.h>
 #include <string>
 
+#include "sdk/interfaces/icvar.hpp"
 #include "sdk/interfaces/ivengineclient.hpp"
 #include "sdk/interfaces/icliententitylist.hpp"
 #include "sdk/interfaces/ibaseclientdll.hpp"
-#include "sdk/interfaces/icvar.hpp"
+#include "sdk/interfaces/ivmodelrender.hpp"
+#include "sdk/interfaces/imaterialsystem.hpp"
 
 #include "sdk/interfaces/iclientmode.hpp"
 
@@ -15,10 +17,14 @@
 
 
 namespace Interfaces {
+    inline ICvar* cvar;
     inline IVEngineClient* engine;
     inline IBaseClientDLL* client;
     inline IClientEntityList* entityList;
-    inline ICvar* cvar;
+    inline IVModelRender* modelRender;
+    inline IVModelInfo* modelInfo;
+    inline IMaterialSystem* materialSystem;
+    inline StudioRender* studioRender;
 
     inline IClientMode* clientMode;
 

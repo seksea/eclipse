@@ -15,9 +15,12 @@ namespace Interfaces {
         cvar = getInterface<ICvar>("./bin/linux64/materialsystem_client.so", "VEngineCvar");
 
         engine = getInterface<IVEngineClient>("./bin/linux64/engine_client.so", "VEngineClient");
-        cvar->ConsoleColorPrintf({50, 200, 255}, "Got interface %s at %lx", "pog", (uintptr_t)engine);
         client = getInterface<IBaseClientDLL>("./csgo/bin/linux64/client_client.so", "VClient");
         entityList = getInterface<IClientEntityList>("./csgo/bin/linux64/client_client.so", "VClientEntityList");
+        modelRender = getInterface<IVModelRender>("./bin/linux64/engine_client.so", "VEngineModel");
+        modelInfo = getInterface<IVModelInfo>("./bin/linux64/engine_client.so", "VModelInfoClient");
+        materialSystem = getInterface<IMaterialSystem>("./bin/linux64/materialsystem_client.so", "VMaterialSystem");
+        studioRender = getInterface<StudioRender>("./bin/linux64/studiorender_client.so", "VStudioRender");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
