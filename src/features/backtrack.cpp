@@ -59,6 +59,7 @@ namespace Backtrack {
             float closestDelta = FLT_MAX; 
             int closestTick = cmd->tickcount;
             QAngle viewAngles = cmd->viewangles;
+            viewAngles += QAngle(EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().x, EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().y, EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().z);
             for (Tick tick : ticks) {
                 for (auto p : tick.players) {
                     Entity* ent = Interfaces::entityList->getClientEntity(p.first);

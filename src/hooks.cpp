@@ -33,7 +33,7 @@ namespace Hooks {
         LOG(" Unhooking DME...");
         Memory::VMT::hook(Interfaces::modelRender, (void*)DrawModelExecute::original, 21);
         LOG(" Unhooking FrameStageNotify...");
-        Memory::VMT::hook(Interfaces::modelRender, (void*)FrameStageNotify::original, 37);
+        Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::original, 37);
     }
 
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
