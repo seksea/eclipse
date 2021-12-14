@@ -10,9 +10,11 @@
 #include "sdk/interfaces/ibaseclientdll.hpp"
 #include "sdk/interfaces/ivmodelrender.hpp"
 #include "sdk/interfaces/imaterialsystem.hpp"
+#include "sdk/interfaces/panorama.hpp"
 
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
+#include "sdk/interfaces/viewrenderbeams.hpp"
 
 #include "util/log.hpp"
 
@@ -26,9 +28,11 @@ namespace Interfaces {
     inline IVModelInfo* modelInfo;
     inline IMaterialSystem* materialSystem;
     inline StudioRender* studioRender;
+    inline IPanoramaUIEngine* panorama;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
+    inline ViewRenderBeams* renderBeams;
 
     void init();
 

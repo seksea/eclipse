@@ -350,15 +350,15 @@ namespace Menu {
                             }
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
-                                    /*if (Lua::scripts[file].hooks.find("unload") != Lua::scripts[file].hooks.end()) {
-                                        luabridge::LuaRef funcRef = luabridge::getGlobal(Lua::scripts[file].state, Lua::scripts[file].hooks.at("unload").c_str());
+                                    if (Lua::scripts.at(file).hooks.find("unload") != Lua::scripts.at(file).hooks.end()) {
+                                        luabridge::LuaRef funcRef = luabridge::getGlobal(Lua::scripts.at(file).state, Lua::scripts.at(file).hooks.at("unload").c_str());
                                         try {
                                             funcRef();
                                         }
                                         catch (luabridge::LuaException const& e) {
                                             ERR("lua error (%s): %s", file.c_str(), e.what());
                                         }
-                                    }*/
+                                    }
                                     Lua::scripts.erase(file);
                                 }
                             }

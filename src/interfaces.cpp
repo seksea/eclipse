@@ -21,6 +21,7 @@ namespace Interfaces {
         modelInfo = getInterface<IVModelInfo>("./bin/linux64/engine_client.so", "VModelInfoClient");
         materialSystem = getInterface<IMaterialSystem>("./bin/linux64/materialsystem_client.so", "VMaterialSystem");
         studioRender = getInterface<StudioRender>("./bin/linux64/studiorender_client.so", "VStudioRender");
+        panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_gl_client.so", "PanoramaUIEngine");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
@@ -33,6 +34,10 @@ namespace Interfaces {
         uintptr_t hudUpdate = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[11]);
         globals = *reinterpret_cast<GlobalVars**>(Memory::getAbsoluteAddress(hudUpdate + 13, 3, 7));
         LOG(" Globals %lx", (uintptr_t)globals);
+
+        /* Get renderBeams */
+        renderBeams = **Memory::relativeToAbsolute<ViewRenderBeams***>(Memory::patternScan("/client_client.so", "4C 89 F6 4C 8B 25 ? ? ? ? 48 8D 05") + 6); // Credit: danielkrupinski
+        LOG(" renderBeams %lx", (uintptr_t)renderBeams);
 
         LOG("Initialised interfaces!");
     }

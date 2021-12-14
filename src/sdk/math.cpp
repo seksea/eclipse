@@ -3,22 +3,21 @@
 #include "../menu/imgui/imgui.h"
 
 bool worldToScreen(const Vector& origin, Vector& screen) {
-    VMatrix w2sm = Interfaces::engine->worldToScreenMatrix();
-	float w = w2sm[3][0] * origin.x
-			  + w2sm[3][1] * origin.y
-			  + w2sm[3][2] * origin.z
-			  + w2sm[3][3];
+	float w = storedViewMatrix[3][0] * origin.x
+			  + storedViewMatrix[3][1] * origin.y
+			  + storedViewMatrix[3][2] * origin.z
+			  + storedViewMatrix[3][3];
 
 	if ( w < 0.01f )
 		return false;
 
 	float inverseW = 1 / w;
 
-	screen.x = (ImGui::GetIO().DisplaySize.x/2) + (0.5f * ((w2sm[0][0] * origin.x + w2sm[0][1] * origin.y +
-						  			 w2sm[0][2] * origin.z + w2sm[0][3]) * inverseW) * ImGui::GetIO().DisplaySize.x + 0.5f);
+	screen.x = (ImGui::GetIO().DisplaySize.x/2) + (0.5f * ((storedViewMatrix[0][0] * origin.x + storedViewMatrix[0][1] * origin.y +
+						  			 storedViewMatrix[0][2] * origin.z + storedViewMatrix[0][3]) * inverseW) * ImGui::GetIO().DisplaySize.x + 0.5f);
 
-	screen.y = (ImGui::GetIO().DisplaySize.y/2) - (0.5f * ((w2sm[1][0] * origin.x + w2sm[1][1] * origin.y +
-									  w2sm[1][2] * origin.z + w2sm[1][3]) * inverseW) * ImGui::GetIO().DisplaySize.y + 0.5f);
+	screen.y = (ImGui::GetIO().DisplaySize.y/2) - (0.5f * ((storedViewMatrix[1][0] * origin.x + storedViewMatrix[1][1] * origin.y +
+									  storedViewMatrix[1][2] * origin.z + storedViewMatrix[1][3]) * inverseW) * ImGui::GetIO().DisplaySize.y + 0.5f);
 	return true;
 }
 

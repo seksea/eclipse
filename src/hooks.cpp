@@ -22,6 +22,8 @@ namespace Hooks {
         CreateMove::original = (CreateMove::func)Memory::VMT::hook(Interfaces::clientMode, (void*)CreateMove::hook, 25);
         LOG(" Hooking DME...");
         DrawModelExecute::original = (DrawModelExecute::func)Memory::VMT::hook(Interfaces::modelRender, (void*)DrawModelExecute::hook, 21);
+        LOG(" Hooking FrameStageNotify...");
+        FrameStageNotify::original = (FrameStageNotify::func)Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::hook, 37);
     }
 
     void unload() {
@@ -30,11 +32,14 @@ namespace Hooks {
         Memory::VMT::hook(Interfaces::clientMode, (void*)CreateMove::original, 25);
         LOG(" Unhooking DME...");
         Memory::VMT::hook(Interfaces::modelRender, (void*)DrawModelExecute::original, 21);
+        LOG(" Unhooking FrameStageNotify...");
+        Memory::VMT::hook(Interfaces::modelRender, (void*)FrameStageNotify::original, 37);
     }
 
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
+        storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
         EntityCache::cacheEntities();
 
         Backtrack::store(cmd);
@@ -59,5 +64,10 @@ namespace Hooks {
 
     void Hooks::DrawModelExecute::hook(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld) {
         Chams::doChams(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
+    }
+
+    void Hooks::FrameStageNotify::hook(void* thisptr, FrameStage stage) {
+        Lua::handleHook("frameStageNotify");
+        return original(thisptr, stage);
     }
 }

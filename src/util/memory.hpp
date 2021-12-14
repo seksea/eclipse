@@ -39,6 +39,10 @@ namespace Memory {
         return ptr + *reinterpret_cast<int32_t*>(ptr + offset) + size;
     };
 
+    template <typename T>
+    static constexpr auto relativeToAbsolute(std::uintptr_t address) noexcept {
+        return (T)(address + 4 + *reinterpret_cast<std::int32_t*>(address));
+    }
 
     struct DlInfo {
         const char* library = nullptr;

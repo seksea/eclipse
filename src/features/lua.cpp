@@ -101,6 +101,98 @@ namespace Lua {
             return LuaConvar(Interfaces::cvar->findVar(name));
         }
         ImVec2 _worldToScreen(Vector pos) { Vector screenPos; worldToScreen(pos, screenPos); return ImVec2(screenPos.x, screenPos.y); }
+
+        void createBeam(Vector start, Vector end, const char* modelName, ImColor color, float dieTime, float width, float amplitude) {
+            BeamInfo beamInfo;
+
+            beamInfo.start = start;
+            beamInfo.end = end;
+
+            beamInfo.modelName = modelName;
+            beamInfo.modelIndex = Interfaces::modelInfo->getModelIndex(modelName);
+            beamInfo.haloName = nullptr;
+            beamInfo.haloIndex = -1;
+            beamInfo.haloScale = 0;
+
+            beamInfo.red = 255.0f * color.Value.x;
+            beamInfo.green = 255.0f * color.Value.y;
+            beamInfo.blue = 255.0f * color.Value.z;
+            beamInfo.brightness = 255.0f * color.Value.w;
+            
+            beamInfo.type = 0;
+            beamInfo.life = 0.0f;
+            beamInfo.amplitude = amplitude;
+            beamInfo.segments = -1;
+            beamInfo.renderable = true;
+            beamInfo.speed = 0.5f;
+            beamInfo.startFrame = 0;
+            beamInfo.frameRate = 0.0f;
+            beamInfo.width = width;
+            beamInfo.endWidth = width;
+            beamInfo.flags = 0;
+            beamInfo.fadeLength = 0.0f;
+
+            if (const auto beam = Interfaces::renderBeams->createBeamPoints(&beamInfo)) {
+                constexpr auto FBEAM_FOREVER = 0x4000;
+                beam->flags &= ~FBEAM_FOREVER;
+                beam->die = Interfaces::globals->curtime + dieTime;
+            }
+        }
+        void ringBeam(Vector center, float ringStartRadius, float ringEndRadius, const char* modelName, ImColor color, float life, float width) {
+            BeamInfo beamInfo;
+            beamInfo.type = 7;
+            beamInfo.modelName = modelName;
+            beamInfo.modelIndex = Interfaces::modelInfo->getModelIndex(modelName);
+            beamInfo.haloName = nullptr;
+            beamInfo.haloIndex = -1;
+            beamInfo.haloScale = 0;
+            beamInfo.life = life;
+            beamInfo.width = width;
+            beamInfo.fadeLength = 1.0f;
+            beamInfo.amplitude = 0.f;
+            beamInfo.brightness = 255 * color.Value.w;
+            beamInfo.speed = 0;
+            beamInfo.startFrame = 0;
+            beamInfo.frameRate = 1;
+            beamInfo.red = 255 * color.Value.x;
+            beamInfo.green = 255 * color.Value.y;
+            beamInfo.blue = 255 * color.Value.z;
+            beamInfo.segments = 1;
+            beamInfo.renderable = true;
+            beamInfo.flags = 0;
+            beamInfo.ringCenter = center;
+            beamInfo.ringStartRadius = ringStartRadius;
+            beamInfo.ringEndRadius = ringEndRadius;
+
+            auto beam = Interfaces::renderBeams->createBeamRingPoints(&beamInfo);
+            
+        }
+    }
+    namespace Panorama {
+        IUIPanel* getRoot() {
+            auto eng = Interfaces::panorama->AccessUIEngine();
+            auto panel = eng->GetLastDispatchedEventTargetPanel();
+            if (!Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(panel))
+                return nullptr;
+
+            IUIPanel* itr = panel;
+            IUIPanel* ret = nullptr;
+
+            while (itr && Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(itr)) {
+                if (!strcmp(itr->GetID(), "CSGOMainMenu")) {
+                    ret = itr;
+                    break;
+                }
+                itr = itr->GetParent();
+            }
+            return ret;
+        }
+
+        void executeScript(const char* script, const char* xmlContext) {
+            if (getRoot()) {
+                Interfaces::panorama->AccessUIEngine()->RunScript(getRoot(), script, xmlContext, 8, 10, false);
+            }
+        }
     }
     namespace UI {
         ImVec2 getMenuPos() { return Menu::windowPos; }
@@ -231,6 +323,7 @@ namespace Lua {
                 .addProperty("z", &Vector::z)
                 .addFunction("length", &Vector::Length)
                 .addFunction("length2D", &Vector::Length2D)
+                .addFunction("distTo", &Vector::DistTo)
             .endClass()
             .beginClass<QAngle>("QAngle")
                 .addConstructor<void (*) (float, float, float)>()
@@ -303,6 +396,11 @@ namespace Lua {
                 .addFunction("addMaterial", Chams::addMaterial)
                 .addFunction("removeMaterial", Chams::removeMaterial)
                 .addFunction("worldToScreen", Cheat::_worldToScreen)
+                .addFunction("createBeam", Cheat::createBeam)
+                .addFunction("ringBeam", Cheat::ringBeam)
+            .endNamespace()
+            .beginNamespace("panorama")
+                .addFunction("executeScript", Panorama::executeScript)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)

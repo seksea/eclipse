@@ -18,6 +18,12 @@ namespace Hooks {
         void hook(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld);
     }
 
+    namespace FrameStageNotify {
+        using func = void(*)(void* thisptr, FrameStage stage);
+        inline func original;
+        void hook(void* thisptr, FrameStage stage);
+    }
+
     namespace SDL {
         bool initSDL();
         inline uintptr_t swapWindowAddr;
