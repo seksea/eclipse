@@ -76,7 +76,7 @@ namespace Config {
         cfgFiles.clear();
         char path[512];
         strcpy(path, getenv("HOME"));
-        strcat(path, "/.csgo-cheat/");
+        strcat(path, "/.eclipse/");
         std::filesystem::create_directory(path);
         strcat(path, "configs/");
         std::filesystem::create_directory(path);
@@ -107,7 +107,7 @@ namespace Config {
 
         char path[512];
         strcpy(path, getenv("HOME"));
-        strcat(path, "/.csgo-cheat/");
+        strcat(path, "/.eclipse/");
         std::filesystem::create_directory(path);
         strcat(path, "configs/");
         std::filesystem::create_directory(path);
@@ -128,7 +128,7 @@ namespace Config {
     inline void loadConfig(const char* filename) {
         char path[512];
         strcpy(path, getenv("HOME"));
-        strcat(path, "/.csgo-cheat/");
+        strcat(path, "/.eclipse/");
         std::filesystem::create_directory(path);
         strcat(path, "configs/");
         std::filesystem::create_directory(path);

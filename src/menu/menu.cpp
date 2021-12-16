@@ -287,7 +287,7 @@ namespace Menu {
                     if (ImGui::Button("delete", ImVec2((ImGui::GetWindowContentRegionWidth() - 16) / 3, 16))) {
                         char path[512];
                         strcpy(path, getenv("HOME"));
-                        strcat(path, "/.csgo-cheat/");
+                        strcat(path, "/.eclipse/");
                         std::filesystem::create_directory(path);
                         strcat(path, "configs/");
                         std::filesystem::create_directory(path);
@@ -318,7 +318,7 @@ namespace Menu {
                             if (ImGui::IsItemHovered() ) {
                                 char path[512];
                                 strcpy(path, getenv("HOME"));
-                                strcat(path, "/.csgo-cheat/");
+                                strcat(path, "/.eclipse/");
                                 std::filesystem::create_directory(path);
                                 strcat(path, "scripts/");
                                 std::filesystem::create_directory(path);
@@ -351,9 +351,8 @@ namespace Menu {
                             if (Lua::scripts.find(file) != Lua::scripts.end()) {
                                 if (!CONFIGBOOL(temp)) {
                                     if (Lua::scripts.at(file).hooks.find("unload") != Lua::scripts.at(file).hooks.end()) {
-                                        luabridge::LuaRef funcRef = luabridge::getGlobal(Lua::scripts.at(file).state, Lua::scripts.at(file).hooks.at("unload").c_str());
                                         try {
-                                            funcRef();
+                                            Lua::scripts.at(file).hooks.at("unload")();
                                         }
                                         catch (luabridge::LuaException const& e) {
                                             ERR("lua error (%s): %s", file.c_str(), e.what());

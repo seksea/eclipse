@@ -1,7 +1,4 @@
 #include "lua.hpp"
-#include "luabridge/LuaBridge.h"
-#include "luabridge/detail/LuaRef.h"
-#include "luabridge/Vector.h"
 #include "../interfaces.hpp"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
@@ -14,6 +11,11 @@
 
 namespace Lua {
     LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
+    const char* curEngineBeingRanName; // used for registerHook to know the engine the func is being ran from
+
+    void print(const char* str) {
+        LOG("[%s] %s", curEngineBeingRanName, str);
+    }
 
     class LuaEntity {
         public:
@@ -59,8 +61,8 @@ namespace Lua {
     };
 
     namespace Cheat {
-        void registerHook(const char* hook, const char* funcName) {
-            curEngineBeingRan->hooks.insert(std::pair<std::string, std::string>(hook, funcName));
+        void registerHook(const char* hook, luabridge::LuaRef func) {
+            curEngineBeingRan->hooks.insert(std::pair<std::string, luabridge::LuaRef>(hook, func));
         }
 
         uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
@@ -300,6 +302,7 @@ namespace Lua {
 
     void bridge(lua_State* L) {
         luabridge::getGlobalNamespace(L)
+        .addFunction("print", print)
             .beginClass<ImVec2>("Vec2")
                 .addConstructor<void (*) (float, float)>()
                 .addProperty("x", &ImVec2::x)
@@ -455,8 +458,9 @@ namespace Lua {
     void handleHook(const char* hook) {
         std::lock_guard<std::mutex> lock(luaLock);
         for (auto& engine : scripts) {
+            curEngineBeingRan = &engine.second;
+            curEngineBeingRanName = engine.first.c_str();
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
-                luabridge::LuaRef funcRef = luabridge::getGlobal(engine.second.state, engine.second.hooks.at(hook).c_str());
                 int oldStackSize = 0;
                 if (strstr(hook, "draw"))
                     oldStackSize = ImGui::GetCurrentContext()->CurrentWindowStack.Size;
@@ -464,20 +468,20 @@ namespace Lua {
                 if (strstr(hook, "UI")) {
                     if (ImGui::CollapsingHeader(engine.first.c_str())) {
                         try {
-                            funcRef();
+                            engine.second.hooks.at(hook)();
                         }
                         catch (luabridge::LuaException const& e) {
-                            ERR("lua error (%s): %s", engine.first.c_str(), e.what());
+                            ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
                         }
                     }
                     ImGui::Separator();
                 }
                 else {
                     try { 
-                        funcRef();
+                        engine.second.hooks.at(hook)();
                     }
                     catch (luabridge::LuaException const& e) {
-                        ERR("lua error (%s): %s", engine.first.c_str(), e.what());
+                        ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
                     }
                 }
                 if (strstr(hook, "draw")) {
@@ -491,9 +495,12 @@ namespace Lua {
     }
 
     LuaEngine::LuaEngine(std::string filename) {
+        std::lock_guard<std::mutex> lock(luaLock);
+        curEngineBeingRan = this;
+        curEngineBeingRanName = filename.c_str();
         char path[512], filepath[512];
         strcpy(path, getenv("HOME"));
-        strcat(path, "/.csgo-cheat/");
+        strcat(path, "/.eclipse/");
         std::filesystem::create_directory(path);
         strcat(path, "scripts/");
         std::filesystem::create_directory(path);
@@ -507,7 +514,6 @@ namespace Lua {
         
         luaL_dostring(state, (std::string("package.path = \"") + std::string(path) + std::string("?.lua;\" .. package.path")).c_str());
 
-        curEngineBeingRan = this;
         if (luaL_dofile(state, filepath)) {
             ERR("lua error: %s", lua_tostring(state, -1));
         }

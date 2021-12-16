@@ -1,16 +1,34 @@
 #include "log.hpp"
+#include "../interfaces.hpp"
 #include <stdarg.h>
 #include <string>
 
 void Log::log(LogLevel level, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
+    char buf[512];
+    vsnprintf(buf, sizeof(buf), fmt, args);
     switch (level) {
-        case LOG: fputs("\e[32m[LOG] ", stdout); break;
-        case WARN: fputs("\e[33m[WARN] ", stdout); break;
-        case ERR: fputs("\e[31m[ERR] ", stdout); break;
+        case LOG: {
+            puts("\e[32m[LOG] "); 
+            if (Interfaces::cvar)
+                Interfaces::cvar->ConsoleColorPrintf({0, 255, 0, 255}, "[LOG] %s\n", buf);
+            break;
+        }
+        case WARN: {
+            puts("\e[33m[WARN] "); 
+            if (Interfaces::cvar)
+                Interfaces::cvar->ConsoleColorPrintf({255, 255, 0, 255}, "[WARN] %s\n", buf);
+            break;
+        }
+        case ERR: {
+            puts("\e[31m[ERR] "); 
+            if (Interfaces::cvar)
+                Interfaces::cvar->ConsoleColorPrintf({255, 0, 0, 255}, "[ERR] %s\n", buf);
+            break;
+        }
     }
-    vprintf(fmt, args);
-    fputs("\e[0m\n", stdout);
+    puts(buf); 
+    puts("\e[0m\n");
     va_end(args);
 }

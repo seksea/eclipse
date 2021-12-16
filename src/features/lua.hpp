@@ -10,6 +10,10 @@
 #include <luajit-2.0/lua.hpp>
 #include <luajit-2.0/lualib.h>
 
+#include "luabridge/LuaBridge.h"
+#include "luabridge/detail/LuaRef.h"
+#include "luabridge/Vector.h"
+
 #include "../menu/imgui/imgui.h"
 #include "../interfaces.hpp"
 
@@ -22,7 +26,7 @@ namespace Lua {
     class LuaEngine {
         public:
         lua_State* state;
-        std::map<std::string, std::string> hooks;
+        std::map<std::string, luabridge::LuaRef> hooks;
         LuaEngine(std::string filename);
     };
 
@@ -36,7 +40,7 @@ namespace Lua {
         luaFiles.clear();
         char path[512];
         strcpy(path, getenv("HOME"));
-        strcat(path, "/.csgo-cheat/");
+        strcat(path, "/.eclipse/");
         std::filesystem::create_directory(path);
         strcat(path, "scripts/");
         std::filesystem::create_directory(path);
