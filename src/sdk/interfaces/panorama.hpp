@@ -3174,7 +3174,7 @@ public:
 
 // Xref "english" to first function, then vtable.
 // OR xref "Panorama Cache Summary" 2x to PrintCacheStatus()
-extern PanelArray* panelArray;
+inline PanelArray* panelArray = nullptr;
 class UIEngine
 {
 public:
