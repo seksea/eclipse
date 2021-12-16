@@ -28,7 +28,14 @@ namespace Lua {
         int classID() {return e->clientClass()->m_ClassID;}
         const char* networkName() {return e->clientClass()->m_pNetworkName;}
         ImVec4 getBBox() {return getBoundingBox(e);}
-        
+        void setMins(Vector mins) { e->nDT_BaseEntity__m_Collision().OBBMins() = mins; }
+        void setMaxs(Vector maxs) { e->nDT_BaseEntity__m_Collision().OBBMaxs() = maxs; }
+        void onPreDataChanged(int updateType) { e->onPreDataChanged(updateType); }
+        void onDataChanged(int updateType) { e->onDataChanged(updateType); }
+        void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
+        void postDataUpdate(int updateType) { e->postDataUpdate(updateType); }
+
+
         Vector origin() {return e->origin();}
 
         template <typename T>
@@ -43,6 +50,24 @@ namespace Lua {
 
         LuaEntity(Entity* ent) {
             e = ent;
+        }
+    };
+
+    class LuaClientClass {
+        public:
+        ClientClass* c;
+        bool exists() {return c;}
+        LuaEntity create(int entNum, int serialNum) {
+            return LuaEntity((Entity*)c->m_pCreateFn(entNum, serialNum));
+        }
+	    const char* name() {
+            return c->m_pNetworkName;
+        };
+	    LuaClientClass next() {
+            return LuaClientClass(c->m_pNext);
+        };
+        LuaClientClass(ClientClass* _c) {
+            this->c = _c;
         }
     };
 
@@ -166,8 +191,11 @@ namespace Lua {
             beamInfo.ringStartRadius = ringStartRadius;
             beamInfo.ringEndRadius = ringEndRadius;
 
-            auto beam = Interfaces::renderBeams->createBeamRingPoints(&beamInfo);
-            
+            Interfaces::renderBeams->createBeamRingPoints(&beamInfo);
+        }
+        
+        LuaClientClass getAllClientClasses() {
+            return LuaClientClass(Interfaces::client->getAllClasses());
         }
     }
     namespace Panorama {
@@ -344,6 +372,12 @@ namespace Lua {
                 .addFunction("classID", &LuaEntity::classID)
                 .addFunction("networkName", &LuaEntity::networkName)
                 .addFunction("getBBox", &LuaEntity::getBBox)
+                .addFunction("setMins", &LuaEntity::setMins)
+                .addFunction("setMaxs", &LuaEntity::setMaxs)
+                .addFunction("onPreDataChanged", &LuaEntity::onPreDataChanged)
+                .addFunction("onDataChanged", &LuaEntity::onDataChanged)
+                .addFunction("preDataUpdate", &LuaEntity::preDataUpdate)
+                .addFunction("postDataUpdate", &LuaEntity::postDataUpdate)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
                 .addFunction("getPropFloat", &LuaEntity::getProp<float>)
@@ -358,6 +392,12 @@ namespace Lua {
                 .addFunction("setPropPtr", &LuaEntity::setProp<unsigned int>)
                 .addFunction("setPropQAngle", &LuaEntity::setProp<QAngle>)
                 .addFunction("setPropVector", &LuaEntity::setProp<Vector>)
+            .endClass()
+            .beginClass<LuaClientClass>("ClientClass")
+                .addFunction("exists", &LuaClientClass::exists)
+                .addFunction("create", &LuaClientClass::create)
+                .addFunction("name", &LuaClientClass::name)
+                .addFunction("next", &LuaClientClass::next)
             .endClass()
             .beginClass<LuaConvar>("Convar")
                 .addFunction("ffiPtr", &LuaConvar::ffiPtr)
@@ -382,6 +422,7 @@ namespace Lua {
                 .addFunction("worldToScreen", Cheat::_worldToScreen)
                 .addFunction("createBeam", Cheat::createBeam)
                 .addFunction("ringBeam", Cheat::ringBeam)
+                .addFunction("getAllClientClasses", Cheat::getAllClientClasses)
             .endNamespace()
             .beginNamespace("panorama")
                 .addFunction("executeScript", Panorama::executeScript)

@@ -11,8 +11,8 @@
 class ICollideable {
 public:
 	virtual void pad0();
-	virtual const Vector& OBBMins() const;
-	virtual const Vector& OBBMaxs() const;
+	virtual Vector& OBBMins();
+	virtual Vector& OBBMaxs();
 };
 
 namespace EntityCache {
@@ -32,6 +32,10 @@ class Entity {
 	}
 
     VFUNC(ClientClass*, clientClass, 2, (), (networkable()))
+    VFUNC(void, onPreDataChanged, 4, (int updateType), (networkable(), updateType))
+    VFUNC(void, onDataChanged, 5, (int updateType), (networkable(), updateType))
+    VFUNC(void, preDataUpdate, 6, (int updateType), (networkable(), updateType))
+    VFUNC(void, postDataUpdate, 7, (int updateType), (networkable(), updateType))
     VFUNC(bool, dormant, 9, (), (networkable()))
     VFUNC(int, index, 10, (), (networkable()))
 
