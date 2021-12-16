@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11.0)
-project(csgo-cheat)
+project(eclipse)
 
 
 set(CMAKE_CXX_STANDARD 20)
@@ -30,5 +30,5 @@ list(APPEND SOURCES ${CSOURCES})
 include_directories(/usr/local/include /usr/include/freetype2)
 link_directories(/usr/local/lib src)
 
-add_library(csgo-cheat SHARED ${SOURCES})
-target_link_libraries(csgo-cheat dl pthread SDL2 GL freetype luajit-5.1 gamesdk)
+add_library(eclipse SHARED ${SOURCES})
+target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk)

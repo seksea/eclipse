@@ -34,7 +34,7 @@ function unload {
 function load {
     echo "Loading cheat..."
     echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope > /dev/null
-    sudo cp build/libcsgo-cheat.so /usr/lib/$libname
+    sudo cp build/libeclipse.so /usr/lib/$libname
     sudo strip -s -v /usr/lib/$libname
     sudo patchelf --set-soname $libname /usr/lib/$libname
     $gdb -n -q -batch \
@@ -49,7 +49,7 @@ function load {
 function load_debug {
     echo "Loading cheat..."
     echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-    sudo cp build/libcsgo-cheat.so /usr/lib/$libname
+    sudo cp build/libeclipse.so /usr/lib/$libname
     sudo patchelf --set-soname $libname /usr/lib/$libname
     $gdb -n -q -batch \
         -ex "set auto-load safe-path /usr/lib:/usr/lib/" \

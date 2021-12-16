@@ -14,20 +14,20 @@ void mainThread() {
     /* if serverbrowser is not open then wait, (serverbrowser is last to be loaded) */
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))
         usleep(500000);
-    LOG("Loading csgo-cheat...");
+    LOG("Loading eclipse...");
     Interfaces::init();
     Chams::createMaterials();
     Netvars::init();
     Hooks::init();
-    LOG("Successfully loaded csgo-cheat!");
+    LOG("Successfully loaded eclipse!");
 }
 
 /* Called on uninject, if you ld_preload with this, then it will call it as soon as you inject, so only have this if PRELOAD compile def is not set */
 #ifndef PRELOAD
 void __attribute__((destructor)) unload() {
-    LOG("Unloading csgo-cheat...");
+    LOG("Unloading eclipse...");
     Hooks::unload();
-    LOG("Unloaded csgo-cheat!");
+    LOG("Unloaded eclipse!");
 }
 #endif
 
