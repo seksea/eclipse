@@ -39,6 +39,11 @@ namespace Interfaces {
         renderBeams = **Memory::relativeToAbsolute<ViewRenderBeams***>(Memory::patternScan("/client_client.so", "4C 89 F6 4C 8B 25 ? ? ? ? 48 8D 05") + 6); // Credit: danielkrupinski
         LOG(" renderBeams %lx", (uintptr_t)renderBeams);
 
+        /* Get panorama panel array (credit LWSS' skeletux project) */
+        uintptr_t IsValidPanelPointer = reinterpret_cast<uintptr_t>(Memory::getVTable(Interfaces::panorama->AccessUIEngine())[37]);
+        int32_t offset = *(unsigned int*)(IsValidPanelPointer + 4);
+        panelArray = *(PanelArray**) ( ((uintptr_t)Interfaces::panorama->AccessUIEngine()) + offset + 8);
+        
         LOG("Initialised interfaces!");
     }
 }

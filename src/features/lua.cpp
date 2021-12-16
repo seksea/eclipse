@@ -171,29 +171,10 @@ namespace Lua {
         }
     }
     namespace Panorama {
-        IUIPanel* getRoot() {
-            auto eng = Interfaces::panorama->AccessUIEngine();
-            auto panel = eng->GetLastDispatchedEventTargetPanel();
-            if (!Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(panel))
-                return nullptr;
-
-            IUIPanel* itr = panel;
-            IUIPanel* ret = nullptr;
-
-            while (itr && Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(itr)) {
-                if (!strcmp(itr->GetID(), "CSGOMainMenu")) {
-                    ret = itr;
-                    break;
-                }
-                itr = itr->GetParent();
-            }
-            return ret;
-        }
-
         void executeScript(const char* script, const char* xmlContext) {
-            if (getRoot()) {
-                Interfaces::panorama->AccessUIEngine()->RunScript(getRoot(), script, xmlContext, 8, 10, false);
-            }
+            IUIPanel* root = Interfaces::panorama->getRoot();
+            if (root)
+                Interfaces::panorama->AccessUIEngine()->RunScript(root, script, xmlContext, 8, 10, false);
         }
     }
     namespace UI {
