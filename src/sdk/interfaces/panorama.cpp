@@ -9,8 +9,8 @@ IUIPanel* IPanoramaUIEngine::getRoot() {
             continue;
 
         while (itr && Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(itr)) {
-            LOG("%s", itr->GetID());
-            if (!strcmp(itr->GetID(), "CSGOMainMenu")) {
+            if (strstr(itr->GetID(), "CSGOMainMenu") || strstr(itr->GetID(), "CSGOHud")) {
+                LOG("Found root: %s", itr->GetID());
                 return itr;
             }
             itr = itr->GetParent();

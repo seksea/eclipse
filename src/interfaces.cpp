@@ -22,6 +22,7 @@ namespace Interfaces {
         materialSystem = getInterface<IMaterialSystem>("./bin/linux64/materialsystem_client.so", "VMaterialSystem");
         studioRender = getInterface<StudioRender>("./bin/linux64/studiorender_client.so", "VStudioRender");
         panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_gl_client.so", "PanoramaUIEngine");
+        sound = getInterface<IEngineSound>("./bin/linux64/engine_client.so", "IEngineSoundClient");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);

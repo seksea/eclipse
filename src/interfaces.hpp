@@ -29,6 +29,7 @@ namespace Interfaces {
     inline IMaterialSystem* materialSystem;
     inline StudioRender* studioRender;
     inline IPanoramaUIEngine* panorama;
+    inline class IEngineSound* sound;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
