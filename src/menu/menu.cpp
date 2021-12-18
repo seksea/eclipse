@@ -239,7 +239,8 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
                     BEGINGROUPBOX("misc", ImVec2(438, 250));
-                    
+                        CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
+                        CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
                     ENDGROUPBOX();
 
                     ImGui::SetCursorPos(ImVec2(6, 262));

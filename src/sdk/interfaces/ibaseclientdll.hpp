@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "../../util/memory.hpp"
 
 struct RecvProp;
 
@@ -91,4 +92,5 @@ public:
 class IBaseClientDLL {
 public:
     VFUNC(ClientClass*, getAllClasses, 8, (), (this))
+    VFUNC(bool, dispatchUserMessage, 38, (int msgType, int a, int b, void* msgData), (this, msgType, a, b, msgData))
 };

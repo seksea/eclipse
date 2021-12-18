@@ -7,6 +7,7 @@
 #include "interfaces.hpp"
 #include "sdk/entity.hpp"
 #include "menu/menu.hpp"
+#include "menu/config.hpp"
 #include "features/lua.hpp"
 #include "features/chams.hpp"
 #include "features/backtrack.hpp"
@@ -43,6 +44,10 @@ namespace Hooks {
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
+        if (cmd->buttons & IN_SCORE && cmd->tickcount % 32 == 1 && CONFIGBOOL("rank reveal")) {
+            Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
+        }
+
         storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
         EntityCache::cacheEntities();
 
@@ -76,7 +81,7 @@ namespace Hooks {
     }
 
     void EmitSound::hook(void* thisptr, void*& filter, int iEntIndex, int iChannel, const char* pSoundEntry, unsigned int nSoundEntryHash, const char *pSample, float flVolume, int nSeed, void* iSoundLevel, int iFlags, int iPitch, const Vector* pOrigin, const Vector* pDirection, void* pUtlVecOrigins, bool bUpdatePositions, float soundtime, int speakerentity, void*& params) {
-    if (strstr(pSoundEntry, "UIPanorama.popup_accept_match_beep")) {
+    if (strstr(pSoundEntry, "UIPanorama.popup_accept_match_beep") && CONFIGBOOL("auto accept")) {
         IUIPanel* root = Interfaces::panorama->getRoot();
         if (root)
             Interfaces::panorama->AccessUIEngine()->RunScript(root, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
