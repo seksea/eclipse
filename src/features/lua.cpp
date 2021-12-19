@@ -3,16 +3,12 @@
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
-#include "../menu/imgui/imgui_internal.h"
 #include "../sdk/entity.hpp"
 #include "../sdk/math.hpp"
 #include "../sdk/netvars.hpp"
 #include "chams.hpp"
 
 namespace Lua {
-    LuaEngine* curEngineBeingRan; // used for registerHook to know the engine the func is being ran from
-    const char* curEngineBeingRanName; // used for registerHook to know the engine the func is being ran from
-
     void print(const char* str) {
         LOG("[%s] %s", curEngineBeingRanName, str);
     }
@@ -92,7 +88,6 @@ namespace Lua {
 
         uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
 
-        CUserCmd getCmd() { return *curCmd; }
         void setCmd(CUserCmd cmd) { memcpy((void*)curCmd, (void*)&cmd, sizeof(CUserCmd)); }
 
         LuaEntity getEntity(int i) {
@@ -473,45 +468,6 @@ namespace Lua {
                 .addFunction("deltaTime", Draw::deltaTime)
                 .addFunction("HSVtoColor", ImColor::HSV)
             .endNamespace();
-    }
-
-    void handleHook(const char* hook) {
-        std::lock_guard<std::mutex> lock(luaLock);
-        for (auto& engine : scripts) {
-            curEngineBeingRan = &engine.second;
-            curEngineBeingRanName = engine.first.c_str();
-            if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
-                int oldStackSize = 0;
-                if (strstr(hook, "draw"))
-                    oldStackSize = ImGui::GetCurrentContext()->CurrentWindowStack.Size;
-
-                if (strstr(hook, "UI")) {
-                    if (ImGui::CollapsingHeader(engine.first.c_str())) {
-                        try {
-                            engine.second.hooks.at(hook)();
-                        }
-                        catch (luabridge::LuaException const& e) {
-                            ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
-                        }
-                    }
-                    ImGui::Separator();
-                }
-                else {
-                    try { 
-                        engine.second.hooks.at(hook)();
-                    }
-                    catch (luabridge::LuaException const& e) {
-                        ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
-                    }
-                }
-                if (strstr(hook, "draw")) {
-                    while (ImGui::GetCurrentContext()->CurrentWindowStack.Size > oldStackSize) {
-                        ImGui::End();
-                        WARN("lua %s: ui.beginWindow missing ui.endWindow", engine.first.c_str());
-                    }
-                }
-            }
-        }
     }
 
     LuaEngine::LuaEngine(std::string filename) {

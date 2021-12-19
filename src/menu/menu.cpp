@@ -90,7 +90,7 @@ namespace Menu {
         ESP::draw(ImGui::GetBackgroundDrawList());
 
         Lua::curDrawList = ImGui::GetBackgroundDrawList();
-        Lua::handleHook("draw");
+        Lua::handleHook("draw", 0, 0, 0, 0, 0, 0, 0, 0);
 
         int w, h;
         SDL_GetWindowSize(window, &w, &h);
@@ -380,7 +380,7 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(178, 6));
 
                     BEGINGROUPBOX("script UI", ImVec2(266, 387));
-                    Lua::handleHook("UI");
+                    Lua::handleHook("UI", 0, 0, 0, 0, 0, 0, 0, 0);
 
                     ENDGROUPBOX();
                     break;
@@ -433,7 +433,7 @@ namespace Menu {
         ImGui::ShowDemoWindow();
 
         Lua::curDrawList = ImGui::GetForegroundDrawList();
-        Lua::handleHook("drawabove");
+        Lua::handleHook("drawabove", 0, 0, 0, 0, 0, 0, 0, 0);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

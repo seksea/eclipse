@@ -61,7 +61,7 @@ namespace Hooks {
         Movement::bunnyhop(cmd);
 
         Lua::curCmd = cmd;
-        Lua::handleHook("createMove");
+        Lua::handleHook("createMove", *cmd, 0, 0, 0, 0, 0, 0, 0);
 
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
@@ -82,7 +82,7 @@ namespace Hooks {
     }
 
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
-        Lua::handleHook("frameStageNotify");
+        Lua::handleHook("frameStageNotify", stage, 0, 0, 0, 0, 0, 0, 0);
         return original(thisptr, stage);
     }
 
