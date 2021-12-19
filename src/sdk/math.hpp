@@ -1655,6 +1655,9 @@ inline void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& o
     out[2] = in1.Dot(in2[2]) + in2[2][3];
 }
 
+
+QAngle calcAngle(const Vector& src, const Vector& dst);
+
 class Entity;
 ImVec4 getBoundingBox(Entity* e);
 

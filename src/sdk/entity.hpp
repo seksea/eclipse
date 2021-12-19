@@ -6,6 +6,7 @@
 #include "../util/memory.hpp"
 #include "../interfaces.hpp"
 #include "netvars.hpp"
+#include "../features/visuals.hpp"
 
 #include "allnetvars.hpp"
 class ICollideable {
@@ -51,25 +52,31 @@ class Entity {
 	const matrix3x4_t coordinateFrame() {
 		return *(matrix3x4_t*)((uintptr_t)this + 0x518);
 	}
+
+	const int moveType() {
+		return *reinterpret_cast<int*>((uintptr_t)this + Netvars::netvars.at({"DT_BaseEntity", "m_nRenderMode"}).second + 1);
+	}
 };
 
 namespace EntityCache {
 	struct CachedEntity {
 		int index;
-		int health;
-		bool teammate;
 		Vector origin;
 		int classID;
-		PlayerInfo info;
 		ImVec4 boundingBox;
+		int health;
+		bool teammate;
+		PlayerInfo info;
 		CachedEntity(Entity* e) {
 			this->index = e->index();
-			this->health = e->nDT_BasePlayer__m_iHealth();
-			this->teammate = e->teammate();
 			this->origin = e->origin();
 			this->classID = e->clientClass()->m_ClassID;
-			Interfaces::engine->getPlayerInfo(this->index, this->info);
 			boundingBox = getBoundingBox(e);
+			if (this->index <= 64) { // if player
+				this->health = e->nDT_BasePlayer__m_iHealth();
+				this->teammate = e->teammate();
+				Interfaces::engine->getPlayerInfo(this->index, this->info);
+			}
 		}
 	};
 	

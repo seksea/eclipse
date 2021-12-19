@@ -113,8 +113,9 @@ namespace Menu {
                 case 0: {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
-                    BEGINGROUPBOX("aimbot", ImVec2(438, 250));
-                    CHECKBOX("enabled", &CONFIGBOOL("aimbot enabled"));
+                    BEGINGROUPBOX("legitbot", ImVec2(438, 250));
+                    SLIDERFLOAT("fov", &CONFIGFLOAT("legitbot fov"), 0, 180, "%.2f");
+                    SLIDERFLOAT("smoothing", &CONFIGFLOAT("legitbot smoothing"), 0, 100, "%.2f");
                     ENDGROUPBOX();
 
                     ImGui::SetCursorPos(ImVec2(6, 262));
@@ -222,7 +223,7 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(6, 42));
 
                             BEGINGROUPBOX("world", ImVec2(216, 351));
-                            
+                                SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0, 1, "%.2f");
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -252,7 +253,7 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(228, 262));
 
                     BEGINGROUPBOX("movement", ImVec2(216, 131));
-                    
+                        CHECKBOX("bhop", &CONFIGBOOL("bhop"));
                     ENDGROUPBOX();
                     break;
                 }

@@ -11,8 +11,8 @@ static constexpr auto relativeToAbsolute(std::uintptr_t address) noexcept {
 
 namespace Interfaces {
     void init() {
-        LOG("Initialising interfaces...");
         cvar = getInterface<ICvar>("./bin/linux64/materialsystem_client.so", "VEngineCvar");
+        Log::init();
 
         engine = getInterface<IVEngineClient>("./bin/linux64/engine_client.so", "VEngineClient");
         client = getInterface<IBaseClientDLL>("./csgo/bin/linux64/client_client.so", "VClient");

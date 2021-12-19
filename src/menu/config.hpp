@@ -6,7 +6,7 @@
 #include <utility>
 #include "imgui/imgui.h"
 
-#define CONFIGINT(name) Config::getConfigItem(name, Config::INT)->intValue
+#define CONFIGINT(name) ((int)Config::getConfigItem(name, Config::FLOAT)->floatValue)
 #define CONFIGFLOAT(name) Config::getConfigItem(name, Config::FLOAT)->floatValue
 #define CONFIGBOOL(name) Config::getConfigItem(name, Config::BOOL)->boolValue
 #define CONFIGSTR(name) Config::getConfigItem(name, Config::STR)->strValue
@@ -14,7 +14,6 @@
 
 namespace Config {
     enum ConfigItemType {
-        INT,
         FLOAT,
         BOOL,
         STR,
@@ -23,10 +22,6 @@ namespace Config {
 
 	class ConfigItem {
 	public:
-        ConfigItem(int value) {
-            type = Config::INT;
-            intValue = value;
-        }
         ConfigItem(float value) {
             type = Config::FLOAT;
             floatValue = value;
@@ -44,8 +39,7 @@ namespace Config {
             colValue = value;
         }
         ConfigItemType type;
-        int intValue = -1;
-        float floatValue = -1;
+        float floatValue = 0.f;
         bool boolValue = false;
         std::string strValue = "";
         ImColor colValue = ImColor(255, 255, 255, 255);
@@ -60,7 +54,6 @@ namespace Config {
             return &it->second;
 
         switch (type) {
-            case Config::INT: configItems.insert(std::pair<std::string, ConfigItem>(name, 0)); break;
             case Config::FLOAT: configItems.insert(std::pair<std::string, ConfigItem>(name, 0.f)); break;
             case Config::BOOL: configItems.insert(std::pair<std::string, ConfigItem>(name, false)); break;
             case Config::STR: configItems.insert(std::pair<std::string, ConfigItem>(name, std::string(""))); break;
@@ -91,7 +84,6 @@ namespace Config {
 
         for (auto configItem : configItems) {
             switch (configItem.second.type) {
-            case Config::INT: j[configItem.first] = configItem.second.intValue; break;
             case Config::FLOAT: j[configItem.first] = configItem.second.floatValue; break;
             case Config::BOOL: j[configItem.first] = configItem.second.boolValue; break;
             case Config::STR: j[configItem.first] = configItem.second.strValue.c_str(); break;
@@ -144,10 +136,7 @@ namespace Config {
 
         nlohmann::json j = nlohmann::json::parse(file);
         for (nlohmann::json::iterator it = j.begin(); it != j.end(); ++it) {
-            if (it.value().is_number()) {
-                CONFIGINT(it.key().c_str()) = it.value();
-            }
-            if (it.value().is_number_float()) {
+            if (it.value().is_number() || it.value().is_number_float()) {
                 CONFIGFLOAT(it.key().c_str()) = it.value();
             }
             if (it.value().is_boolean()) {

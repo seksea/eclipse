@@ -9,5 +9,6 @@ namespace Log {
         WARN,
         ERR
     };
+    void init();
     void log(LogLevel level, const char* fmt, ...);
 }

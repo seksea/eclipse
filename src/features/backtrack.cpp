@@ -38,28 +38,13 @@ namespace Backtrack {
                 ticks.pop_back();
         }
     }
-    
-    QAngle calcAngle(const Vector& src, const Vector& dst) {
-        QAngle vAngle;
-        Vector delta((src.x - dst.x), (src.y - dst.y), (src.z - dst.z));
-        double hyp = sqrt(delta.x*delta.x + delta.y*delta.y);
-
-        vAngle.x = float(atanf(float(delta.z / hyp)) * 57.295779513082f);
-        vAngle.y = float(atanf(float(delta.y / delta.x)) * 57.295779513082f);
-        vAngle.z = 0.0f;
-
-        if (delta.x >= 0.0)
-            vAngle.y += 180.0f;
-
-        return vAngle;
-    }
 
     void run(CUserCmd* cmd) {
         if (EntityCache::localPlayer && cmd->buttons & (1 << 0)) {
             float closestDelta = FLT_MAX; 
             int closestTick = cmd->tickcount;
             QAngle viewAngles = cmd->viewangles;
-            viewAngles += QAngle(EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().x, EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().y, EntityCache::localPlayer->nDT_Local__m_aimPunchAngle().z);
+            viewAngles += EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2;
             for (Tick tick : ticks) {
                 for (auto p : tick.players) {
                     Entity* ent = Interfaces::entityList->getClientEntity(p.first);

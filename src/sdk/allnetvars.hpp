@@ -968,7 +968,7 @@
 	NETVAR("DT_LightGlow", "m_spawnflags", nDT_LightGlow__m_spawnflags, int) \
 	NETVAR("DT_LightGlow", "m_vecOrigin", nDT_LightGlow__m_vecOrigin, Vector) \
 	NETVAR("DT_LightGlow", "moveparent", nDT_LightGlow__moveparent, int) \
-	NETVAR("DT_Local", "m_aimPunchAngle", nDT_Local__m_aimPunchAngle, Vector) \
+	NETVAR("DT_Local", "m_aimPunchAngle", nDT_Local__m_aimPunchAngle, QAngle) \
 	NETVAR("DT_Local", "m_aimPunchAngleVel", nDT_Local__m_aimPunchAngleVel, Vector) \
 	NETVAR("DT_Local", "m_audio.entIndex", nDT_Local__m_audioentIndex, int) \
 	NETVAR("DT_Local", "m_audio.localBits", nDT_Local__m_audiolocalBits, int) \

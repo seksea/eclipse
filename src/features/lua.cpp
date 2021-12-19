@@ -213,8 +213,6 @@ namespace Lua {
         void setConfigBool(const char* var, bool val) { CONFIGBOOL(var) = val; }
         float getConfigFloat(const char* var) { return CONFIGFLOAT(var); }
         void setConfigFloat(const char* var, float val) { CONFIGFLOAT(var) = val; }
-        int getConfigInt(const char* var) { return CONFIGINT(var); }
-        void setConfigInt(const char* var, int val) { CONFIGINT(var) = val; }
         const char* getConfigStr(const char* var) { return CONFIGSTR(var).c_str(); }
         void setConfigStr(const char* var, const char* val) { CONFIGSTR(var) = val; }
         ImColor getConfigCol(const char* var) { return CONFIGCOL(var); }
@@ -264,7 +262,9 @@ namespace Lua {
             strcat(labelBuf, label);
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
-            ImGui::SliderInt(labelBuf, &CONFIGINT(configVarName), min, max, format);
+            int temp = CONFIGFLOAT(configVarName);
+            ImGui::SliderInt(labelBuf, &temp, min, max, format);
+            CONFIGFLOAT(configVarName) = temp;
             return CONFIGINT(configVarName);
         }
         float sliderFloat(const char* label, const char* configVarName, float min, float max, const char* format) {
@@ -435,8 +435,6 @@ namespace Lua {
                 .addFunction("setConfigBool", UI::setConfigBool)
                 .addFunction("getConfigFloat", UI::getConfigFloat)
                 .addFunction("setConfigFloat", UI::setConfigFloat)
-                .addFunction("getConfigInt", UI::getConfigInt)
-                .addFunction("setConfigInt", UI::setConfigInt)
                 .addFunction("getConfigStr", UI::getConfigStr)
                 .addFunction("setConfigStr", UI::setConfigStr)
                 .addFunction("getConfigCol", UI::getConfigCol)

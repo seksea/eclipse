@@ -14,7 +14,6 @@ void mainThread() {
     /* if serverbrowser is not open then wait, (serverbrowser is last to be loaded) */
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))
         usleep(500000);
-    LOG("Loading eclipse...");
     Interfaces::init();
     Chams::createMaterials();
     Netvars::init();
@@ -28,6 +27,7 @@ void __attribute__((destructor)) unload() {
     LOG("Unloading eclipse...");
     Hooks::unload();
     LOG("Unloaded eclipse!");
+    DiscordRPC::core->~Core();
 }
 #endif
 
