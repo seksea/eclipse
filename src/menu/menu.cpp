@@ -166,10 +166,10 @@ namespace Menu {
                     ImGui::EndChild();
                     ImGui::PopStyleVar();
 
+                    ImGui::SetCursorPos(ImVec2(6, 42));
+
                     switch (curSubTab) {
                         case 0: { // Enemy
-                            ImGui::SetCursorPos(ImVec2(6, 42));
-
                             BEGINGROUPBOX("ESP", ImVec2(216, 351));
                                 COLORPICKER("##box color", CONFIGCOL("enemy esp box color"));
                                 ImGui::SameLine();
@@ -194,8 +194,6 @@ namespace Menu {
                             break;
                         }
                         case 1: { // Team
-                            ImGui::SetCursorPos(ImVec2(6, 42));
-
                             BEGINGROUPBOX("ESP", ImVec2(216, 351));
                                 COLORPICKER("##box color", CONFIGCOL("team esp box color"));
                                 ImGui::SameLine();
@@ -219,9 +217,7 @@ namespace Menu {
                             ENDGROUPBOX();
                             break;
                         }
-                        case 2: {
-                            ImGui::SetCursorPos(ImVec2(6, 42));
-
+                        case 2: { /* World */
                             BEGINGROUPBOX("world", ImVec2(216, 351));
                                 SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0, 1, "%.2f");
                             ENDGROUPBOX();
@@ -239,22 +235,68 @@ namespace Menu {
                 case 2: {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
-                    BEGINGROUPBOX("misc", ImVec2(438, 250));
-                        CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
-                        CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
-                    ENDGROUPBOX();
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+                    ImGui::BeginChild("tabs", ImVec2(ImGui::GetWindowContentRegionWidth(), 30), true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8, 0.8, 0.8, 0.8));
+                    static int curSubTab = 0;
+                    static int lastCurSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("skins", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 1;
+                    if (lastCurSubTab == 1) ImGui::PopStyleColor();
+                    lastCurSubTab = curSubTab;
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleVar();
+                    ImGui::EndChild();
+                    ImGui::PopStyleVar();
 
-                    ImGui::SetCursorPos(ImVec2(6, 262));
-
-                    BEGINGROUPBOX("clantag", ImVec2(216, 131));
+                    ImGui::SetCursorPos(ImVec2(6, 42));
                     
-                    ENDGROUPBOX();
+                    switch (curSubTab) {
+                        case 0: { /* misc */
+                            BEGINGROUPBOX("misc", ImVec2(438, 214));
+                                CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
+                                CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
+                            ENDGROUPBOX();
 
-                    ImGui::SetCursorPos(ImVec2(228, 262));
+                            ImGui::SetCursorPos(ImVec2(6, 262));
 
-                    BEGINGROUPBOX("movement", ImVec2(216, 131));
-                        CHECKBOX("bhop", &CONFIGBOOL("bhop"));
-                    ENDGROUPBOX();
+                            BEGINGROUPBOX("clantag", ImVec2(216, 131));
+                            
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(228, 262));
+
+                            BEGINGROUPBOX("movement", ImVec2(216, 131));
+                                CHECKBOX("bhop", &CONFIGBOOL("bhop"));
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 1: { /* skins */
+                            BEGINGROUPBOX("skin changer", ImVec2(438, 214));
+
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(6, 262));
+
+                            BEGINGROUPBOX("model changer", ImVec2(438, 131));
+                            
+                            ENDGROUPBOX();
+                            break;
+                        }
+                    }
                     break;
                 }
                 case 3: {

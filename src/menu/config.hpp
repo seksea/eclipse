@@ -57,7 +57,7 @@ namespace Config {
             case Config::FLOAT: configItems.insert(std::pair<std::string, ConfigItem>(name, 0.f)); break;
             case Config::BOOL: configItems.insert(std::pair<std::string, ConfigItem>(name, false)); break;
             case Config::STR: configItems.insert(std::pair<std::string, ConfigItem>(name, std::string(""))); break;
-            case Config::COLOR: configItems.insert(std::pair<std::string, ConfigItem>(name, ImColor(0, 0, 0))); break;
+            case Config::COLOR: configItems.insert(std::pair<std::string, ConfigItem>(name, ImColor(255, 255, 255, 255))); break;
         }
 
         return getConfigItem(name, type);
