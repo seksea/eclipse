@@ -46,12 +46,16 @@ namespace Hooks {
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
-        if (cmd->buttons & IN_SCORE && cmd->tickcount % 32 == 1 && CONFIGBOOL("rank reveal")) {
-            Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
-        }
+        if (!cmd || !cmd->commandnumber)
+            return origReturn;
+        
 
         storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
         EntityCache::cacheEntities();
+
+        if (cmd->buttons & IN_SCORE && cmd->tickcount % 32 == 1 && CONFIGBOOL("rank reveal")) {
+            Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
+        }
 
         Backtrack::store(cmd);
         Backtrack::run(cmd);
@@ -61,7 +65,7 @@ namespace Hooks {
         Movement::bunnyhop(cmd);
 
         Lua::curCmd = cmd;
-        Lua::handleHook("createMove", *cmd, 0, 0, 0, 0, 0, 0, 0);
+        Lua::handleHook("createMove", *cmd);
 
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
@@ -82,7 +86,7 @@ namespace Hooks {
     }
 
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
-        Lua::handleHook("frameStageNotify", stage, 0, 0, 0, 0, 0, 0, 0);
+        Lua::handleHook("frameStageNotify", stage);
         return original(thisptr, stage);
     }
 
