@@ -31,16 +31,19 @@ namespace Netvars {
         for (ClientClass* cur = Interfaces::client->getAllClasses(); cur; cur = cur->m_pNext) {
             dumpOffsetsFromTable(cur->m_pRecvTable);
         }
-
-        /*for (auto& nvar: netvars) {
-            printf("	NETVAR(\"%s\", \"%s\", n%s__%s, %s) \\\n", 
+		FILE* f = fopen("netvars.txt", "w");
+		for (auto& nvar: netvars) {
+			char buf[1024];
+            snprintf(buf, sizeof(buf), "	NETVAR(\"%s\", \"%s\", n%s__%s, %s) \\\n", 
 				nvar.first.first.data(), nvar.first.second.data(),
 				nvar.first.first.data(), nvar.first.second.data(),
 				nvar.second.first->m_RecvType == DPT_Int ? "int" :
 				nvar.second.first->m_RecvType == DPT_Float ? "float" : 
 				nvar.second.first->m_RecvType == DPT_Vector ? "Vector" :
 				nvar.second.first->m_RecvType == DPT_VectorXY ? "QAngle" : "void*");
-        }*/
+			fputs(buf, f);
+        }
+		fclose(f);
 		LOG("Initialised Netvars.");
     }
 }

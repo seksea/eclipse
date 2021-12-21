@@ -10,13 +10,14 @@
 #include "../features/discordrpc.hpp"
 #include "../features/esp.hpp"
 #include "../features/chams.hpp"
+#include "../features/skinchanger.hpp"
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
 #define CHECKBOX(name, var) ImGui::Checkbox(name, var)
-#define COMBOBOX(name, var, array) ImGui::Text(name); ImGui::Combo("##" name, var, array, IM_ARRAYSIZE(array));
+#define COMBOBOX(name, var, array, size) ImGui::Text(name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::Combo("##" name, var, array, size);
 #define COLORPICKER(name, var) ImGui::ColorEdit4(name, (float*)&var.Value, ImGuiColorEditFlags_NoInputs);
 #define SLIDERINT(name, var, min, max, format) ImGui::Text("%s", name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::SliderInt("##" name, var, min, max, format);
 #define SLIDERFLOAT(name, var, min, max, format) ImGui::Text("%s", name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::SliderFloat("##" name, var, min, max, format);
@@ -292,7 +293,9 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
                             BEGINGROUPBOX("model changer", ImVec2(438, 131));
-                            
+                                int temp = CONFIGINT("knife model");
+                                COMBOBOX("knife model", &temp, SkinChanger::knives, IM_ARRAYSIZE(SkinChanger::knives));
+                                CONFIGFLOAT("knife model") = temp;
                             ENDGROUPBOX();
                             break;
                         }

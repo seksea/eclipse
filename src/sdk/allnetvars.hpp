@@ -177,7 +177,7 @@
 	NETVAR("DT_BasePlayer", "m_hVehicle", nDT_BasePlayer__m_hVehicle, int) \
 	NETVAR("DT_BasePlayer", "m_hViewEntity", nDT_BasePlayer__m_hViewEntity, int) \
 	NETVAR("DT_BasePlayer", "m_hViewModel", nDT_BasePlayer__m_hViewModel, void*) \
-	NETVAR("DT_BasePlayer", "m_hViewModel[0]", nDT_BasePlayer__m_hViewModel0, int) \
+	NETVAR("DT_BasePlayer", "m_hViewModel[0]", nDT_BasePlayer__m_hViewModel0, void*) \
 	NETVAR("DT_BasePlayer", "m_hZoomOwner", nDT_BasePlayer__m_hZoomOwner, int) \
 	NETVAR("DT_BasePlayer", "m_iAmmo", nDT_BasePlayer__m_iAmmo, void*) \
 	NETVAR("DT_BasePlayer", "m_iBonusChallenge", nDT_BasePlayer__m_iBonusChallenge, int) \

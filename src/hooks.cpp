@@ -13,6 +13,7 @@
 #include "features/backtrack.hpp"
 #include "features/movement.hpp"
 #include "features/legitbot.hpp"
+#include "features/skinchanger.hpp"
 
 namespace Hooks {
     void init() {
@@ -86,6 +87,7 @@ namespace Hooks {
     }
 
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
+        SkinChanger::run(stage);
         Lua::handleHook("frameStageNotify", stage);
         return original(thisptr, stage);
     }
