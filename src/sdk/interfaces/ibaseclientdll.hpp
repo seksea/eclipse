@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "../classids.hpp"
 #include "../../util/memory.hpp"
 
 struct RecvProp;
@@ -86,7 +87,7 @@ public:
 	char* m_pNetworkName;
 	RecvTable *m_pRecvTable;
 	ClientClass* m_pNext;
-	int m_ClassID;
+	ClassId m_ClassID;
 };
 
 class IBaseClientDLL {

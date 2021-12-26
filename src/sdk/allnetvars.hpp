@@ -1299,7 +1299,7 @@
 	NETVAR("DT_ScriptCreatedItem", "m_iAccountID", nDT_ScriptCreatedItem__m_iAccountID, int) \
 	NETVAR("DT_ScriptCreatedItem", "m_iEntityLevel", nDT_ScriptCreatedItem__m_iEntityLevel, int) \
 	NETVAR("DT_ScriptCreatedItem", "m_iEntityQuality", nDT_ScriptCreatedItem__m_iEntityQuality, int) \
-	NETVAR("DT_ScriptCreatedItem", "m_iItemDefinitionIndex", nDT_ScriptCreatedItem__m_iItemDefinitionIndex, int) \
+	NETVAR("DT_ScriptCreatedItem", "m_iItemDefinitionIndex", nDT_ScriptCreatedItem__m_iItemDefinitionIndex, ItemIndex) \
 	NETVAR("DT_ScriptCreatedItem", "m_iItemIDHigh", nDT_ScriptCreatedItem__m_iItemIDHigh, int) \
 	NETVAR("DT_ScriptCreatedItem", "m_iItemIDLow", nDT_ScriptCreatedItem__m_iItemIDLow, int) \
 	NETVAR("DT_ScriptCreatedItem", "m_szCustomName", nDT_ScriptCreatedItem__m_szCustomName, void*) \

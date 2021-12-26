@@ -287,7 +287,31 @@ namespace Menu {
                         }
                         case 1: { /* skins */
                             BEGINGROUPBOX("skin changer", ImVec2(438, 214));
+                                static int curWeaponSelected = 0;
+                                COMBOBOX("weapon", &curWeaponSelected, SkinChanger::weapons, IM_ARRAYSIZE(SkinChanger::weapons));
+                                if (curWeaponSelected != 0) {
+                                    const char* curWeaponName = SkinChanger::weapons[curWeaponSelected];
+                                    char buf[256] = "skin changer ";
+                                    strcat(buf, curWeaponName);
 
+                                    char buf2[256];
+                                    strcpy(buf2, buf);
+                                    strcat(buf2, " paintkit");
+                                    int temp = CONFIGFLOAT(buf2);
+                                    SLIDERINT("paintkit ID", &temp, 0, 1000, "%d");
+                                    CONFIGFLOAT(buf2) = temp;
+
+                                    strcpy(buf2, buf);
+                                    strcat(buf2, " wear");
+                                    SLIDERFLOAT("wear", &CONFIGFLOAT(buf2), 0, 1, "%.3f");
+
+                                    strcpy(buf2, buf);
+                                    strcat(buf2, " stattrack");
+                                    temp = CONFIGFLOAT(buf2);
+                                    SLIDERINT("stattrack", &temp, 0, 999999, "%d");
+                                    CONFIGFLOAT(buf2) = temp;
+
+                                }
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(6, 262));
