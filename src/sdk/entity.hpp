@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <array>
 #include <mutex>
 #include "math.hpp"
 #include "../util/memory.hpp"
@@ -20,10 +21,14 @@ namespace EntityCache {
 	inline Entity* localPlayer;
 }
 
+using WeaponArr = std::array<unsigned long, 48>;
+
 class Entity {
     public:
 	ALL_NETVARS;
 
+	NETVAR("DT_BaseCombatCharacter", "m_hMyWeapons", weapons, WeaponArr);
+	
 	void* networkable() {
 		return reinterpret_cast<void*>(uintptr_t(this) + 16);
 	}

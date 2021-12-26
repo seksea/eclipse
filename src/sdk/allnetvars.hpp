@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #define ALL_NETVARS \
 	NETVAR("DT_BasePlayer", "m_nTickBase", nDT_BasePlayer__m_nTickBase, unsigned int) \
 	NETVAR("DT_BasePlayer", "m_aimPunchAngle", nDT_BasePlayer__m_aimPunchAngle, QAngle) \
@@ -85,7 +86,7 @@
 	NETVAR("DT_BaseCombatCharacter", "m_LastHitGroup", nDT_BaseCombatCharacter__m_LastHitGroup, int) \
 	NETVAR("DT_BaseCombatCharacter", "m_flTimeOfLastInjury", nDT_BaseCombatCharacter__m_flTimeOfLastInjury, float) \
 	NETVAR("DT_BaseCombatCharacter", "m_hActiveWeapon", nDT_BaseCombatCharacter__m_hActiveWeapon, int) \
-	NETVAR("DT_BaseCombatCharacter", "m_hMyWeapons", nDT_BaseCombatCharacter__m_hMyWeapons, void*) \
+	NETVAR("DT_BaseCombatCharacter", "m_hMyWeapons", nDT_BaseCombatCharacter__m_hMyWeapons, unsigned long*) \
 	NETVAR("DT_BaseCombatCharacter", "m_hMyWearables", nDT_BaseCombatCharacter__m_hMyWearables, void*) \
 	NETVAR("DT_BaseCombatCharacter", "m_nRelativeDirectionOfLastInjury", nDT_BaseCombatCharacter__m_nRelativeDirectionOfLastInjury, int) \
 	NETVAR("DT_BaseCombatWeapon", "LocalActiveWeaponData", nDT_BaseCombatWeapon__LocalActiveWeaponData, void*) \
