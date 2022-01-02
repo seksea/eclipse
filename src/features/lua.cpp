@@ -82,6 +82,19 @@ namespace Lua {
         }
     };
 
+    uintptr_t LuaGameEvent::ffiPtr() {return (uintptr_t)e;}
+    bool LuaGameEvent::getBool(const char* name) { return e->getBool(); }
+    float LuaGameEvent::getFloat(const char* name) { return e->getFloat(); }
+    int LuaGameEvent::getInt(const char* name) { return e->getInt(); }
+    const char* LuaGameEvent::getName() { return e->getName(); }
+    uintptr_t LuaGameEvent::getPtr(const char* name) { return (uintptr_t)e->getPtr(); }
+    const char* LuaGameEvent::getString(const char* name) { return e->getString(); }
+    uint64_t LuaGameEvent::getUint64(const char* name) { return e->getUint64(); }
+    const wchar_t* LuaGameEvent::getWString(const char* name) { return e->getWString(); }
+    LuaGameEvent::LuaGameEvent(IGameEvent* event) {
+        e = event;
+    }
+
     namespace Cheat {
         void registerHook(const char* hook, luabridge::LuaRef func) {
             curEngineBeingRan->hooks.insert(std::pair<std::string, luabridge::LuaRef>(hook, func));
@@ -402,6 +415,17 @@ namespace Lua {
                 .addFunction("setString", &LuaConvar::setString)
                 .addFunction("setFloat", &LuaConvar::setFloat)
                 .addFunction("setInt", &LuaConvar::setInt)
+            .endClass()
+            .beginClass<LuaGameEvent>("GameEvent")
+                .addFunction("ffiPtr", &LuaGameEvent::ffiPtr)
+                .addFunction("getBool", &LuaGameEvent::getBool)
+                .addFunction("getFloat", &LuaGameEvent::getFloat)
+                .addFunction("getInt", &LuaGameEvent::getInt)
+                .addFunction("getName", &LuaGameEvent::getName)
+                .addFunction("getPtr", &LuaGameEvent::getPtr)
+                .addFunction("getString", &LuaGameEvent::getString)
+                .addFunction("getUint64", &LuaGameEvent::getUint64)
+                .addFunction("getWString", &LuaGameEvent::getWString)
             .endClass()
             .beginNamespace("cheat")
                 .addFunction("registerHook", Cheat::registerHook)

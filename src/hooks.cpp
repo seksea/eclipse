@@ -108,19 +108,19 @@ namespace Hooks {
     }
 
     EventListener::EventListener() {
-        Interfaces::eventManager->AddListener(this, "player_hurt", false);
-        Interfaces::eventManager->AddListener(this, "player_death", false);
-        Interfaces::eventManager->AddListener(this, "bullet_impact", false);
+        Interfaces::eventManager->addListener(this, "player_hurt", false);
+        Interfaces::eventManager->addListener(this, "player_death", false);
+        Interfaces::eventManager->addListener(this, "bullet_impact", false);
     }
 
     EventListener::~EventListener() {
-        Interfaces::eventManager->RemoveListener(this);
+        Interfaces::eventManager->removeListener(this);
     }
 
     void EventListener::fireGameEvent(IGameEvent *event) {
-        Entity* attacker = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->GetInt("attacker")));
-        Entity* victim = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->GetInt("userid")));
-        LOG("event: %s", event->GetName());
+        Lua::handleHook("fireEvent", Lua::LuaGameEvent(event));
+        Entity* attacker = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->getInt("attacker")));
+        Entity* victim = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->getInt("userid")));
     }
 
     int EventListener::getEventDebugID() {

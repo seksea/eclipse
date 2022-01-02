@@ -18,6 +18,21 @@
 #include "../interfaces.hpp"
 
 namespace Lua {
+    class LuaGameEvent {
+        public:
+        IGameEvent* e;
+        uintptr_t ffiPtr();
+        bool getBool(const char* name);
+        float getFloat(const char* name);
+        int getInt(const char* name);
+        const char* getName();
+        uintptr_t getPtr(const char* name);
+        const char* getString(const char* name);
+        uint64_t getUint64(const char* name);
+        const wchar_t* getWString(const char* name);
+        LuaGameEvent(IGameEvent* event);
+    };
+
     class LuaEngine {
         public:
         lua_State* state;
