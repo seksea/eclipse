@@ -16,8 +16,6 @@
 #include "features/skinchanger.hpp"
 
 namespace Hooks {
-    static Hooks::EventListener* eventListener = nullptr;
-
     void init() {
         SDL::initSDL();
 
@@ -119,8 +117,6 @@ namespace Hooks {
 
     void EventListener::fireGameEvent(IGameEvent *event) {
         Lua::handleHook("fireEvent", Lua::LuaGameEvent(event));
-        Entity* attacker = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->getInt("attacker")));
-        Entity* victim = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->getInt("userid")));
     }
 
     int EventListener::getEventDebugID() {

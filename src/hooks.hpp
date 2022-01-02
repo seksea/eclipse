@@ -50,4 +50,5 @@ namespace Hooks {
         void fireGameEvent(IGameEvent* event) override;
         int getEventDebugID() override;
     };
+    inline EventListener* eventListener = nullptr;
 }

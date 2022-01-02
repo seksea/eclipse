@@ -1,5 +1,6 @@
 #include "lua.hpp"
 #include "../interfaces.hpp"
+#include "../hooks.hpp"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
@@ -83,14 +84,14 @@ namespace Lua {
     };
 
     uintptr_t LuaGameEvent::ffiPtr() {return (uintptr_t)e;}
-    bool LuaGameEvent::getBool(const char* name) { return e->getBool(); }
-    float LuaGameEvent::getFloat(const char* name) { return e->getFloat(); }
-    int LuaGameEvent::getInt(const char* name) { return e->getInt(); }
+    bool LuaGameEvent::getBool(const char* name) { return e->getBool(name); }
+    float LuaGameEvent::getFloat(const char* name) { return e->getFloat(name); }
+    int LuaGameEvent::getInt(const char* name) { return e->getInt(name); }
     const char* LuaGameEvent::getName() { return e->getName(); }
-    uintptr_t LuaGameEvent::getPtr(const char* name) { return (uintptr_t)e->getPtr(); }
-    const char* LuaGameEvent::getString(const char* name) { return e->getString(); }
-    uint64_t LuaGameEvent::getUint64(const char* name) { return e->getUint64(); }
-    const wchar_t* LuaGameEvent::getWString(const char* name) { return e->getWString(); }
+    uintptr_t LuaGameEvent::getPtr(const char* name) { return (uintptr_t)e->getPtr(name); }
+    const char* LuaGameEvent::getString(const char* name) { return e->getString(name); }
+    uint64_t LuaGameEvent::getUint64(const char* name) { return e->getUint64(name); }
+    const wchar_t* LuaGameEvent::getWString(const char* name) { return e->getWString(name); }
     LuaGameEvent::LuaGameEvent(IGameEvent* event) {
         e = event;
     }
@@ -174,6 +175,7 @@ namespace Lua {
                 beam->die = Interfaces::globals->curtime + dieTime;
             }
         }
+
         void ringBeam(Vector center, float ringStartRadius, float ringEndRadius, const char* modelName, ImColor color, float life, float width) {
             BeamInfo beamInfo;
             beamInfo.type = 7;
@@ -205,6 +207,10 @@ namespace Lua {
         
         LuaClientClass getAllClientClasses() {
             return LuaClientClass(Interfaces::client->getAllClasses());
+        }
+
+        void addEventListener(const char* eventName, bool serverSide) {
+            Interfaces::eventManager->addListener(Hooks::eventListener, eventName, serverSide);
         }
     }
     namespace Panorama {
@@ -442,6 +448,7 @@ namespace Lua {
                 .addFunction("createBeam", Cheat::createBeam)
                 .addFunction("ringBeam", Cheat::ringBeam)
                 .addFunction("getAllClientClasses", Cheat::getAllClientClasses)
+                .addFunction("addEventListener", Cheat::addEventListener)
             .endNamespace()
             .beginNamespace("panorama")
                 .addFunction("executeScript", Panorama::executeScript)
