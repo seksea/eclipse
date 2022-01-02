@@ -14,6 +14,9 @@ void outlineText(ImDrawList* drawList, ImVec2 pos, ImColor color, const char* te
 namespace ESP {
     void draw(ImDrawList* drawList) {
 		std::lock_guard<std::mutex> lock(EntityCache::entityCacheLock);
+        if (!Interfaces::engine->isInGame())
+            return;
+
         for (auto e : EntityCache::entityCache) {
             if (e.boundingBox.y < 0 || isnan(e.boundingBox.y) ) 
                 continue;
