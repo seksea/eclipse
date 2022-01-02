@@ -16,6 +16,8 @@
 #include "features/skinchanger.hpp"
 
 namespace Hooks {
+    static Hooks::EventListener* eventListener = nullptr;
+
     void init() {
         SDL::initSDL();
 
@@ -30,6 +32,8 @@ namespace Hooks {
         FrameStageNotify::original = (FrameStageNotify::func)Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::hook, 37);
         LOG(" Hooking EmitSound...");
         EmitSound::original = (EmitSound::func)Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::hook, 6);
+
+        eventListener = new EventListener;
     }
 
     void unload() {
@@ -42,6 +46,8 @@ namespace Hooks {
         Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::original, 37);
         LOG(" Unhooking EmitSound...");
         Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::original, 6);
+
+        delete eventListener;
     }
 
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
@@ -99,5 +105,25 @@ namespace Hooks {
                 Interfaces::panorama->AccessUIEngine()->RunScript(root, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
         }
         Hooks::EmitSound::original(thisptr, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, iSoundLevel, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, params);
+    }
+
+    EventListener::EventListener() {
+        Interfaces::eventManager->AddListener(this, "player_hurt", false);
+        Interfaces::eventManager->AddListener(this, "player_death", false);
+        Interfaces::eventManager->AddListener(this, "bullet_impact", false);
+    }
+
+    EventListener::~EventListener() {
+        Interfaces::eventManager->RemoveListener(this);
+    }
+
+    void EventListener::fireGameEvent(IGameEvent *event) {
+        Entity* attacker = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->GetInt("attacker")));
+        Entity* victim = (Entity*)Interfaces::entityList->getClientEntity(Interfaces::engine->getPlayerForUserID(event->GetInt("userid")));
+        LOG("event: %s", event->GetName());
+    }
+
+    int EventListener::getEventDebugID() {
+        return EVENT_DEBUG_ID_INIT;
     }
 }

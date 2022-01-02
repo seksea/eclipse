@@ -11,6 +11,7 @@
 #include "sdk/interfaces/ivmodelrender.hpp"
 #include "sdk/interfaces/imaterialsystem.hpp"
 #include "sdk/interfaces/panorama.hpp"
+#include "sdk/interfaces/igameevent.hpp"
 
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
@@ -30,6 +31,7 @@ namespace Interfaces {
     inline StudioRender* studioRender;
     inline IPanoramaUIEngine* panorama;
     inline class IEngineSound* sound;
+    inline IGameEventManager2* eventManager;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;

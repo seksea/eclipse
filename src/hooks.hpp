@@ -40,4 +40,14 @@ namespace Hooks {
         int PollEvent(SDL_Event* event);
         bool unloadSDL();
     }
+
+    /* Event Manager */
+    class EventListener : public IGameEventListener2 {
+    public:
+        EventListener();
+        ~EventListener();
+
+        void fireGameEvent(IGameEvent* event) override;
+        int getEventDebugID() override;
+    };
 }
