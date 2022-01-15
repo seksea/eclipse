@@ -130,6 +130,8 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
             if (event->button.button == SDL_BUTTON_LEFT) { bd->MousePressed[0] = true; }
             if (event->button.button == SDL_BUTTON_RIGHT) { bd->MousePressed[1] = true; }
             if (event->button.button == SDL_BUTTON_MIDDLE) { bd->MousePressed[2] = true; }
+            if (event->button.button == SDL_BUTTON_X1) bd->MousePressed[3] = true;
+            if (event->button.button == SDL_BUTTON_X2) bd->MousePressed[4] = true;
             return true;
         }
     case SDL_TEXTINPUT:
@@ -313,7 +315,9 @@ static void ImGui_ImplSDL2_UpdateMousePosAndButtons()
     io.MouseDown[0] = bd->MousePressed[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
     io.MouseDown[1] = bd->MousePressed[1] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
     io.MouseDown[2] = bd->MousePressed[2] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
-    bd->MousePressed[0] = bd->MousePressed[1] = bd->MousePressed[2] = false;
+    io.MouseDown[3] = bd->MousePressed[3] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_X1)) != 0;
+    io.MouseDown[4] = bd->MousePressed[4] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_X2)) != 0;
+    bd->MousePressed[0] = bd->MousePressed[1] = bd->MousePressed[2] = bd->MousePressed[3] =  bd->MousePressed[4] = false;
 
     // Obtain focused and hovered window. We forward mouse input when focused or when hovered (and no other window is capturing)
 #if SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE

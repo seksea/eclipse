@@ -13,6 +13,7 @@
 #include "../features/skinchanger.hpp"
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
+#include "keybinders.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -275,7 +276,10 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
                             BEGINGROUPBOX("clantag", ImVec2(216, 131));
-                            
+                                drawKeyBinder(&CONFIGBIND("test keybind"));
+                                if (isKeyBinderPressed(&CONFIGBIND("test keybind"))) {
+                                    ImGui::Text("aaaaa");
+                                }
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 262));

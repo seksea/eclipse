@@ -307,6 +307,12 @@ namespace Lua {
             ImGui::SliderFloat(labelBuf, &CONFIGFLOAT(configVarName), min, max, format);
             return CONFIGFLOAT(configVarName);
         }
+        void keybinder(const char* configVarName) {
+            char labelBuf[64] = "##";
+            strcat(labelBuf, configVarName);
+            drawKeyBinder(&CONFIGBIND(configVarName));
+        }
+        bool isKeybinderDown(const char* configVarName) { return isKeyBinderPressed(&CONFIGBIND(configVarName)); }
     }
 
     namespace Draw {
@@ -531,6 +537,8 @@ namespace Lua {
                 .addFunction("textInputMultiline", UI::textInputMultiline)
                 .addFunction("sliderInt", UI::sliderInt)
                 .addFunction("sliderFloat", UI::sliderFloat)
+                .addFunction("keybinder", UI::keybinder)
+                .addFunction("isKeybinderDown", UI::isKeybinderDown)
             .endNamespace()
             .beginNamespace("draw")
                 .addFunction("rectangle", Draw::rectangle)

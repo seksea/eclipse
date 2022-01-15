@@ -5,19 +5,22 @@
 #include <filesystem>
 #include <utility>
 #include "imgui/imgui.h"
+#include "keybinders.hpp"
 
 #define CONFIGINT(name) ((int)Config::getConfigItem(name, Config::FLOAT)->floatValue)
 #define CONFIGFLOAT(name) Config::getConfigItem(name, Config::FLOAT)->floatValue
 #define CONFIGBOOL(name) Config::getConfigItem(name, Config::BOOL)->boolValue
 #define CONFIGSTR(name) Config::getConfigItem(name, Config::STR)->strValue
 #define CONFIGCOL(name) Config::getConfigItem(name, Config::COLOR)->colValue
+#define CONFIGBIND(name) Config::getConfigItem(name, Config::KEYBIND)->keyValue
 
 namespace Config {
     enum ConfigItemType {
         FLOAT,
         BOOL,
         STR,
-        COLOR
+        COLOR,
+        KEYBIND
     };
 
 	class ConfigItem {
@@ -38,11 +41,16 @@ namespace Config {
             type = Config::COLOR;
             colValue = value;
         }
+        ConfigItem(KeyBindConfigItem value) {
+            type = Config::KEYBIND;
+            keyValue = value;
+        }
         ConfigItemType type;
         float floatValue = 0.f;
         bool boolValue = false;
         std::string strValue = "";
         ImColor colValue = ImColor(255, 255, 255, 255);
+        KeyBindConfigItem keyValue = {0, KeyBindTypes::ALWAYS};
 	};
 
     inline std::map<std::string, ConfigItem> configItems;
@@ -58,6 +66,7 @@ namespace Config {
             case Config::BOOL: configItems.insert(std::pair<std::string, ConfigItem>(name, false)); break;
             case Config::STR: configItems.insert(std::pair<std::string, ConfigItem>(name, std::string(""))); break;
             case Config::COLOR: configItems.insert(std::pair<std::string, ConfigItem>(name, ImColor(255, 255, 255, 255))); break;
+            case Config::KEYBIND: configItems.insert(std::pair<std::string, ConfigItem>(name, KeyBindConfigItem(0, KeyBindTypes::ALWAYS))); break;
         }
 
         return getConfigItem(name, type);
@@ -92,6 +101,11 @@ namespace Config {
                 j[configItem.first]["g"] = configItem.second.colValue.Value.y;
                 j[configItem.first]["b"] = configItem.second.colValue.Value.z;
                 j[configItem.first]["a"] = configItem.second.colValue.Value.w; 
+                break;
+            }
+            case Config::KEYBIND: {
+                j[configItem.first]["key"] = configItem.second.keyValue.key;
+                j[configItem.first]["type"] = configItem.second.keyValue.type;
                 break;
             }
             };
@@ -146,10 +160,18 @@ namespace Config {
                 CONFIGSTR(it.key().c_str()) = it.value();
             }
             if (it.value().is_structured()) {
-                CONFIGCOL(it.key().c_str()).Value.x = it.value()["r"];
-                CONFIGCOL(it.key().c_str()).Value.y = it.value()["g"];
-                CONFIGCOL(it.key().c_str()).Value.z = it.value()["b"];
-                CONFIGCOL(it.key().c_str()).Value.w = it.value()["a"];
+                if (it.value().contains("key")) {
+                    Config::getConfigItem(it.key().c_str(), Config::KEYBIND)->keyValue.key = it.value()["key"];
+                    Config::getConfigItem(it.key().c_str(), Config::KEYBIND)->keyValue.type = it.value()["type"];
+                }
+                else {
+                    CONFIGCOL(it.key().c_str()).Value.x = it.value()["r"];
+                    CONFIGCOL(it.key().c_str()).Value.y = it.value()["g"];
+                    CONFIGCOL(it.key().c_str()).Value.z = it.value()["b"];
+                    CONFIGCOL(it.key().c_str()).Value.w = it.value()["a"];
+                }
+            }
+            if (it.value().is_structured()) {
             }
         }
     }
