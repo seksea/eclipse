@@ -98,7 +98,7 @@ namespace Menu {
         SDL_GetWindowSize(window, &w, &h);
         ImGui::GetIO().DisplaySize = ImVec2((float)w, (float)h);
 
-        if (ImGui::IsKeyPressed(SDL_SCANCODE_HOME, false)) {
+        if (ImGui::IsKeyPressed(SDL_SCANCODE_INSERT, false)) {
             menuOpen = !menuOpen;
         }
 
@@ -276,7 +276,7 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
                             BEGINGROUPBOX("clantag", ImVec2(216, 131));
-                            
+
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 262));
@@ -499,8 +499,6 @@ namespace Menu {
         else {
             ImGui::GetIO().MouseDrawCursor = false;
         }
-        
-        ImGui::ShowDemoWindow();
 
         Lua::curDrawList = ImGui::GetForegroundDrawList();
         Lua::handleHook("drawabove");

@@ -127,11 +127,12 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
         }
     case SDL_MOUSEBUTTONDOWN:
         {
-            if (event->button.button == SDL_BUTTON_LEFT) { bd->MousePressed[0] = true; }
-            if (event->button.button == SDL_BUTTON_RIGHT) { bd->MousePressed[1] = true; }
-            if (event->button.button == SDL_BUTTON_MIDDLE) { bd->MousePressed[2] = true; }
+            if (event->button.button == SDL_BUTTON_LEFT) bd->MousePressed[0] = true;
+            if (event->button.button == SDL_BUTTON_RIGHT) bd->MousePressed[1] = true;
+            if (event->button.button == SDL_BUTTON_MIDDLE) bd->MousePressed[2] = true;
             if (event->button.button == SDL_BUTTON_X1) bd->MousePressed[3] = true;
             if (event->button.button == SDL_BUTTON_X2) bd->MousePressed[4] = true;
+
             return true;
         }
     case SDL_TEXTINPUT:
@@ -155,14 +156,8 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
 #endif
             return true;
         }
-    case SDL_WINDOWEVENT:
-        {
-            if (event->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
-                io.AddFocusEvent(true);
-            else if (event->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
-                io.AddFocusEvent(false);
-            return true;
-        }
+    case SDL_MOUSEMOTION:
+        return true;
     }
     return false;
 }
@@ -305,59 +300,24 @@ static void ImGui_ImplSDL2_UpdateMousePosAndButtons()
 {
     ImGui_ImplSDL2_Data* bd = ImGui_ImplSDL2_GetBackendData();
     ImGuiIO& io = ImGui::GetIO();
+    // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
+    if (io.WantSetMousePos)
+        SDL_WarpMouseInWindow(bd->Window, (int)io.MousePos.x, (int)io.MousePos.y);
+    else
+        io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
-    ImVec2 mouse_pos_prev = io.MousePos;
-    io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-
-    // Update mouse buttons
-    int mouse_x_local, mouse_y_local;
-    Uint32 mouse_buttons = SDL_GetMouseState(&mouse_x_local, &mouse_y_local);
+    int mx, my;
+    Uint32 mouse_buttons = SDL_GetMouseState(&mx, &my);
     io.MouseDown[0] = bd->MousePressed[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
     io.MouseDown[1] = bd->MousePressed[1] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
     io.MouseDown[2] = bd->MousePressed[2] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
     io.MouseDown[3] = bd->MousePressed[3] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_X1)) != 0;
     io.MouseDown[4] = bd->MousePressed[4] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_X2)) != 0;
-    bd->MousePressed[0] = bd->MousePressed[1] = bd->MousePressed[2] = bd->MousePressed[3] =  bd->MousePressed[4] = false;
 
-    // Obtain focused and hovered window. We forward mouse input when focused or when hovered (and no other window is capturing)
-#if SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE
-    SDL_Window* focused_window = SDL_GetKeyboardFocus();
-    SDL_Window* hovered_window = SDL_HAS_MOUSE_FOCUS_CLICKTHROUGH ? SDL_GetMouseFocus() : NULL; // This is better but is only reliably useful with SDL 2.0.5+ and SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH.
-    SDL_Window* mouse_window = NULL;
-    if (hovered_window && bd->Window == hovered_window)
-        mouse_window = hovered_window;
-    else if (focused_window && bd->Window == focused_window)
-        mouse_window = focused_window;
+    bd->MousePressed[0] = bd->MousePressed[1] = bd->MousePressed[2] = bd->MousePressed[3] = bd->MousePressed[4] = false;
 
-    // SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger other operations outside
-    SDL_CaptureMouse(ImGui::IsAnyMouseDown() ? SDL_TRUE : SDL_FALSE);
-#else
-    // SDL 2.0.3 and non-windowed systems: single-viewport only
-    SDL_Window* mouse_window = (SDL_GetWindowFlags(bd->Window) & SDL_WINDOW_INPUT_FOCUS) ? bd->Window : NULL;
-#endif
-
-    if (mouse_window == NULL)
-       return;
-
-    // Set OS mouse position from Dear ImGui if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
-    if (io.WantSetMousePos)
-        SDL_WarpMouseInWindow(bd->Window, (int)mouse_pos_prev.x, (int)mouse_pos_prev.y);
-
-    // Set Dear ImGui mouse position from OS position + get buttons. (this is the common behavior)
-    if (bd->MouseCanUseGlobalState)
-    {
-        // Single-viewport mode: mouse position in client window coordinates (io.MousePos is (0,0) when the mouse is on the upper-left corner of the app window)
-        // Unlike local position obtained earlier this will be valid when straying out of bounds.
-        int mouse_x_global, mouse_y_global;
-        SDL_GetGlobalMouseState(&mouse_x_global, &mouse_y_global);
-        int window_x, window_y;
-        SDL_GetWindowPosition(mouse_window, &window_x, &window_y);
-        io.MousePos = ImVec2((float)(mouse_x_global - window_x), (float)(mouse_y_global - window_y));
-    }
-    else
-    {
-        io.MousePos = ImVec2((float)mouse_x_local, (float)mouse_y_local);
-    }
+    if (SDL_GetWindowFlags(bd->Window) & SDL_WINDOW_INPUT_FOCUS)
+        io.MousePos = ImVec2((float)mx, (float)my);
 }
 
 static void ImGui_ImplSDL2_UpdateMouseCursor()
