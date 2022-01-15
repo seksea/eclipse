@@ -83,7 +83,7 @@ namespace Hooks {
         cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
         cmd->viewangles.z = 0.0f;
 
-        return origReturn;
+        return false;
     }
 
     void DrawModelExecute::hook(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld) {
@@ -101,7 +101,11 @@ namespace Hooks {
             IUIPanel* root = Interfaces::panorama->getRoot();
             if (root)
                 Interfaces::panorama->AccessUIEngine()->RunScript(root, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
+            return;
         }
+
+        if(Prediction::inPrediction && iEntIndex == EntityCache::localPlayer->index())
+            return;
         Hooks::EmitSound::original(thisptr, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, iSoundLevel, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, params);
     }
 

@@ -1663,3 +1663,6 @@ ImVec4 getBoundingBox(Entity* e);
 
 inline VMatrix storedViewMatrix;
 bool worldToScreen(const Vector& origin, Vector& screen);
+
+void startMovementFix(class CUserCmd* cmd);
+void endMovementFix(class CUserCmd* cmd);

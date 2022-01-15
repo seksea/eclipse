@@ -24,6 +24,8 @@ namespace Interfaces {
         panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_gl_client.so", "PanoramaUIEngine");
         sound = getInterface<IEngineSound>("./bin/linux64/engine_client.so", "IEngineSoundClient");
         eventManager = getInterface<IGameEventManager2>("./bin/linux64/engine_client.so", "GAMEEVENTSMANAGER002", true);
+        prediction = getInterface<IPrediction>("./csgo/bin/linux64/client_client.so", "VClientPrediction001", true);
+	    movement = getInterface<IGameMovement>("./csgo/bin/linux64/client_client.so", "GameMovement");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
@@ -45,7 +47,24 @@ namespace Interfaces {
         uintptr_t IsValidPanelPointer = reinterpret_cast<uintptr_t>(Memory::getVTable(Interfaces::panorama->AccessUIEngine())[37]);
         int32_t offset = *(unsigned int*)(IsValidPanelPointer + 4);
         panelArray = *(PanelArray**) ( ((uintptr_t)Interfaces::panorama->AccessUIEngine()) + offset + 8);
-        
+
+
+        predictionSeed = *reinterpret_cast<int **>(Memory::getAbsoluteAddress(Memory::patternScan("/client_client.so", 
+                "48 8B 05 ? ? ? ? 8B 38 E8 ? ? ? ? 89 C7"), 3, 7));
+        LOG(" predictionSeed %lx", predictionSeed);
+
+        moveHelper = *reinterpret_cast<IMoveHelper **>(Memory::getAbsoluteAddress(Memory::patternScan("/client_client.so", 
+                "00 48 89 3D ? ? ? ? C3") + 1, 3, 7));
+        LOG(" moveHelper %lx", moveHelper);
+
+        moveData = **reinterpret_cast<CMoveData***>(Memory::getAbsoluteAddress(Memory::patternScan("/client_client.so", 
+                "48 8B 0D ? ? ? ? 4C 89 EA"), 3, 7));
+        LOG(" moveData %lx", moveData);
+
+        restoreEntityToPredictedFrame = (RestoreEntityToPredictedFrame)Memory::patternScan("/client_client.so",
+            "55 48 89 E5 41 57 41 89 D7 41 56 41 55 41 89 F5 41 54 53 48 83 EC 18");
+        LOG(" restoreEntityToPredictedFrame %lx", restoreEntityToPredictedFrame);
+
         LOG("Initialised interfaces!");
     }
 }

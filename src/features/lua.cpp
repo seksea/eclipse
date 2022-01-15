@@ -33,8 +33,8 @@ namespace Lua {
         void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
         void postDataUpdate(int updateType) { e->postDataUpdate(updateType); }
 
-
         Vector origin() {return e->origin();}
+        Vector velocity() {return Vector(e->nDT_LocalPlayerExclusive__m_vecVelocity0(), e->nDT_LocalPlayerExclusive__m_vecVelocity1(), e->nDT_LocalPlayerExclusive__m_vecVelocity2()); }
 
         template <typename T>
         T getProp(const char* table, const char* varName) {
@@ -96,49 +96,38 @@ namespace Lua {
         e = event;
     }
 
-    namespace Cheat {
-        void registerHook(const char* hook, luabridge::LuaRef func) {
-            curEngineBeingRan->hooks.insert(std::pair<std::string, luabridge::LuaRef>(hook, func));
-        }
-
-        uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
+    namespace Eclipse {
+        void registerHook(const char* hook, luabridge::LuaRef func) { curEngineBeingRan->hooks.insert(std::pair<std::string, luabridge::LuaRef>(hook, func)); }
 
         void setCmd(CUserCmd cmd) { memcpy((void*)curCmd, (void*)&cmd, sizeof(CUserCmd)); }
 
-        LuaEntity getEntity(int i) {
-            Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
-            if (ent) {
-                return LuaEntity(ent);
-            }
-        }
+        LuaConvar getConvar(const char* name) { return LuaConvar(Interfaces::cvar->findVar(name)); }
 
-        std::vector<LuaEntity> getEntities() {
-            std::vector<LuaEntity> entities;
-            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
-                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
-                if (ent) {
-                    entities.push_back(LuaEntity(ent));
-                }
-            }
-            return entities;
-        }
-
-        std::vector<LuaEntity> getEntitiesByClassID(int classID) {
-            std::vector<LuaEntity> entities;
-            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
-                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
-                if (ent && ent->clientClass()->m_ClassID == classID) {
-                    entities.push_back(LuaEntity(ent));
-                }
-            }
-            return entities;
-        }
-
-        LuaConvar getConvar(const char* name) {
-            return LuaConvar(Interfaces::cvar->findVar(name));
-        }
         ImVec2 _worldToScreen(Vector pos) { Vector screenPos; worldToScreen(pos, screenPos); return ImVec2(screenPos.x, screenPos.y); }
+        
+        LuaClientClass getAllClientClasses() { return LuaClientClass(Interfaces::client->getAllClasses()); }
 
+        void addEventListener(const char* eventName, bool serverSide) { Interfaces::eventManager->addListener(Hooks::eventListener, eventName, serverSide); }
+
+        void clientCmd(const char* command) { return Interfaces::engine->clientCmdUnrestricted(command); }
+
+        bool isInGame() { return Interfaces::engine->isInGame(); }
+    }
+
+    namespace Mem {
+        uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
+        uintptr_t getAbsoluteAddress(uintptr_t ptr, int offset, int size) { return (uintptr_t)Memory::getAbsoluteAddress(ptr, offset, size); }
+        /* patternScan */
+    }
+
+    namespace Pred {
+        void start(CUserCmd cmd) { Prediction::startPrediction(&cmd); }
+        void end() { Prediction::endPrediction(); }
+        int commandsPredicted() { return Interfaces::prediction->Split->nCommandsPredicted; }
+        void restoreToFrame(int frame) { Interfaces::restoreEntityToPredictedFrame(Interfaces::prediction, 0, frame); }
+    }
+
+    namespace Beam {
         void createBeam(Vector start, Vector end, const char* modelName, ImColor color, float dieTime, float width, float amplitude) {
             BeamInfo beamInfo;
 
@@ -204,15 +193,42 @@ namespace Lua {
 
             Interfaces::renderBeams->createBeamRingPoints(&beamInfo);
         }
-        
-        LuaClientClass getAllClientClasses() {
-            return LuaClientClass(Interfaces::client->getAllClasses());
+    }
+
+    namespace EntityList {
+        LuaEntity getEntity(int i) {
+            Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+            if (ent) {
+                return LuaEntity(ent);
+            }
         }
 
-        void addEventListener(const char* eventName, bool serverSide) {
-            Interfaces::eventManager->addListener(Hooks::eventListener, eventName, serverSide);
+        std::vector<LuaEntity> getEntities() {
+            std::vector<LuaEntity> entities;
+            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
+                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+                if (ent) {
+                    entities.push_back(LuaEntity(ent));
+                }
+            }
+            return entities;
         }
+
+        std::vector<LuaEntity> getEntitiesByClassID(int classID) {
+            std::vector<LuaEntity> entities;
+            for (int i = 0; i <= Interfaces::entityList->getHighestEntityIndex(); i++) {
+                Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
+                if (ent && ent->clientClass()->m_ClassID == classID) {
+                    entities.push_back(LuaEntity(ent));
+                }
+            }
+            return entities;
+        }
+        
+        int getLocalPlayer() { return Interfaces::engine->getLocalPlayer(); }
+        int getIndexForUserID(int i) { return Interfaces::engine->getPlayerForUserID(i); }
     }
+
     namespace Panorama {
         void executeScript(const char* script, const char* xmlContext) {
             IUIPanel* root = Interfaces::panorama->getRoot();
@@ -220,6 +236,7 @@ namespace Lua {
                 Interfaces::panorama->AccessUIEngine()->RunScript(root, script, xmlContext, 8, 10, false);
         }
     }
+
     namespace UI {
         ImVec2 getMenuPos() { return Menu::windowPos; }
         ImVec2 getMenuSize() { return Menu::windowSize; }
@@ -291,6 +308,7 @@ namespace Lua {
             return CONFIGFLOAT(configVarName);
         }
     }
+
     namespace Draw {
         void rectangle(ImVec2 min, ImVec2 max, ImColor color, float thickness)                          { curDrawList->AddRect(min, max, color, 0, 0, thickness); }
         void rectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float thickness, float rounding)   { curDrawList->AddRect(min, max, color, rounding, 0, thickness); }
@@ -298,6 +316,8 @@ namespace Lua {
         void filledRectangleRounded(ImVec2 min, ImVec2 max, ImColor color, float rounding)              { curDrawList->AddRectFilled(min, max, color, rounding); }
         void gradientFilledRectangle(ImVec2 min, ImVec2 max, ImColor tl, ImColor tr, ImColor bl, ImColor br) { curDrawList->AddRectFilledMultiColor(min, max, tl, tr, br, bl); }
         
+        void line(ImVec2 p1, ImVec2 p2, ImColor color, float thickness) { curDrawList->AddLine(p1, p2, color, thickness); }
+
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
@@ -384,6 +404,7 @@ namespace Lua {
                 .addFunction("sane", &LuaEntity::exists)
                 .addFunction("index", &LuaEntity::index)
                 .addFunction("origin", &LuaEntity::origin)
+                .addFunction("velocity", &LuaEntity::velocity)
                 .addFunction("classID", &LuaEntity::classID)
                 .addFunction("networkName", &LuaEntity::networkName)
                 .addFunction("getBBox", &LuaEntity::getBBox)
@@ -433,22 +454,53 @@ namespace Lua {
                 .addFunction("getUint64", &LuaGameEvent::getUint64)
                 .addFunction("getWString", &LuaGameEvent::getWString)
             .endClass()
-            .beginNamespace("cheat")
-                .addFunction("registerHook", Cheat::registerHook)
-                .addFunction("getInterface", Cheat::getInterface)
-                .addFunction("setCmd", Cheat::setCmd)
-                .addFunction("getEntity", Cheat::getEntity)
-                .addFunction("getEntities", Cheat::getEntities)
-                .addFunction("getEntitiesByClassID", Cheat::getEntitiesByClassID)
-                .addFunction("getConvar", Cheat::getConvar)
-                .addFunction("patternScan", Memory::patternScan)
+            .beginNamespace("eclipse")
+                .addFunction("registerHook", Eclipse::registerHook)
+                .addFunction("setCmd", Eclipse::setCmd)
+                .addFunction("getConvar", Eclipse::getConvar)
                 .addFunction("addMaterial", Chams::addMaterial)
                 .addFunction("removeMaterial", Chams::removeMaterial)
-                .addFunction("worldToScreen", Cheat::_worldToScreen)
-                .addFunction("createBeam", Cheat::createBeam)
-                .addFunction("ringBeam", Cheat::ringBeam)
-                .addFunction("getAllClientClasses", Cheat::getAllClientClasses)
-                .addFunction("addEventListener", Cheat::addEventListener)
+                .addFunction("worldToScreen", Eclipse::_worldToScreen)
+                .addFunction("getAllClientClasses", Eclipse::getAllClientClasses)
+                .addFunction("addEventListener", Eclipse::addEventListener)
+                .addFunction("clientCmd", Eclipse::clientCmd)
+                .addFunction("isInGame", Eclipse::isInGame)
+                .addFunction("startMovementFix", startMovementFix)
+                .addFunction("endMovementFix", endMovementFix)
+            .endNamespace()
+            .beginNamespace("globals")
+                .addFunction("registerHook", Eclipse::registerHook)
+                .addFunction("setCmd", Eclipse::setCmd)
+                .addFunction("getConvar", Eclipse::getConvar)
+                .addFunction("addMaterial", Chams::addMaterial)
+                .addFunction("removeMaterial", Chams::removeMaterial)
+                .addFunction("worldToScreen", Eclipse::_worldToScreen)
+                .addFunction("getAllClientClasses", Eclipse::getAllClientClasses)
+                .addFunction("addEventListener", Eclipse::addEventListener)
+                .addFunction("clientCmd", Eclipse::clientCmd)
+                .addFunction("isInGame", Eclipse::isInGame)
+            .endNamespace()
+            .beginNamespace("memory")
+                .addFunction("getInterface", Mem::getInterface)
+                .addFunction("getAbsoluteAddress", Mem::getAbsoluteAddress)
+                .addFunction("patternScan", Memory::patternScan)
+            .endNamespace()
+            .beginNamespace("prediction")
+                .addFunction("start", Pred::start)
+                .addFunction("end_", Pred::end)
+                .addFunction("restoreToFrame", Pred::restoreToFrame)
+                .addFunction("commandsPredicted", Pred::commandsPredicted)
+            .endNamespace()
+            .beginNamespace("beam")
+                .addFunction("createBeam", Beam::createBeam)
+                .addFunction("ringBeam", Beam::ringBeam)
+            .endNamespace()
+            .beginNamespace("entitylist")
+                .addFunction("getEntity", EntityList::getEntity)
+                .addFunction("getEntities", EntityList::getEntities)
+                .addFunction("getEntitiesByClassID", EntityList::getEntitiesByClassID)
+                .addFunction("getLocalPlayer", EntityList::getLocalPlayer)
+                .addFunction("getIndexForUserID", EntityList::getIndexForUserID)
             .endNamespace()
             .beginNamespace("panorama")
                 .addFunction("executeScript", Panorama::executeScript)
@@ -486,6 +538,8 @@ namespace Lua {
                 .addFunction("filledRectangle", Draw::filledRectangle)
                 .addFunction("filledRectangleRounded", Draw::filledRectangleRounded)
                 .addFunction("gradientFilledRectangle", Draw::gradientFilledRectangle)
+
+                .addFunction("line", Draw::line)
 
                 .addFunction("circle", Draw::circle)
                 .addFunction("filledCircle", Draw::filledCircle)
