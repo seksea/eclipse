@@ -276,10 +276,7 @@ namespace Menu {
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
                             BEGINGROUPBOX("clantag", ImVec2(216, 131));
-                                drawKeyBinder(&CONFIGBIND("test keybind"));
-                                if (isKeyBinderPressed(&CONFIGBIND("test keybind"))) {
-                                    ImGui::Text("aaaaa");
-                                }
+                            
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 262));

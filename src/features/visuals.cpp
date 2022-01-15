@@ -4,6 +4,8 @@
 
 namespace Visuals {
     void nightmode(Entity* tonemapController) {
+        if (CONFIGFLOAT("nightmode") == 0.f)
+            return;
         tonemapController->nDT_EnvTonemapController__m_bUseCustomAutoExposureMin() = CONFIGFLOAT("nightmode") > 0.f ? 1 : 0;
         tonemapController->nDT_EnvTonemapController__m_bUseCustomAutoExposureMax() = CONFIGFLOAT("nightmode") > 0.f ? 1 : 0;
 
