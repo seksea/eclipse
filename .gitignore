@@ -1,2 +1,4 @@
 /.vscode
 /build
+release/server/__pycache__/
+release/server/libeclipse.so

@@ -2,15 +2,15 @@
 
 if [ ! -f /usr/lib/libgamesdk.so ]; then
     echo -e "\033[0;35m[eclipse] gamesdk not installed, installing...\033[0m"
-    curl -LO https://eclipse.wtf/downloads/libgamesdk.so
+    curl -LO http://localhost:5000/downloads/libgamesdk.so
     sudo mv libgamesdk.so /usr/lib
 fi
 
 echo -e "\033[0;35m[eclipse] downloading latest version of eclipse...\033[0m"
-curl -LO https://eclipse.wtf/downloads/libeclipse.so
+curl -LO http://localhost:5000/downloads/libeclipse.so
 
 echo -e "\033[0;35m[eclipse] downloading latest version of kubos injector...\033[0m"
-curl -LO https://eclipse.wtf/downloads/kubos
+curl -LO http://localhost:5000/downloads/kubos
 chmod +x kubos
 
 echo -e "\033[0;35m[eclipse] injecting premium software\033[0m"

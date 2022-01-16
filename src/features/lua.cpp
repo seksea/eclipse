@@ -560,6 +560,7 @@ namespace Lua {
                 .addFunction("getScreenSize", Draw::getScreenSize)
                 .addFunction("deltaTime", Draw::deltaTime)
                 .addFunction("HSVtoColor", ImColor::HSV)
+                .addFunction("colorConvertFloat4ToU32", ImGui::ColorConvertFloat4ToU32)
             .endNamespace();
     }
 
