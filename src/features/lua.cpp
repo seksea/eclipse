@@ -22,6 +22,9 @@ namespace Lua {
         bool exists() {return e;}
         bool dormant() {return e->dormant();}
         bool sane() {return e && !e->dormant();}
+        bool alive() {return e->nDT_BasePlayer__m_iHealth() > 0;}
+        bool onground() {return e->nDT_BasePlayer__m_fFlags() & FL_ONGROUND;}
+        int movetype() {return e->moveType();}
         int index() {return e->index();}
         int classID() {return e->clientClass()->m_ClassID;}
         const char* networkName() {return e->clientClass()->m_pNetworkName;}
@@ -407,7 +410,10 @@ namespace Lua {
                 .addFunction("ffiPtr", &LuaEntity::ffiPtr)
                 .addFunction("exists", &LuaEntity::exists)
                 .addFunction("dormant", &LuaEntity::dormant)
-                .addFunction("sane", &LuaEntity::exists)
+                .addFunction("sane", &LuaEntity::sane)
+                .addFunction("alive", &LuaEntity::alive)
+                .addFunction("onground", &LuaEntity::onground)
+                .addFunction("movetype", &LuaEntity::movetype)
                 .addFunction("index", &LuaEntity::index)
                 .addFunction("origin", &LuaEntity::origin)
                 .addFunction("velocity", &LuaEntity::velocity)
