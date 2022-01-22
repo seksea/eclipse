@@ -1,24 +1,28 @@
 #include "protection.hpp"
+#include "../log.hpp"
+#include "../../interfaces.hpp"
 
+#include <cpuid.h>
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <sys/signal.h>
 
-#define SEGFAULT() int* a = nullptr; *a = 1
-
 namespace Protection {
-    unsigned int login(const char* username, const char* passwd) {
-        // send username, password, hwid, and user account name to server and receive token in return
+    inline bool validateHardware() {
+        unsigned int a, b, model1, model2;
+        __get_cpuid(0, &a, &b, &model1, &model2);
+
+        switch (model1) {
+            case 1145913699: if (model2 == 1769238117) return true; // sekc
+        }
+
+        return false;
     }
 
-    bool validateToken(unsigned int token) {
-        return token > 5; // TODO: decrypt token with pub key and check valid
-    }
-
-    void protect() {
-        if (validateToken(LoginInfo::token)) {
+    void __attribute__ ((noinline)) protect() {
+        if (!validateHardware()) {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "eclipse error", "eclipse failed to pass protection checks, this has been reported to the server.", nullptr);
-            SEGFAULT();
+            exit(0);
         }
     }
 }

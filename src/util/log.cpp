@@ -21,7 +21,7 @@ namespace Log {
     void log(LogLevel level, const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        char buf[512];
+        char buf[5000];
         vsnprintf(buf, sizeof(buf), fmt, args);
         switch (level) {
             case LOG: {

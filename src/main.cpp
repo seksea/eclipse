@@ -15,7 +15,9 @@ void mainThread() {
     /* if serverbrowser is not open then wait, (serverbrowser is last to be loaded) */
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))
         usleep(500000);
+
     Interfaces::init();
+    Protection::protect();
     Chams::createMaterials();
     Netvars::init();
     Hooks::init();

@@ -14,6 +14,7 @@
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
 #include "keybinders.hpp"
+#include "../util/protection/protection.hpp"
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -31,6 +32,39 @@ namespace Menu {
     }
 
     ImFont* menuFont;
+    /*bool loggedIn = false;
+
+    void loginScreen() {
+        ImGui::GetIO().MouseDrawCursor = true;
+        ImGui::Begin("eclipse.wtf login", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::GetForegroundDrawList()->AddRect(ImVec2(ImGui::GetWindowPos().x + 1, ImGui::GetWindowPos().y + 1), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 1, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 1), ImColor(0.09f, 0.09f, 0.09f));
+        ImGui::BeginChild("content", ImVec2(212, 134), true);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.15f, 0.15f, 0.16f, 1.00f));
+
+        ImGui::BeginChild("login", ImVec2(200, 122), true);
+
+        ImGui::Text("eclipse.wtf login");
+        ImGui::Separator();
+
+        ImGui::Text("Username:");
+        ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+        static char tempUsername[64] = "";
+        ImGui::InputText("##username", tempUsername, sizeof(tempUsername));
+
+        ImGui::Text("Password:");
+        ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+        static char tempPasswd[64] = "";
+        ImGui::InputText("##password", tempPasswd, sizeof(tempPasswd), ImGuiInputTextFlags_Password);
+
+        if (ImGui::Button("login", ImVec2(ImGui::GetWindowContentRegionWidth(), 0)))
+            if (Protection::login(tempUsername, tempPasswd))
+                loggedIn = true;
+
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+        ImGui::EndChild();
+        ImGui::End();
+    }*/
 
     void onSwapWindow(SDL_Window* window) {
         if (!initialised) {
@@ -85,9 +119,17 @@ namespace Menu {
         static float timeSinceLastTick = 0.f;
         timeSinceLastTick += ImGui::GetIO().DeltaTime;
         if (timeSinceLastTick > 5.f) {
+            Protection::protect();
             DiscordRPC::tick(); // tick every 5 seconds for discord RPC
             timeSinceLastTick = 0.f;
         }
+
+        /*if (!loggedIn) {
+            loginScreen();
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            return;
+        }*/
 
         ESP::draw(ImGui::GetBackgroundDrawList());
 
