@@ -7,6 +7,7 @@
             <Procedure MapAddress="Protection::protect()" Options="0" CompilationType="2" />
             <Procedure MapAddress="main" Options="0" CompilationType="2" />
             <Procedure MapAddress="mainThread()" Options="0" CompilationType="2" />
+            <Procedure MapAddress="DiscordRPC::tick()" Options="0" CompilationType="2" />
         </Procedures>
         <Objects />
     </Protection>

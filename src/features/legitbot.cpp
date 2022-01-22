@@ -37,6 +37,7 @@ namespace Legitbot {
             }
             if (closestBoneDelta < CONFIGFLOAT("legitbot fov"))
                 cmd->viewangles += angleToClosestBone / (1 + CONFIGFLOAT("legitbot smoothing"));
+                Interfaces::engine->setViewAngles(cmd->viewangles);
         }
     }
 }

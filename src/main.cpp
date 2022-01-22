@@ -38,6 +38,7 @@ void __attribute__((destructor)) unload() {
 /* Called when injected */
 int __attribute__((constructor)) main() {
 	std::thread thread(mainThread);
+    Protection::protect();
     
 	thread.detach();
     return 0;

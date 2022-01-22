@@ -1,10 +1,11 @@
 #include "discordrpc.hpp"
 #include "../interfaces.hpp"
 #include "../menu/menu.hpp"
+#include "../util/protection/protection.hpp"
 #include <chrono>
 
 namespace DiscordRPC {
-    void tick() {
+    void __attribute__ ((noinline)) tick() {
         static bool init = false;
         if (!init) {
             core->Create(880767080671117342, DiscordCreateFlags_Default, &core);
@@ -16,6 +17,7 @@ namespace DiscordRPC {
             strcat(stateStr, "loaded config: ");
             strcat(stateStr, Menu::curConfigLoaded);
         }
+        Protection::protect();
         activity.SetState(stateStr);
         activity.SetDetails(Interfaces::engine->isInGame() ? Interfaces::engine->getLevelName() : "in the lobby");
         activity.GetAssets().SetLargeImage("eclipselogo");

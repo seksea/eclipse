@@ -161,5 +161,5 @@ namespace SkinChanger {
         {ItemIndex::WEAPON_KNIFEGG, "gold"}
     };
 
-    void run(FrameStage stage);
+    void run();
 }

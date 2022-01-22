@@ -91,7 +91,16 @@ namespace Hooks {
     }
 
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
-        SkinChanger::run(stage);
+        switch (stage) {
+            case FRAME_NET_UPDATE_POSTDATAUPDATE_START: {
+                SkinChanger::run();
+                break;
+            }
+            case FRAME_NET_UPDATE_POSTDATAUPDATE_END: {
+                Visuals::skyboxChanger();
+                break;
+            }
+        }
         Lua::handleHook("frameStageNotify", stage);
         return original(thisptr, stage);
     }

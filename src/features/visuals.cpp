@@ -12,4 +12,25 @@ namespace Visuals {
         tonemapController->nDT_EnvTonemapController__m_flCustomAutoExposureMin() = 1.01f - CONFIGFLOAT("nightmode");
         tonemapController->nDT_EnvTonemapController__m_flCustomAutoExposureMax() = 1.01f - CONFIGFLOAT("nightmode");
     }
+
+    void skyboxChanger() {
+        // remove 3d sky
+        static Convar* r_3dsky = nullptr;
+        if (CONFIGBOOL("remove 3d skybox")) {
+            if (!r_3dsky)
+                r_3dsky = Interfaces::cvar->findVar("r_3dsky");
+            else
+                r_3dsky->setInt(0);
+        }
+        else if (r_3dsky) {
+            r_3dsky->setInt(1);
+        }
+
+        typedef bool (*SetNamedSkybox)(const char *);
+        static SetNamedSkybox setNamedSkybox = (SetNamedSkybox)Memory::patternScan("engine_client.so", "55 4C 8D 05 ? ? ? ? 48 89 E5 41");
+
+        if (setNamedSkybox && CONFIGINT("skybox")) {
+            setNamedSkybox((CONFIGINT("skybox") != 1) ? skyboxes[CONFIGINT("skybox")] : "sky_l4d_rural02_ldr");
+        }
+    }
 }

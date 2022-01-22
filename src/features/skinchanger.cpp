@@ -23,8 +23,8 @@ namespace SkinChanger {
             weapon->nDT_BaseAttributableItem__m_nFallbackStatTrak() = stattrack;
     }
 
-    void run(FrameStage stage) {
-        if (stage != FRAME_NET_UPDATE_POSTDATAUPDATE_START || !EntityCache::localPlayer || !Interfaces::engine->isInGame() || EntityCache::localPlayer->nDT_BasePlayer__m_iHealth() == 0)
+    void run() {
+        if (!EntityCache::localPlayer || !Interfaces::engine->isInGame() || EntityCache::localPlayer->nDT_BasePlayer__m_iHealth() == 0)
             return;
         
         // Knife changer

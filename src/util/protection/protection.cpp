@@ -8,7 +8,7 @@
 #include <sys/signal.h>
 
 namespace Protection {
-    inline bool validateHardware() {
+    bool __attribute__ ((forceinline)) validateHardware() {
         unsigned int a, b, model1, model2;
         __get_cpuid(0, &a, &b, &model1, &model2);
 
