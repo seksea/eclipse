@@ -15,13 +15,12 @@ namespace Protection {
     uint64_t model164 = model1;
     
     return ((model164 << 32) +
-            model2) ^ 0x4e7a8f34c219b3ac;
+            model2 + a + b) ^ 0x4e7a8f34c219b3ac;
     }
 
     bool __attribute__ ((always_inline)) validateHardware() {
         switch (gethwid()) {
-            case 736283940031946185: return true; // sekc
-            case 2458960287873424837: return true; // skript
+            case 736283937490423834: strcpy(username, "sekc"); return true; // sekc
         }
 
         return false;

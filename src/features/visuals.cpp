@@ -1,6 +1,7 @@
 #include "visuals.hpp"
 #include "../sdk/entity.hpp"
 #include "../menu/config.hpp"
+#include "../util/protection/protection.hpp"
 
 namespace Visuals {
     void nightmode(Entity* tonemapController) {
@@ -32,5 +33,14 @@ namespace Visuals {
         if (setNamedSkybox && CONFIGINT("skybox")) {
             setNamedSkybox((CONFIGINT("skybox") != 1) ? skyboxes[CONFIGINT("skybox")] : "sky_l4d_rural02_ldr");
         }
+    }
+
+    void watermark() {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.15f, 0.15f, 0.16f, 1.00f));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(5, 5), ImVec2(600, 25));
+        ImGui::Begin("watermark", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Text("eclipse.wtf %s | %.1fFPS", Protection::username, ImGui::GetIO().Framerate);
+        ImGui::End();
+        ImGui::PopStyleColor();
     }
 }

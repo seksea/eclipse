@@ -130,6 +130,7 @@ namespace Menu {
         }*/
 
         ESP::draw(ImGui::GetBackgroundDrawList());
+        Visuals::watermark();
 
         Lua::curDrawList = ImGui::GetBackgroundDrawList();
         Lua::handleHook("draw");

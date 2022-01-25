@@ -51,7 +51,7 @@ namespace Chams {
         }
 
         Entity* ent = Interfaces::entityList->getClientEntity(pInfo.entity_index);
-        if (!ent || !EntityCache::localPlayer) {
+        if (!ent || !EntityCache::localPlayer || ent->nDT_BasePlayer__m_iHealth() == 0) {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
             return;
         }

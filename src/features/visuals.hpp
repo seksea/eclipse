@@ -34,4 +34,5 @@ namespace Visuals {
 
     void nightmode(Entity* tonemapController);
     void skyboxChanger();
+    void watermark();
 }
