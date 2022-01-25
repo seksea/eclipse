@@ -1,4 +1,5 @@
 from flask import Flask, send_file
+from waitress import serve
 import os
 
 app = Flask(__name__)
@@ -14,7 +15,7 @@ def libgamesdk():
 def kubos():
     return send_file("kubos")
 
-#download route for eclipse (requires vmprotecting with custom watermark based on IP)
+#download route for eclipse (requires vmprotecting)
 @app.route("/downloads/libeclipse.so")
 def libeclipse():
     try:
@@ -23,3 +24,5 @@ def libeclipse():
         print("file already doesn't exist")
     os.system("wine VMProtect/VMProtect_Con.exe libeclipse_unprotected.so")
     return send_file("libeclipse.so")
+
+serve(app, host="0.0.0.0", port=80)

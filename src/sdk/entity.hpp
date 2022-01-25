@@ -51,6 +51,7 @@ class Entity {
     VFUNC(Vector&, origin, 12, (), (this))
 
 	bool teammate() {
+		if (strstr(Interfaces::engine->getLevelName(), "dz_")) return false;
 		return this->nDT_BaseEntity__m_iTeamNum() == EntityCache::localPlayer->nDT_BaseEntity__m_iTeamNum();
 	}
 

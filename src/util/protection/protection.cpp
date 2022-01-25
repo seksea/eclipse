@@ -8,12 +8,20 @@
 #include <sys/signal.h>
 
 namespace Protection {
-    bool __attribute__ ((forceinline)) validateHardware() {
-        unsigned int a, b, model1, model2;
-        __get_cpuid(0, &a, &b, &model1, &model2);
+    uint64_t __attribute__ ((always_inline)) gethwid() {
+    unsigned int a, b, model1, model2;
+    __get_cpuid(0, &a, &b, &model1, &model2);
 
-        switch (model1) {
-            case 1145913699: if (model2 == 1769238117) return true; // sekc
+    uint64_t model164 = model1;
+    
+    return ((model164 << 32) +
+            model2) ^ 0x4e7a8f34c219b3ac;
+    }
+
+    bool __attribute__ ((always_inline)) validateHardware() {
+        switch (gethwid()) {
+            case 736283940031946185: return true; // sekc
+            case 2458960287873424837: return true; // skript
         }
 
         return false;
