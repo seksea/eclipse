@@ -115,6 +115,10 @@ namespace Lua {
         void clientCmd(const char* command) { return Interfaces::engine->clientCmdUnrestricted(command); }
 
         bool isInGame() { return Interfaces::engine->isInGame(); }
+
+        CUserCmd startMovementFix_(CUserCmd cmd) { startMovementFix(&cmd); return cmd; }
+
+        CUserCmd endMovementFix_(CUserCmd cmd) { endMovementFix(&cmd); return cmd; }
     }
 
     namespace Mem {
@@ -477,8 +481,8 @@ namespace Lua {
                 .addFunction("addEventListener", Eclipse::addEventListener)
                 .addFunction("clientCmd", Eclipse::clientCmd)
                 .addFunction("isInGame", Eclipse::isInGame)
-                .addFunction("startMovementFix", startMovementFix)
-                .addFunction("endMovementFix", endMovementFix)
+                .addFunction("startMovementFix", Eclipse::startMovementFix_)
+                .addFunction("endMovementFix", Eclipse::endMovementFix_)
             .endNamespace()
             .beginNamespace("globals")
                 .addFunction("registerHook", Eclipse::registerHook)
