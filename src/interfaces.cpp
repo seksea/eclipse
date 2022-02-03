@@ -3,10 +3,15 @@
 
 #include "interfaces.hpp"
 #include "util/log.hpp"
+#include "menu/config.hpp"
 
 template <typename T>
 static constexpr auto relativeToAbsolute(std::uintptr_t address) noexcept {
     return (T)(address + 4 + *reinterpret_cast<std::int32_t*>(address));
+}
+
+bool host_IsSecureServerAllowed_hook() {
+    return CONFIGBOOL("insecure bypass");
 }
 
 namespace Interfaces {
@@ -64,6 +69,12 @@ namespace Interfaces {
         restoreEntityToPredictedFrame = (RestoreEntityToPredictedFrame)Memory::patternScan("/client_client.so",
             "55 48 89 E5 41 57 41 89 D7 41 56 41 55 41 89 F5 41 54 53 48 83 EC 18");
         LOG(" restoreEntityToPredictedFrame %lx", restoreEntityToPredictedFrame);
+
+        host_IsSecureServerAllowed = (Host_IsSecureServerAllowed)Memory::patternScan("/engine_client.so", "55 48 89 E5 E8 ? ? ? ? 48 8D 35 ? ? ? ? 48 8B 10 48 89 C7 FF 52 58 85 C0 74 13");
+        insecure = !host_IsSecureServerAllowed();
+        if (insecure) {
+            Memory::VMT::detour((char*)(host_IsSecureServerAllowed), (char*)(host_IsSecureServerAllowed_hook));
+        }
 
         LOG("Initialised interfaces!");
     }

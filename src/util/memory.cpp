@@ -19,5 +19,13 @@ namespace Memory {
 
             return (void*)original;
         }
+
+        void detour(char* src, char* dest) {
+            mprotect((void*)((uintptr_t)src & pagemask), pagesize, PROT_READ|PROT_WRITE|PROT_EXEC);
+            intptr_t  relativeAddress = (intptr_t)(dest - (intptr_t)src) - 5;
+            *src = (char)'\xE9';
+            *(intptr_t*)((intptr_t)src + 1) = relativeAddress;
+            mprotect((void*)((uintptr_t)src & pagemask), pagesize, PROT_READ|PROT_EXEC);
+        }
     }
 }

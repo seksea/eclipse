@@ -29,6 +29,7 @@ returnType name args noexcept \
 namespace Memory {
     namespace VMT {
         void* hook(void* instance, void* hook, int offset);
+        void detour(char* src, char* dest);
     }
 
     inline void**& getVTable(void* c, size_t offset = 0) {

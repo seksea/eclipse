@@ -11,6 +11,10 @@
 #include <string>
 #include <unistd.h>
 
+bool hk() {
+    return true;
+}
+
 void mainThread() {
     /* if serverbrowser is not open then wait, (serverbrowser is last to be loaded) */
     while (!dlopen("./bin/linux64/serverbrowser_client.so", RTLD_NOLOAD | RTLD_NOW))

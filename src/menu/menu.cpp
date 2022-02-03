@@ -86,6 +86,7 @@ namespace Menu {
             ImGui::GetStyle().FrameBorderSize = 1;
             ImGui::GetStyle().ScrollbarRounding = 0;
             ImGui::GetStyle().ScrollbarSize = 3;
+            ImGui::GetStyle().WindowMinSize = ImVec2(4, 4);
 
             ImVec4* colors = ImGui::GetStyle().Colors;
             colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.16f, 1.00f);
@@ -317,6 +318,8 @@ namespace Menu {
                             BEGINGROUPBOX("misc", ImVec2(438, 214));
                                 CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
                                 CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
+                                bool alwaysFalse = false;
+                                CHECKBOX("insecure bypass", Interfaces::insecure ? &CONFIGBOOL("insecure bypass") : &alwaysFalse);
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(6, 262));

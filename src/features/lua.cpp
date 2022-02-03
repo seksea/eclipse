@@ -256,7 +256,7 @@ namespace Lua {
         void setConfigStr(const char* var, const char* val) { CONFIGSTR(var) = val; }
         ImColor getConfigCol(const char* var) { return CONFIGCOL(var); }
         void setConfigCol(const char* var, ImColor val) { CONFIGCOL(var) = val; }
-        void beginWindow(const char* title) { ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus); }
+        void beginWindow(const char* title) { ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus | (Menu::menuOpen ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs)); }
         void endWindow() { ImGui::End(); }
         void sameLine() { ImGui::SameLine(); }
         void columns(int count, bool border) { ImGui::Columns(count, nullptr, border); }
@@ -481,8 +481,8 @@ namespace Lua {
                 .addFunction("addEventListener", Eclipse::addEventListener)
                 .addFunction("clientCmd", Eclipse::clientCmd)
                 .addFunction("isInGame", Eclipse::isInGame)
-                .addFunction("startMovementFix", Eclipse::startMovementFix_)
-                .addFunction("endMovementFix", Eclipse::endMovementFix_)
+                .addFunction("startMovementFix", startMovementFix)
+                .addFunction("endMovementFix", endMovementFix)
             .endNamespace()
             .beginNamespace("globals")
                 .addFunction("registerHook", Eclipse::registerHook)

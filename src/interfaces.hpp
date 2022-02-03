@@ -46,6 +46,10 @@ namespace Interfaces {
     typedef void (*RestoreEntityToPredictedFrame)(void*, int, int);
     inline RestoreEntityToPredictedFrame restoreEntityToPredictedFrame;
 
+    inline bool insecure;
+    using Host_IsSecureServerAllowed = bool(*)();
+    inline Host_IsSecureServerAllowed host_IsSecureServerAllowed;
+
     void init();
 
     typedef void* (*InstantiateInterfaceFn)();
