@@ -119,6 +119,8 @@ namespace Lua {
         CUserCmd startMovementFix_(CUserCmd cmd) { startMovementFix(&cmd); return cmd; }
 
         CUserCmd endMovementFix_(CUserCmd cmd) { endMovementFix(&cmd); return cmd; }
+
+        void setViewAngles(QAngle viewangles) { Interfaces::engine->setViewAngles(viewangles); }
     }
 
     namespace Mem {
@@ -494,6 +496,7 @@ namespace Lua {
                 .addFunction("isInGame", Eclipse::isInGame)
                 .addFunction("startMovementFix", startMovementFix)
                 .addFunction("endMovementFix", endMovementFix)
+                .addFunction("setViewAngles", Eclipse::setViewAngles)
             .endNamespace()
             .beginNamespace("globals")
                 .addFunction("registerHook", Eclipse::registerHook)

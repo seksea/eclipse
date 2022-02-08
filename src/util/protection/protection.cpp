@@ -21,6 +21,7 @@ namespace Protection {
     bool __attribute__ ((always_inline)) validateHardware() {
         switch (gethwid()) {
             case 736283937490423834: strcpy(username, "sekc"); return true; // sekc
+            case 736283937490423839: strcpy(username, "johannes"); return true; // johannes
             case 2458960287626846314: strcpy(username, "vampur"); return true; // vampur
         }
 

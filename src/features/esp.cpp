@@ -69,8 +69,8 @@ namespace ESP {
                     if (CONFIGBOOL("dynamic weapon transparency")) {
                         QAngle angleToEnt = calcAngle(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), e.origin) - viewAngles;
                         normalizeAngles(angleToEnt);
-                        boxColor.Value.w = 1-(angleToEnt.Length() / 40);
-                        boxColor.Value.w = std::clamp(boxColor.Value.w, 0.15f, 1.f);
+                        boxColor.Value.w = 1-(angleToEnt.Length() / 25);
+                        boxColor.Value.w = std::clamp(boxColor.Value.w, 0.05f, 1.f);
                         nameColor.Value.w = boxColor.Value.w;
                     }
 

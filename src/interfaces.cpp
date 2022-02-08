@@ -32,6 +32,8 @@ namespace Interfaces {
         prediction = getInterface<IPrediction>("./csgo/bin/linux64/client_client.so", "VClientPrediction001", true);
 	    movement = getInterface<IGameMovement>("./csgo/bin/linux64/client_client.so", "GameMovement");
 
+
+
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
         typedef IClientMode* (*GetClientMode)();
@@ -47,6 +49,11 @@ namespace Interfaces {
         /* Get renderBeams */
         renderBeams = **Memory::relativeToAbsolute<ViewRenderBeams***>(Memory::patternScan("/client_client.so", "4C 89 F6 4C 8B 25 ? ? ? ? 48 8D 05") + 6); // Credit: danielkrupinski
         LOG(" renderBeams %lx", (uintptr_t)renderBeams);
+
+
+        typedef GlowObjectManager* (*GlowObjectManagerFn) (void);
+	    glowManager = ((GlowObjectManagerFn)Memory::getAbsoluteAddress(Memory::patternScan("/client_client.so", "E8 ? ? ? ? 48 8B 3D ? ? ? ? BE 01 00 00 00 C7"), 1, 5))();
+        LOG(" glowManager %lx", (uintptr_t)glowManager);
 
         /* Get panorama panel array (credit LWSS' skeletux project) */
         uintptr_t IsValidPanelPointer = reinterpret_cast<uintptr_t>(Memory::getVTable(Interfaces::panorama->AccessUIEngine())[37]);

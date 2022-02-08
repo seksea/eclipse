@@ -14,6 +14,7 @@
 #include "features/movement.hpp"
 #include "features/legitbot.hpp"
 #include "features/skinchanger.hpp"
+#include "features/glow.hpp"
 
 namespace Hooks {
     void init() {
@@ -30,6 +31,8 @@ namespace Hooks {
         FrameStageNotify::original = (FrameStageNotify::func)Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::hook, 37);
         LOG(" Hooking EmitSound...");
         EmitSound::original = (EmitSound::func)Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::hook, 6);
+        LOG(" Hooking DoPostScreenEffects...");
+        DoPostScreenEffects::original = (DoPostScreenEffects::func)Memory::VMT::hook(Interfaces::clientMode, (void*)DoPostScreenEffects::hook, 45);
 
         eventListener = new EventListener;
     }
@@ -44,6 +47,8 @@ namespace Hooks {
         Memory::VMT::hook(Interfaces::client, (void*)FrameStageNotify::original, 37);
         LOG(" Unhooking EmitSound...");
         Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::original, 6);
+        LOG(" Unhooking DoPostScreenEffects...");
+        Memory::VMT::hook(Interfaces::clientMode, (void*)DoPostScreenEffects::original, 45);
 
         delete eventListener;
     }
@@ -86,6 +91,7 @@ namespace Hooks {
         Chams::doChams(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
     }
 
+    std::vector<std::pair<int, int>> custom_glow_entities;
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
         switch (stage) {
             case FRAME_NET_UPDATE_POSTDATAUPDATE_START: {
@@ -99,6 +105,7 @@ namespace Hooks {
             case FRAME_RENDER_END: {
                 storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
                 EntityCache::cacheEntities();
+                break;
             }
         }
         Lua::handleHook("frameStageNotify", stage);
@@ -115,7 +122,7 @@ namespace Hooks {
 
         if(Prediction::inPrediction && iEntIndex == EntityCache::localPlayer->index())
             return;
-        Hooks::EmitSound::original(thisptr, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, iSoundLevel, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, params);
+        original(thisptr, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, iSoundLevel, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, params);
     }
 
     EventListener::EventListener() {
@@ -134,5 +141,10 @@ namespace Hooks {
 
     int EventListener::getEventDebugID() {
         return EVENT_DEBUG_ID_INIT;
+    }
+
+    void DoPostScreenEffects::hook(void* thisptr, void* param) {
+        Glow::draw();
+        original(thisptr, param);
     }
 }

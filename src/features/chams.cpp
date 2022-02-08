@@ -45,7 +45,8 @@ namespace Chams {
     }
 
     void doChams(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld) {
-        if (Interfaces::studioRender->overrideType == OverrideType::DepthWrite || Interfaces::studioRender->overrideType == OverrideType::SsaoDepthWrite) {
+        if (Interfaces::studioRender->overrideType == OverrideType::DepthWrite || Interfaces::studioRender->overrideType == OverrideType::SsaoDepthWrite || 
+                (Interfaces::studioRender->materialOverride && strstr(Interfaces::studioRender->materialOverride->GetName(), "dev/glow"))) {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld); // Draw Shadows
             return;
         }

@@ -17,6 +17,7 @@
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
 #include "sdk/interfaces/viewrenderbeams.hpp"
+#include "sdk/interfaces/glowobjectmanager.hpp"
 
 #include "util/log.hpp"
 
@@ -39,6 +40,7 @@ namespace Interfaces {
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
     inline ViewRenderBeams* renderBeams;
+    inline GlowObjectManager* glowManager;
 
     inline int* predictionSeed = 0;
     inline IMoveHelper* moveHelper;

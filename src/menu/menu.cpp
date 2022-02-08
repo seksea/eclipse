@@ -226,6 +226,12 @@ namespace Menu {
                                 COLORPICKER("##healthbar color", CONFIGCOL("enemy esp healthbar color"));
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("enemy esp healthbar"));
+
+                                ImGui::Separator();
+                                COLORPICKER("##glow enemy color", CONFIGCOL("glow enemy color"));
+                                ImGui::SameLine();
+                                CHECKBOX("glow", &CONFIGBOOL("glow enemy"));
+                                CHECKBOX("glow stencil", &CONFIGBOOL("glow enemy stencil"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -250,6 +256,12 @@ namespace Menu {
                                 COLORPICKER("##healthbar color", CONFIGCOL("team esp healthbar color"));
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("team esp healthbar"));
+
+                                ImGui::Separator();
+                                COLORPICKER("##glow teammate color", CONFIGCOL("glow teammate color"));
+                                ImGui::SameLine();
+                                CHECKBOX("glow", &CONFIGBOOL("glow teammate"));
+                                CHECKBOX("glow stencil", &CONFIGBOOL("glow teammate stencil"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -282,7 +294,10 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("weapon name", &CONFIGBOOL("weapon name"));
 
-                                CHECKBOX("dynamic transparency", &CONFIGBOOL("dynamic weapon transparency"));
+                                COLORPICKER("##glow weapon color", CONFIGCOL("glow weapon color"));
+                                ImGui::SameLine();
+                                CHECKBOX("weapon glow", &CONFIGBOOL("glow weapon"));
+                                CHECKBOX("weapon glow stencil", &CONFIGBOOL("glow weapon stencil"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
