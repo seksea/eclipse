@@ -320,6 +320,17 @@ namespace Lua {
             drawKeyBinder(&CONFIGBIND(configVarName));
         }
         bool isKeybinderDown(const char* configVarName) { return isKeyBinderPressed(&CONFIGBIND(configVarName)); }
+        int comboBox(const char* label, const char* configVarName, std::vector<const char*> items) {
+            ImGui::Text("%s", label);
+
+            char labelBuf[64] = "##";
+            strcat(labelBuf, label);
+            int temp = CONFIGINT(configVarName);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
+            ImGui::Combo(labelBuf, &temp, &items[0], items.size());
+            CONFIGFLOAT(configVarName) = temp;
+            return temp;
+        }
     }
 
     namespace Draw {
@@ -433,17 +444,17 @@ namespace Lua {
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
                 .addFunction("getPropFloat", &LuaEntity::getProp<float>)
-                .addFunction("getPropFloat", &LuaEntity::getProp<float>)
                 .addFunction("getPropPtr", &LuaEntity::getProp<unsigned int>)
                 .addFunction("getPropQAngle", &LuaEntity::getProp<QAngle>)
                 .addFunction("getPropVector", &LuaEntity::getProp<Vector>)
+                .addFunction("getPropStr", &LuaEntity::getProp<const char*>)
                 .addFunction("setPropBool", &LuaEntity::setProp<bool>)
                 .addFunction("setPropInt", &LuaEntity::setProp<int>)
-                .addFunction("setPropFloat", &LuaEntity::setProp<float>)
                 .addFunction("setPropFloat", &LuaEntity::setProp<float>)
                 .addFunction("setPropPtr", &LuaEntity::setProp<unsigned int>)
                 .addFunction("setPropQAngle", &LuaEntity::setProp<QAngle>)
                 .addFunction("setPropVector", &LuaEntity::setProp<Vector>)
+                .addFunction("setPropStr", &LuaEntity::setProp<const char*>)
             .endClass()
             .beginClass<LuaClientClass>("ClientClass")
                 .addFunction("exists", &LuaClientClass::exists)
@@ -549,6 +560,7 @@ namespace Lua {
                 .addFunction("sliderFloat", UI::sliderFloat)
                 .addFunction("keybinder", UI::keybinder)
                 .addFunction("isKeybinderDown", UI::isKeybinderDown)
+                .addFunction("comboBox", UI::comboBox)
             .endNamespace()
             .beginNamespace("draw")
                 .addFunction("rectangle", Draw::rectangle)

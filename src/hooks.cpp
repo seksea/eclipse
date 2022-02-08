@@ -53,10 +53,6 @@ namespace Hooks {
 
         if (!cmd || !cmd->commandnumber)
             return origReturn;
-        
-
-        storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
-        EntityCache::cacheEntities();
 
         if (cmd->buttons & IN_SCORE && cmd->tickcount % 32 == 1 && CONFIGBOOL("rank reveal")) {
             Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
@@ -99,6 +95,10 @@ namespace Hooks {
             case FRAME_NET_UPDATE_POSTDATAUPDATE_END: {
                 Visuals::skyboxChanger();
                 break;
+            }
+            case FRAME_RENDER_END: {
+                storedViewMatrix = Interfaces::engine->worldToScreenMatrix();
+                EntityCache::cacheEntities();
             }
         }
         Lua::handleHook("frameStageNotify", stage);

@@ -2,7 +2,7 @@
 #include "classids.hpp"
 
 void EntityCache::cacheEntities() {
-    localPlayer = Interfaces::entityList->getClientEntity(Interfaces::engine->getLocalPlayer());
+    EntityCache::localPlayer = Interfaces::entityList->getClientEntity(Interfaces::engine->getLocalPlayer());
     std::lock_guard<std::mutex> lock(entityCacheLock);
     entityCache.clear();
     if (!localPlayer)

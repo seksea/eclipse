@@ -62,7 +62,8 @@ namespace Lua {
         strcat(path, "scripts/");
         std::filesystem::create_directory(path);
         for (const auto &entry : std::filesystem::directory_iterator(path)) {
-            luaFiles.push_back(entry.path().string().substr(strlen(path)));
+            if (entry.is_regular_file())
+                luaFiles.push_back(entry.path().string().substr(strlen(path)));
         }
         std::sort(luaFiles.begin(), luaFiles.end());
     }

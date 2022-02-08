@@ -120,6 +120,10 @@ case $keys in
         clean
         shift
         ;;
+    -r|--release)
+        cp build/libeclipse.so release/server/libeclipse_unprotected.so
+        shift
+        ;;
     -h|--help)
         echo "
  help
