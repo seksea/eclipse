@@ -11,6 +11,20 @@ void outlineText(ImDrawList* drawList, ImVec2 pos, ImColor color, const char* te
     drawList->AddText(pos, color, text);
 }
 
+void normalizeAngles(QAngle& angle) {
+	while (angle.x > 89.0f)
+		angle.x -= 180.f;
+
+	while (angle.x < -89.0f)
+		angle.x += 180.f;
+
+	while (angle.y > 180.f)
+		angle.y -= 360.f;
+
+	while (angle.y < -180.f)
+		angle.y += 360.f;
+}
+
 namespace ESP {
     void draw(ImDrawList* drawList) {
 		std::lock_guard<std::mutex> lock(EntityCache::entityCacheLock);
@@ -20,8 +34,8 @@ namespace ESP {
         for (auto e : EntityCache::entityCache) {
             if (e.boundingBox.y < 0 || isnan(e.boundingBox.y) ) 
                 continue;
-            switch (e.classID) {
-                case 40: { // Player 
+            switch (e.type) {
+                case EntityCache::EntityType::PLAYER: { // Player 
                     if (e.health > 0) {
                         if (CONFIGBOOL(e.teammate ? "team esp box" : "enemy esp box")) {
                             drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), ImColor(0, 0, 0, 160), 0.f, 0, 3.f);
@@ -44,6 +58,28 @@ namespace ESP {
                                 outlineText(drawList, ImVec2(healthbarMin.x + 1 - (ImGui::CalcTextSize(hpText).x / 2), healthbarMin.y - 13), ImColor(255, 255, 255, 200), hpText);
                             }
                         }
+                    }
+                    break;
+                }
+                case EntityCache::EntityType::DROPPEDWEAPON: { // Player 
+                    ImColor boxColor = CONFIGCOL("weapon box color");
+                    ImColor nameColor = CONFIGCOL("weapon name color");
+                    QAngle viewAngles;
+                    Interfaces::engine->getViewAngles(viewAngles);
+                    if (CONFIGBOOL("dynamic weapon transparency")) {
+                        QAngle angleToEnt = calcAngle(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), e.origin) - viewAngles;
+                        normalizeAngles(angleToEnt);
+                        boxColor.Value.w = 1-(angleToEnt.Length() / 40);
+                        boxColor.Value.w = std::clamp(boxColor.Value.w, 0.15f, 1.f);
+                        nameColor.Value.w = boxColor.Value.w;
+                    }
+
+                    if (CONFIGBOOL("weapon box")) {
+                        drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), ImColor(0.f, 0.f, 0.f, boxColor.Value.w/2), 0.f, 0, 3.f);
+                        drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), boxColor);
+                    }
+                    if (CONFIGBOOL("weapon name")) {
+                        outlineText(drawList, ImVec2(e.boundingBox.x + ((e.boundingBox.z - e.boundingBox.x) - ImGui::CalcTextSize(e.weaponName.data()).x)/2, e.boundingBox.y - 13), nameColor, e.weaponName.data());
                     }
                     break;
                 }

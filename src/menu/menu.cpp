@@ -262,13 +262,27 @@ namespace Menu {
                             break;
                         }
                         case 2: { /* World */
-                            BEGINGROUPBOX("world", ImVec2(216, 351));
+                            BEGINGROUPBOX("world", ImVec2(216, 194));
                                 SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0, 1, "%.2f");
 
                                 CHECKBOX("remove 3d skybox", &CONFIGBOOL("remove 3d skybox"));
                                 static int curSkyBoxSelected = CONFIGINT("skybox");
                                 COMBOBOX("skybox", &curSkyBoxSelected, Visuals::skyboxes, IM_ARRAYSIZE(Visuals::skyboxes));
                                 CONFIGFLOAT("skybox") = curSkyBoxSelected;
+                            ENDGROUPBOX();
+
+                            ImGui::SetCursorPos(ImVec2(6, 242));
+
+                            BEGINGROUPBOX("item ESP", ImVec2(216, 151));
+                                COLORPICKER("##box color", CONFIGCOL("weapon box color"));
+                                ImGui::SameLine();
+                                CHECKBOX("weapon box", &CONFIGBOOL("weapon box"));
+
+                                COLORPICKER("##weapon name color", CONFIGCOL("weapon name color"));
+                                ImGui::SameLine();
+                                CHECKBOX("weapon name", &CONFIGBOOL("weapon name"));
+
+                                CHECKBOX("dynamic transparency", &CONFIGBOOL("dynamic weapon transparency"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));

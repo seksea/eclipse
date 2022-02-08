@@ -8,6 +8,7 @@
 #include "../interfaces.hpp"
 #include "netvars.hpp"
 #include "../features/visuals.hpp"
+#include "../features/skinchanger.hpp"
 
 #include "allnetvars.hpp"
 class ICollideable {
@@ -65,20 +66,42 @@ class Entity {
 };
 
 namespace EntityCache {
+	enum class EntityType {
+		PLAYER,
+		DROPPEDWEAPON,
+		INVALID
+	};
+
 	struct CachedEntity {
 		int index;
+		EntityType type = EntityType::INVALID;
 		Vector origin;
 		int classID;
 		ImVec4 boundingBox;
 		int health;
 		bool teammate;
 		PlayerInfo info;
+		std::string_view weaponName;
 		CachedEntity(Entity* e) {
 			this->index = e->index();
 			this->origin = e->origin();
 			this->classID = e->clientClass()->m_ClassID;
-			boundingBox = getBoundingBox(e);
+			this->boundingBox = getBoundingBox(e);
+
+			if ((e->clientClass()->m_ClassID != ClassId::CBaseWeaponWorldModel && strstr(e->clientClass()->m_pNetworkName, "Weapon")) || e->clientClass()->m_ClassID == ClassId::CDEagle || e->clientClass()->m_ClassID == ClassId::CC4 || e->clientClass()->m_ClassID == ClassId::CAK47) { // if is weapon
+				if (e->nDT_BaseCombatWeapon__m_hOwner() == -1) {
+					this->type = EntityType::DROPPEDWEAPON;
+					if (SkinChanger::itemIndexToNameMap.find((ItemIndex)(e->nDT_ScriptCreatedItem__m_iItemDefinitionIndex() & 0xFFF)) != SkinChanger::itemIndexToNameMap.end()) {
+						this->weaponName = SkinChanger::itemIndexToNameMap.at((ItemIndex)(e->nDT_ScriptCreatedItem__m_iItemDefinitionIndex() & 0xFFF));
+					}
+					else {
+						this->weaponName = "invalid item";
+					}
+				}
+			}
+
 			if (this->index <= 64) { // if player
+				this->type = EntityType::PLAYER;
 				this->health = e->nDT_BasePlayer__m_iHealth();
 				this->teammate = e->teammate();
 				Interfaces::engine->getPlayerInfo(this->index, this->info);
