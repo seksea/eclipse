@@ -1,6 +1,35 @@
 #include "entity.hpp"
 #include "classids.hpp"
 
+bool Entity::visCheck() {
+    if (!EntityCache::localPlayer)
+        return false;
+
+    matrix3x4_t boneMatrix[128];
+    if (!this->setupBones(boneMatrix, 128, BONE_USED_BY_ANYTHING, Interfaces::globals->curtime))
+        return false;
+    
+    TraceFilter filter;
+    filter.pSkip = EntityCache::localPlayer;
+
+    Trace traceToHead;
+    Ray rayToHead;
+    rayToHead.Init(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), Vector(boneMatrix[8][0][3], boneMatrix[8][1][3], boneMatrix[8][2][3]));
+                                // solid|opaque|moveable|ignore nodraw
+    Interfaces::trace->traceRay(rayToHead, (0x1 | 0x80 | 0x4000 | 0x2000), &filter, &traceToHead);
+
+    Trace traceToUpperSpinal;
+    Ray rayToUpperSpinal;
+    rayToUpperSpinal.Init(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), Vector(boneMatrix[6][0][3], boneMatrix[6][1][3], boneMatrix[6][2][3]));
+                                // solid|opaque|moveable|ignore nodraw
+    Interfaces::trace->traceRay(rayToUpperSpinal, (0x1 | 0x80 | 0x4000 |    0x2000   ), &filter, &traceToUpperSpinal);
+
+    return (traceToHead.m_pEntityHit == this) && (traceToUpperSpinal.m_pEntityHit == this) && 
+            !Interfaces::lineGoesThroughSmoke(
+            EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 
+            this->origin() + Vector(0, 0, (this->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 1);
+}
+
 void EntityCache::cacheEntities() {
     EntityCache::localPlayer = Interfaces::entityList->getClientEntity(Interfaces::engine->getLocalPlayer());
     std::lock_guard<std::mutex> lock(entityCacheLock);

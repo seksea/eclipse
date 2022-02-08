@@ -13,6 +13,7 @@
 #include "sdk/interfaces/panorama.hpp"
 #include "sdk/interfaces/igameevent.hpp"
 #include "sdk/interfaces/iprediction.hpp"
+#include "sdk/interfaces/ienginetrace.hpp"
 
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
@@ -36,6 +37,7 @@ namespace Interfaces {
     inline IGameEventManager2* eventManager;
     inline IPrediction* prediction;
     inline IGameMovement* movement;
+    inline IEngineTrace* trace;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
@@ -45,8 +47,12 @@ namespace Interfaces {
     inline int* predictionSeed = 0;
     inline IMoveHelper* moveHelper;
     inline CMoveData* moveData;
+    
     typedef void (*RestoreEntityToPredictedFrame)(void*, int, int);
     inline RestoreEntityToPredictedFrame restoreEntityToPredictedFrame;
+
+    typedef bool (*LineGoesThroughSmoke) (Vector, Vector, int16_t);
+    inline LineGoesThroughSmoke lineGoesThroughSmoke;
 
     inline bool insecure;
     using Host_IsSecureServerAllowed = bool(*)();

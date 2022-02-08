@@ -158,7 +158,11 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
                     BEGINGROUPBOX("legitbot", ImVec2(438, 250));
-                    SLIDERFLOAT("fov", &CONFIGFLOAT("legitbot fov"), 0, 180, "%.2f");
+                    ImGui::Text("fov");
+                    ImGui::SameLine();
+                    drawKeyBinder(&CONFIGBIND("legitbot key"));
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 3 0); 
+                    ImGui::SliderFloat("##fov", &CONFIGFLOAT("legitbot fov"), 0, 180, "%.2f");
                     SLIDERFLOAT("smoothing", &CONFIGFLOAT("legitbot smoothing"), 0, 100, "%.2f");
                     ENDGROUPBOX();
 
@@ -232,6 +236,8 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow enemy"));
                                 CHECKBOX("glow stencil", &CONFIGBOOL("glow enemy stencil"));
+
+                                CHECKBOX("visible only", &CONFIGBOOL("enemy visible only"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -262,6 +268,8 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow teammate"));
                                 CHECKBOX("glow stencil", &CONFIGBOOL("glow teammate stencil"));
+
+                                CHECKBOX("visible only", &CONFIGBOOL("teammate visible only"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));

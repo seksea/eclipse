@@ -142,6 +142,7 @@ namespace SkinChanger {
         {ItemIndex::WEAPON_SSG08, "scout"},
         {ItemIndex::WEAPON_USP_SILENCER, "usp-s"},
         {ItemIndex::WEAPON_M4A1_SILENCER, "m4a1-s"},
+        {ItemIndex::WEAPON_C4, "c4"},
         /* knives */
         {ItemIndex::WEAPON_KNIFE, "knife"},
         {ItemIndex::WEAPON_KNIFE_BAYONET, "bayonet"},

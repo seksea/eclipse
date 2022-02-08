@@ -11,14 +11,14 @@ void aimAtAngle(CUserCmd* cmd, float closestDelta, QAngle ang, float smoothing, 
 
 namespace Legitbot {
     void run(CUserCmd* cmd) {
-        if (cmd->buttons & IN_ATTACK) {
+        if (isKeyBinderPressed(&CONFIGBIND("legitbot key"))) {
             float closestBoneDelta = FLT_MAX;
             QAngle angleToClosestBone = { 0, 0, 0 };
             for (Backtrack::Tick tick : Backtrack::ticks) {
                 for (std::pair<int, Backtrack::Player> p : tick.players) {
                     Entity* e = Interfaces::entityList->getClientEntity(p.first);
                     if (!e || e == EntityCache::localPlayer || 
-                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0)
+                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck())
                         continue;
                     
                     Vector targetBonePos = Vector(p.second.boneMatrix[8][0][3], p.second.boneMatrix[8][1][3], p.second.boneMatrix[8][2][3]);

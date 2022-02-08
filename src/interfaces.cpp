@@ -31,8 +31,7 @@ namespace Interfaces {
         eventManager = getInterface<IGameEventManager2>("./bin/linux64/engine_client.so", "GAMEEVENTSMANAGER002", true);
         prediction = getInterface<IPrediction>("./csgo/bin/linux64/client_client.so", "VClientPrediction001", true);
 	    movement = getInterface<IGameMovement>("./csgo/bin/linux64/client_client.so", "GameMovement");
-
-
+	    trace = getInterface<IEngineTrace>("./bin/linux64/engine_client.so", "EngineTraceClient");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
@@ -76,6 +75,10 @@ namespace Interfaces {
         restoreEntityToPredictedFrame = (RestoreEntityToPredictedFrame)Memory::patternScan("/client_client.so",
             "55 48 89 E5 41 57 41 89 D7 41 56 41 55 41 89 F5 41 54 53 48 83 EC 18");
         LOG(" restoreEntityToPredictedFrame %lx", restoreEntityToPredictedFrame);
+
+        lineGoesThroughSmoke = (LineGoesThroughSmoke)Memory::patternScan("/client_client.so", 
+                "55 48 89 E5 41 56 41 55 41 54 53 48 83 EC 30 66 0F D6 45 D0");
+        LOG(" lineGoesThroughSmoke | %lx", lineGoesThroughSmoke);
 
         host_IsSecureServerAllowed = (Host_IsSecureServerAllowed)Memory::patternScan("/engine_client.so", "55 48 89 E5 E8 ? ? ? ? 48 8D 35 ? ? ? ? 48 8B 10 48 89 C7 FF 52 58 85 C0 74 13");
         insecure = !host_IsSecureServerAllowed();

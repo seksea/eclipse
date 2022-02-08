@@ -36,7 +36,7 @@ namespace ESP {
                 continue;
             switch (e.type) {
                 case EntityCache::EntityType::PLAYER: { // Player 
-                    if (e.health > 0) {
+                    if (e.health > 0 && (CONFIGBOOL(e.teammate ? "teammate visible only" : "enemy visible only") ? e.visible : true)) {
                         if (CONFIGBOOL(e.teammate ? "team esp box" : "enemy esp box")) {
                             drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), ImColor(0, 0, 0, 160), 0.f, 0, 3.f);
                             drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), CONFIGCOL(e.teammate ? "team esp box color" : "enemy esp box color"));

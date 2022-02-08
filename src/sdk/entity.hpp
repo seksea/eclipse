@@ -34,6 +34,8 @@ class Entity {
 		return reinterpret_cast<void*>(uintptr_t(this) + 16);
 	}
 
+	bool visCheck();
+
 	void* renderable() {
 		return reinterpret_cast<void*>(uintptr_t(this) + 0x8);
 	}
@@ -80,6 +82,7 @@ namespace EntityCache {
 		ImVec4 boundingBox;
 		int health;
 		bool teammate;
+		bool visible;
 		PlayerInfo info;
 		std::string_view weaponName;
 		CachedEntity(Entity* e) {
@@ -105,6 +108,7 @@ namespace EntityCache {
 				this->health = e->nDT_BasePlayer__m_iHealth();
 				this->teammate = e->teammate();
 				Interfaces::engine->getPlayerInfo(this->index, this->info);
+				visible = e->visCheck();
 			}
 		}
 	};
