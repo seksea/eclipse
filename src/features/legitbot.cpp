@@ -16,6 +16,8 @@ namespace Legitbot {
             QAngle angleToClosestBone = { 0, 0, 0 };
             for (Backtrack::Tick tick : Backtrack::ticks) {
                 for (std::pair<int, Backtrack::Player> p : tick.players) {
+                    if (!Backtrack::isRecordValid(p.second.simTime))
+                        continue;
                     Entity* e = Interfaces::entityList->getClientEntity(p.first);
                     if (!e || e == EntityCache::localPlayer || 
                         e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck())

@@ -17,6 +17,7 @@ namespace Backtrack {
 
     inline std::vector<Tick> ticks;
 
+    bool isRecordValid(float simtime);
     void store(CUserCmd* cmd);
     void run(CUserCmd* cmd);
 }

@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "lua.hpp"
 #include "../interfaces.hpp"
 #include "../hooks.hpp"
@@ -5,9 +6,13 @@
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
 #include "../menu/imgui/imgui_internal.h"
+#include "../menu/imgui/imgui_freetype.h"
+#include "../menu/imgui/imgui_impl_opengl3.h"
+#include "../menu/imgui/stb_image.h"
 #include "../sdk/entity.hpp"
 #include "../sdk/math.hpp"
 #include "../sdk/netvars.hpp"
+#include <GL/gl.h>
 #include "chams.hpp"
 
 namespace Lua {
@@ -238,6 +243,33 @@ namespace Lua {
         int getIndexForUserID(int i) { return Interfaces::engine->getPlayerForUserID(i); }
     }
 
+    namespace TraceRay {
+        struct TraceResult {
+            float fraction;
+            const char* surfaceName;
+            int hitgroup;
+            int hitbox;
+            LuaEntity entityHit;
+        };
+        
+        TraceResult trace(Vector begin, Vector end, LuaEntity skip, unsigned int mask) {
+            TraceFilter filter;
+            filter.pSkip = skip.e;
+
+            Trace trace;
+            Ray ray;
+            ray.Init(begin, end);
+            Interfaces::trace->traceRay(ray, mask, &filter, &trace);
+
+            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, LuaEntity(trace.m_pEntityHit)};
+        }
+
+        TraceResult traceSimple(Vector begin, Vector end) {
+                                                            // solid|opaque|moveable|ignore nodraw
+            return trace(begin, end, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000));
+        }
+    }
+
     namespace Panorama {
         void executeScript(const char* script, const char* xmlContext) {
             IUIPanel* root = Interfaces::panorama->getRoot();
@@ -361,12 +393,78 @@ namespace Lua {
             curDrawList->AddText(pos, color, text);
         }
 
-        ImVec2 getScreenSize() {
-            return ImGui::GetIO().DisplaySize;
+        ImVec2 getScreenSize() { return ImGui::GetIO().DisplaySize; }
+
+        float deltaTime() { return ImGui::GetIO().DeltaTime; }
+
+        void pushFont(uintptr_t font) { ImGui::PushFont((ImFont*)font); }
+        void popFont() { ImGui::PopFont(); }
+        uintptr_t loadFont(const char* filename, int size, bool antiAliasing) { 
+            char path[512];
+            strcpy(path, getenv("HOME"));
+            strcat(path, "/.eclipse/");
+            std::filesystem::create_directory(path);
+            strcat(path, "scripts/");
+            strcat(path, filename);
+            
+            ImFontConfig cfg;
+            cfg.FontBuilderFlags = antiAliasing ? 0 : ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
+            
+            ImFont* font = ImGui::GetIO().Fonts->AddFontFromFileTTF(path, size, &cfg);
+		    ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
+            ImGui_ImplOpenGL3_DestroyDeviceObjects();
+            return (uintptr_t)font;
         }
 
-        float deltaTime() {
-            return ImGui::GetIO().DeltaTime;
+        struct LuaImage {
+            GLuint image;
+            int width;
+            int height;
+        };
+
+        LuaImage loadImage(const char* filename) {
+            char path[512];
+            strcpy(path, getenv("HOME"));
+            strcat(path, "/.eclipse/");
+            std::filesystem::create_directory(path);
+            strcat(path, "scripts/");
+            strcat(path, filename);
+
+            // Load from file
+            int image_width = 0;
+            int image_height = 0;
+            unsigned char* image_data = stbi_load(path, &image_width, &image_height, NULL, 4);
+            if (image_data == NULL)
+                return {0, 0, 0};
+
+            // Create a OpenGL texture identifier
+            GLuint image_texture;
+            glGenTextures(1, &image_texture);
+            glBindTexture(GL_TEXTURE_2D, image_texture);
+
+            // Setup filtering parameters for display
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+            // Upload pixels into texture
+        #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        #endif
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+            stbi_image_free(image_data);
+
+            return {image_texture, image_width, image_height};
+        }
+
+        void drawImage(LuaImage image, ImVec2 min, ImVec2 max) {
+            if (!image.image) {
+                WARN("%s - image not found.", curEngineBeingRanName);
+                return;
+            }
+            
+            curDrawList->AddImage((void*)(intptr_t)image.image, min, max);
         }
     }    
 
@@ -498,18 +596,6 @@ namespace Lua {
                 .addFunction("endMovementFix", endMovementFix)
                 .addFunction("setViewAngles", Eclipse::setViewAngles)
             .endNamespace()
-            .beginNamespace("globals")
-                .addFunction("registerHook", Eclipse::registerHook)
-                .addFunction("setCmd", Eclipse::setCmd)
-                .addFunction("getConvar", Eclipse::getConvar)
-                .addFunction("addMaterial", Chams::addMaterial)
-                .addFunction("removeMaterial", Chams::removeMaterial)
-                .addFunction("worldToScreen", Eclipse::_worldToScreen)
-                .addFunction("getAllClientClasses", Eclipse::getAllClientClasses)
-                .addFunction("addEventListener", Eclipse::addEventListener)
-                .addFunction("clientCmd", Eclipse::clientCmd)
-                .addFunction("isInGame", Eclipse::isInGame)
-            .endNamespace()
             .beginNamespace("memory")
                 .addFunction("getInterface", Mem::getInterface)
                 .addFunction("getAbsoluteAddress", Mem::getAbsoluteAddress)
@@ -531,6 +617,17 @@ namespace Lua {
                 .addFunction("getEntitiesByClassID", EntityList::getEntitiesByClassID)
                 .addFunction("getLocalPlayer", EntityList::getLocalPlayer)
                 .addFunction("getIndexForUserID", EntityList::getIndexForUserID)
+            .endNamespace()
+            .beginNamespace("trace")
+                .beginClass<TraceRay::TraceResult>("TraceResult")
+                    .addProperty("entityHit", &TraceRay::TraceResult::entityHit)
+                    .addProperty("fraction", &TraceRay::TraceResult::fraction)
+                    .addProperty("hitbox", &TraceRay::TraceResult::hitbox)
+                    .addProperty("hitgroup", &TraceRay::TraceResult::hitgroup)
+                    .addProperty("surfaceName", &TraceRay::TraceResult::surfaceName)
+                .endClass()
+                .addFunction("trace", TraceRay::trace)
+                .addFunction("traceSimple", TraceRay::traceSimple)
             .endNamespace()
             .beginNamespace("panorama")
                 .addFunction("executeScript", Panorama::executeScript)
@@ -586,6 +683,18 @@ namespace Lua {
                 .addFunction("deltaTime", Draw::deltaTime)
                 .addFunction("HSVtoColor", ImColor::HSV)
                 .addFunction("colorConvertFloat4ToU32", ImGui::ColorConvertFloat4ToU32)
+
+                .addFunction("pushFont", Draw::pushFont)
+                .addFunction("popFont", Draw::popFont)
+                .addFunction("loadFont", Draw::loadFont)
+
+                .beginClass<Draw::LuaImage>("Image")
+                    .addProperty("image", &Draw::LuaImage::image)
+                    .addProperty("width", &Draw::LuaImage::width)
+                    .addProperty("height", &Draw::LuaImage::height)
+                .endClass()
+                .addFunction("loadImage", Draw::loadImage)
+                .addFunction("drawImage", Draw::drawImage)
             .endNamespace();
     }
 

@@ -161,7 +161,7 @@ namespace Menu {
                     ImGui::Text("fov");
                     ImGui::SameLine();
                     drawKeyBinder(&CONFIGBIND("legitbot key"));
-                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 3 0); 
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                     ImGui::SliderFloat("##fov", &CONFIGFLOAT("legitbot fov"), 0, 180, "%.2f");
                     SLIDERFLOAT("smoothing", &CONFIGFLOAT("legitbot smoothing"), 0, 100, "%.2f");
                     ENDGROUPBOX();
@@ -506,24 +506,6 @@ namespace Menu {
                                 infile.close();
 
                             }
-                            if (Lua::scripts.find(file) != Lua::scripts.end()) {
-                                if (!CONFIGBOOL(temp)) {
-                                    if (Lua::scripts.at(file).hooks.find("unload") != Lua::scripts.at(file).hooks.end()) {
-                                        try {
-                                            Lua::scripts.at(file).hooks.at("unload")();
-                                        }
-                                        catch (luabridge::LuaException const& e) {
-                                            ERR("lua error (%s): %s", file.c_str(), e.what());
-                                        }
-                                    }
-                                    Lua::scripts.erase(file);
-                                }
-                            }
-                            else {
-                                if (CONFIGBOOL(temp)) {
-                                    Lua::scripts.insert(std::pair<std::string, Lua::LuaEngine>(file, Lua::LuaEngine(file)));
-                                }
-                            }
                         }
                         ImGui::EndListBox();
                     }
@@ -591,5 +573,30 @@ namespace Menu {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+        for (std::string file : Lua::luaFiles) {
+            char temp[128] = "luafiles - ";
+            strcat(temp, file.c_str());
+            strcat(temp, "enabled");
+            if (Lua::scripts.find(file) != Lua::scripts.end()) {
+                if (!CONFIGBOOL(temp)) {
+                    if (Lua::scripts.at(file).hooks.find("unload") != Lua::scripts.at(file).hooks.end()) {
+                        try {
+                            Lua::scripts.at(file).hooks.at("unload")();
+                        }
+                        catch (luabridge::LuaException const& e) {
+                            ERR("lua error (%s): %s", file.c_str(), e.what());
+                        }
+                    }
+                    Lua::scripts.erase(file);
+                }
+            }
+            else {
+                if (CONFIGBOOL(temp)) {
+                    Lua::scripts.insert(std::pair<std::string, Lua::LuaEngine>(file, Lua::LuaEngine(file)));
+                }
+            }
+        }
     }
 }
