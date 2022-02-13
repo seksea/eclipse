@@ -55,6 +55,8 @@ class Entity {
 
 	bool teammate() {
 		if (strstr(Interfaces::engine->getLevelName(), "dz_")) return false;
+		static Convar* mp_teammates_are_enemies = Interfaces::cvar->findVar("mp_teammates_are_enemies");
+		if (mp_teammates_are_enemies->getInt()) return false;
 		return this->nDT_BaseEntity__m_iTeamNum() == EntityCache::localPlayer->nDT_BaseEntity__m_iTeamNum();
 	}
 

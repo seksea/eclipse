@@ -10,6 +10,7 @@
 #include "../features/discordrpc.hpp"
 #include "../features/esp.hpp"
 #include "../features/chams.hpp"
+#include "../features/glow.hpp"
 #include "../features/skinchanger.hpp"
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
@@ -236,7 +237,9 @@ namespace Menu {
                                 COLORPICKER("##glow enemy color", CONFIGCOL("glow enemy color"));
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow enemy"));
-                                CHECKBOX("glow stencil", &CONFIGBOOL("glow enemy stencil"));
+                                int glowStyle = CONFIGINT("glow enemy style");
+                                COMBOBOX("glow style", &glowStyle, Glow::styles, IM_ARRAYSIZE(Glow::styles));
+                                CONFIGFLOAT("glow enemy style") = glowStyle;
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -268,7 +271,9 @@ namespace Menu {
                                 COLORPICKER("##glow teammate color", CONFIGCOL("glow teammate color"));
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow teammate"));
-                                CHECKBOX("glow stencil", &CONFIGBOOL("glow teammate stencil"));
+                                int glowStyle = CONFIGINT("glow teammate style");
+                                COMBOBOX("glow style", &glowStyle, Glow::styles, IM_ARRAYSIZE(Glow::styles));
+                                CONFIGFLOAT("glow teammate style") = glowStyle;
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -281,7 +286,7 @@ namespace Menu {
                             break;
                         }
                         case 2: { /* World */
-                            BEGINGROUPBOX("world", ImVec2(216, 194));
+                            BEGINGROUPBOX("world", ImVec2(216, 154));
                                 SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0, 1, "%.2f");
 
                                 CHECKBOX("remove 3d skybox", &CONFIGBOOL("remove 3d skybox"));
@@ -290,9 +295,9 @@ namespace Menu {
                                 CONFIGFLOAT("skybox") = curSkyBoxSelected;
                             ENDGROUPBOX();
 
-                            ImGui::SetCursorPos(ImVec2(6, 242));
+                            ImGui::SetCursorPos(ImVec2(6, 202));
 
-                            BEGINGROUPBOX("item ESP", ImVec2(216, 151));
+                            BEGINGROUPBOX("item ESP", ImVec2(216, 191));
                                 COLORPICKER("##box color", CONFIGCOL("weapon box color"));
                                 ImGui::SameLine();
                                 CHECKBOX("weapon box", &CONFIGBOOL("weapon box"));
@@ -301,10 +306,26 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("weapon name", &CONFIGBOOL("weapon name"));
 
+                                CHECKBOX("dynamic transparency", &CONFIGBOOL("dynamic weapon transparency"));
+
                                 COLORPICKER("##glow weapon color", CONFIGCOL("glow weapon color"));
                                 ImGui::SameLine();
                                 CHECKBOX("weapon glow", &CONFIGBOOL("glow weapon"));
-                                CHECKBOX("weapon glow stencil", &CONFIGBOOL("glow weapon stencil"));
+
+                                int glowStyle = CONFIGINT("glow weapon style");
+                                COMBOBOX("weapon glow style", &glowStyle, Glow::styles, IM_ARRAYSIZE(Glow::styles));
+                                CONFIGFLOAT("glow weapon style") = glowStyle;
+
+                                ImGui::Separator();
+
+                                COLORPICKER("##glow grenade color", CONFIGCOL("glow grenade color"));
+                                ImGui::SameLine();
+                                CHECKBOX("grenade glow", &CONFIGBOOL("glow grenade"));
+
+                                glowStyle = CONFIGINT("glow grenade style");
+                                COMBOBOX("grenade glow style", &glowStyle, Glow::styles, IM_ARRAYSIZE(Glow::styles));
+                                CONFIGFLOAT("glow grenade style") = glowStyle;
+
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));

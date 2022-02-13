@@ -100,6 +100,11 @@ namespace Hooks {
     std::vector<std::pair<int, int>> custom_glow_entities;
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
         INFO("started FSN %i hook.", stage);
+        Lua::handleHook("frameStageNotify", stage);
+        
+        if (!Interfaces::engine->isInGame())
+            return original(thisptr, stage);
+
         switch (stage) {
             case FRAME_NET_UPDATE_POSTDATAUPDATE_START: {
                 SkinChanger::run();
@@ -115,7 +120,6 @@ namespace Hooks {
                 break;
             }
         }
-        Lua::handleHook("frameStageNotify", stage);
         INFO("ended FSN %i hook.", stage);
         return original(thisptr, stage);
     }

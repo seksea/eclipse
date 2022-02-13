@@ -57,7 +57,24 @@ namespace Glow {
                         glowObject.renderWhenOccluded = true;
                         ImColor glowCol = glowObject.entity->teammate() ? CONFIGCOL("glow teammate color") : CONFIGCOL("glow enemy color");
                         glowObject.glowAlpha = glowCol.Value.w;
-                        glowObject.glowStyle = glowObject.entity->teammate() ? (CONFIGBOOL("glow teammate stencil") ? 2 : 0) : (CONFIGBOOL("glow enemy stencil") ? 2 : 0);
+                        glowObject.glowStyle = glowObject.entity->teammate() ? CONFIGINT("glow teammate style") :  CONFIGINT("glow enemy style");
+                        glowObject.glowColor = {glowCol.Value.x, glowCol.Value.y, glowCol.Value.z};
+                    }
+                    break;
+                }
+                case ClassId::CBaseCSGrenadeProjectile:
+                case ClassId::CBreachChargeProjectile:
+                case ClassId::CBumpMineProjectile:
+                case ClassId::CDecoyProjectile:
+                case ClassId::CMolotovProjectile:
+                case ClassId::CSensorGrenadeProjectile:
+                case ClassId::CSmokeGrenadeProjectile:
+                case ClassId::CSnowballProjectile: {
+                    if (CONFIGBOOL("glow grenade")) {
+                        glowObject.renderWhenOccluded = true;
+                        ImColor glowCol = CONFIGCOL("glow grenade color");
+                        glowObject.glowAlpha = glowCol.Value.w;
+                        glowObject.glowStyle = CONFIGINT("glow grenade style");
                         glowObject.glowColor = {glowCol.Value.x, glowCol.Value.y, glowCol.Value.z};
                     }
                     break;
@@ -69,7 +86,7 @@ namespace Glow {
                         glowObject.renderWhenOccluded = true;
                         ImColor glowCol = CONFIGCOL("glow weapon color");
                         glowObject.glowAlpha = glowCol.Value.w;
-                        glowObject.glowStyle = CONFIGBOOL("glow weapon stencil");
+                        glowObject.glowStyle = CONFIGINT("glow weapon style");
                         glowObject.glowColor = {glowCol.Value.x, glowCol.Value.y, glowCol.Value.z};
                     }
                 }
