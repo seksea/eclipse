@@ -59,6 +59,10 @@ class Entity {
 		if (mp_teammates_are_enemies->getInt()) return false;
 		return this->nDT_BaseEntity__m_iTeamNum() == EntityCache::localPlayer->nDT_BaseEntity__m_iTeamNum();
 	}
+	
+	Vector eyepos() {
+		return EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64);
+	}
 
 	const matrix3x4_t coordinateFrame() {
 		return *(matrix3x4_t*)((uintptr_t)this + 0x518);

@@ -14,20 +14,18 @@ bool Entity::visCheck() {
 
     Trace traceToHead;
     Ray rayToHead;
-    rayToHead.Init(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), Vector(boneMatrix[8][0][3], boneMatrix[8][1][3], boneMatrix[8][2][3]));
+    rayToHead.Init(EntityCache::localPlayer->eyepos(), Vector(boneMatrix[8][0][3], boneMatrix[8][1][3], boneMatrix[8][2][3]));
                                         // solid|opaque|moveable|ignore nodraw
     Interfaces::trace->traceRay(rayToHead, (0x1 | 0x80 | 0x2000), &filter, &traceToHead);
 
     Trace traceToUpperSpinal;
     Ray rayToUpperSpinal;
-    rayToUpperSpinal.Init(EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), Vector(boneMatrix[6][0][3], boneMatrix[6][1][3], boneMatrix[6][2][3]));
+    rayToUpperSpinal.Init(EntityCache::localPlayer->eyepos(), Vector(boneMatrix[6][0][3], boneMatrix[6][1][3], boneMatrix[6][2][3]));
                                                 // solid|opaque|moveable|ignore nodraw
     Interfaces::trace->traceRay(rayToUpperSpinal, (0x1 | 0x80 |    0x2000   ), &filter, &traceToUpperSpinal);
 
     return (traceToHead.m_pEntityHit == this) && (traceToUpperSpinal.m_pEntityHit == this) && 
-            !Interfaces::lineGoesThroughSmoke(
-            EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 
-            this->origin() + Vector(0, 0, (this->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 1);
+            !Interfaces::lineGoesThroughSmoke(EntityCache::localPlayer->eyepos(), this->eyepos(), 1);
 }
 
 void EntityCache::cacheEntities() {

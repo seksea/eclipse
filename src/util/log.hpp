@@ -14,9 +14,6 @@ namespace Log {
         ERR,
         INFO
     };
-    inline char logFilePath[256];
-    inline std::ofstream logFile;
-    inline int logCount = 0;
     void init();
     void log(LogLevel level, const char* fmt, ...);
 }

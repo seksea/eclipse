@@ -25,9 +25,8 @@ namespace Legitbot {
                     
                     Vector targetBonePos = Vector(p.second.boneMatrix[8][0][3], p.second.boneMatrix[8][1][3], p.second.boneMatrix[8][2][3]);
 
-                    QAngle angleToCurrentBone = calcAngle(
-                        EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 
-                        targetBonePos) - cmd->viewangles - (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2);
+                    QAngle angleToCurrentBone = calcAngle(EntityCache::localPlayer->eyepos(), targetBonePos) -
+                                                    cmd->viewangles - (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2);
                     
                     angleToCurrentBone.y = fmod(angleToCurrentBone.y + cmd->viewangles.y + 180.f, 360.f) - 180.f - cmd->viewangles.y;
 

@@ -50,7 +50,7 @@ namespace Backtrack {
                     Entity* ent = Interfaces::entityList->getClientEntity(p.first);
                     if (ent && !ent->dormant() && ent->nDT_BasePlayer__m_iHealth() > 0 && isRecordValid(p.second.simTime)) { // TODO: add eyepos
                         QAngle angleToCurrentPlayer = calcAngle(
-                            EntityCache::localPlayer->origin() + Vector(0, 0, (EntityCache::localPlayer->nDT_BasePlayer__m_fFlags() & (1 << 1)) ? 46 : 64), 
+                            EntityCache::localPlayer->eyepos(), 
                             Vector(p.second.boneMatrix[8][0][3], p.second.boneMatrix[8][1][3], p.second.boneMatrix[8][2][3]));
                         
                         angleToCurrentPlayer -= viewAngles;
