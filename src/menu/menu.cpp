@@ -231,13 +231,12 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("enemy esp healthbar"));
 
+                                CHECKBOX("visible only", &CONFIGBOOL("enemy visible only"));
                                 ImGui::Separator();
                                 COLORPICKER("##glow enemy color", CONFIGCOL("glow enemy color"));
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow enemy"));
                                 CHECKBOX("glow stencil", &CONFIGBOOL("glow enemy stencil"));
-
-                                CHECKBOX("visible only", &CONFIGBOOL("enemy visible only"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));
@@ -263,13 +262,13 @@ namespace Menu {
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("team esp healthbar"));
 
+                                CHECKBOX("visible only", &CONFIGBOOL("teammate visible only"));
+
                                 ImGui::Separator();
                                 COLORPICKER("##glow teammate color", CONFIGCOL("glow teammate color"));
                                 ImGui::SameLine();
                                 CHECKBOX("glow", &CONFIGBOOL("glow teammate"));
                                 CHECKBOX("glow stencil", &CONFIGBOOL("glow teammate stencil"));
-
-                                CHECKBOX("visible only", &CONFIGBOOL("teammate visible only"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 42));

@@ -2,6 +2,7 @@
 #include "../interfaces.hpp"
 #include <stdarg.h>
 #include <string>
+#include <mutex>
 
 namespace Log {
     void init() {
@@ -16,33 +17,67 @@ namespace Log {
 [LOG] loading eclipse...
 [LOG] Initialising interfaces...)a");
         LOG(" VEngineCvar (VEngineCvar007) %lx", (uintptr_t)Interfaces::cvar);
+
+        LOG(" creating crash log file (~/.eclipse/log.txt)");
+        strcpy(logFilePath, getenv("HOME"));
+        strcat(logFilePath, "/.eclipse/");
+        std::filesystem::create_directory(logFilePath);
+        strcat(logFilePath, "log.txt");
+        logFile.open(logFilePath, std::ios::trunc);
+        logFile << "start of log\n";
+        logFile.close();
     }
 
+    std::mutex logLock;
     void log(LogLevel level, const char* fmt, ...) {
+        std::lock_guard<std::mutex> lock(logLock);
+        
         va_list args;
         va_start(args, fmt);
         char buf[5000];
         vsnprintf(buf, sizeof(buf), fmt, args);
+        logCount += 1;
+        if (logCount > 100) {
+            logFile.open(logFilePath, std::ios::trunc);
+            logCount = 0;
+        }
+        else {
+            logFile.open(logFilePath, std::ios::app);
+        }
+
         switch (level) {
             case LOG: {
                 fputs("\e[32m[LOG] ", stdout); 
-                if (Interfaces::cvar)
+                if (Interfaces::cvar) {
                     Interfaces::cvar->ConsoleColorPrintf({0, 255, 0, 255}, "[LOG] %s\n", buf);
+                    logFile << "[LOG] " << buf << "\n";
+                }
                 break;
             }
             case WARN: {
                 fputs("\e[33m[WARN] ", stdout); 
-                if (Interfaces::cvar)
+                if (Interfaces::cvar) {
                     Interfaces::cvar->ConsoleColorPrintf({255, 255, 0, 255}, "[WARN] %s\n", buf);
+                    logFile << "[WARN] " << buf << "\n";
+                }
                 break;
             }
             case ERR: {
                 fputs("\e[31m[ERR] ", stdout); 
-                if (Interfaces::cvar)
+                if (Interfaces::cvar) {
                     Interfaces::cvar->ConsoleColorPrintf({255, 0, 0, 255}, "[ERR] %s\n", buf);
+                    logFile << "[ERR] " << buf << "\n";
+                }
+                break;
+            }
+            case INFO: {
+                if (Interfaces::cvar) {
+                    logFile << "[INFO] " << buf << "\n";
+                }
                 break;
             }
         }
+        logFile.close();
         fputs(buf, stdout); 
         fputs("\e[0m\n", stdout);
         va_end(args);

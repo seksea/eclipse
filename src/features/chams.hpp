@@ -27,6 +27,8 @@ namespace Chams {
     }
     
     inline void removeMaterial(const char* materialName) {
+        if (materials.find(materialName) == materials.end())
+            return;
         materials.erase(materialName);
     }
 

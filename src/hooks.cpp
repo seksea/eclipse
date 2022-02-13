@@ -54,10 +54,13 @@ namespace Hooks {
     }
 
     bool CreateMove::hook(void* thisptr, float flInputSampleTime, CUserCmd* cmd) {
+        INFO("started createmove hook.");
         bool origReturn = CreateMove::original(thisptr, flInputSampleTime, cmd);
 
-        if (!cmd || !cmd->commandnumber)
+        if (!cmd || !cmd->commandnumber) {
+            INFO("ended createmove hook.");
             return origReturn;
+        }
 
         if (cmd->buttons & IN_SCORE && cmd->tickcount % 32 == 1 && CONFIGBOOL("rank reveal")) {
             Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
@@ -84,15 +87,19 @@ namespace Hooks {
         cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
         cmd->viewangles.z = 0.0f;
 
+        INFO("ended createmove hook.");
         return false;
     }
 
     void DrawModelExecute::hook(void* thisptr, void* ctx, const DrawModelState &state, const ModelRenderInfo &pInfo, matrix3x4_t *pCustomBoneToWorld) {
+        INFO("started DME hook.");
         Chams::doChams(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
+        INFO("ended DME hook.");
     }
 
     std::vector<std::pair<int, int>> custom_glow_entities;
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
+        INFO("started FSN %i hook.", stage);
         switch (stage) {
             case FRAME_NET_UPDATE_POSTDATAUPDATE_START: {
                 SkinChanger::run();
@@ -109,19 +116,25 @@ namespace Hooks {
             }
         }
         Lua::handleHook("frameStageNotify", stage);
+        INFO("ended FSN %i hook.", stage);
         return original(thisptr, stage);
     }
 
     void EmitSound::hook(void* thisptr, void*& filter, int iEntIndex, int iChannel, const char* pSoundEntry, unsigned int nSoundEntryHash, const char *pSample, float flVolume, int nSeed, void* iSoundLevel, int iFlags, int iPitch, const Vector* pOrigin, const Vector* pDirection, void* pUtlVecOrigins, bool bUpdatePositions, float soundtime, int speakerentity, void*& params) {
+        INFO("started emitSound hook.");
         if (strstr(pSoundEntry, "UIPanorama.popup_accept_match_beep") && CONFIGBOOL("auto accept")) {
             IUIPanel* root = Interfaces::panorama->getRoot();
             if (root)
                 Interfaces::panorama->AccessUIEngine()->RunScript(root, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
+            INFO("ended emitSound hook.");
             return;
         }
 
-        if(Prediction::inPrediction && iEntIndex == EntityCache::localPlayer->index())
+        if(Prediction::inPrediction && iEntIndex == EntityCache::localPlayer->index()) {
+            INFO("ended emitSound hook.");
             return;
+        }
+        INFO("ended emitSound hook.");
         original(thisptr, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, iSoundLevel, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, params);
     }
 
@@ -136,7 +149,9 @@ namespace Hooks {
     }
 
     void EventListener::fireGameEvent(IGameEvent *event) {
+        INFO("started fireGameEvent hook.");
         Lua::handleHook("fireEvent", Lua::LuaGameEvent(event));
+        INFO("ended EmitSound hook.");
     }
 
     int EventListener::getEventDebugID() {
@@ -144,7 +159,9 @@ namespace Hooks {
     }
 
     void DoPostScreenEffects::hook(void* thisptr, void* param) {
+        INFO("started doPostScreenEffects hook.");
         Glow::draw();
+        INFO("ended doPostScreenEffects hook.");
         original(thisptr, param);
     }
 }

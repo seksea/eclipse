@@ -1,4 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
+#include <GL/gl.h>
 #include "lua.hpp"
 #include "../interfaces.hpp"
 #include "../hooks.hpp"
@@ -12,8 +13,8 @@
 #include "../sdk/entity.hpp"
 #include "../sdk/math.hpp"
 #include "../sdk/netvars.hpp"
-#include <GL/gl.h>
 #include "chams.hpp"
+#include "glow.hpp"
 
 namespace Lua {
     void print(const char* str) {
@@ -36,6 +37,8 @@ namespace Lua {
         ImVec4 getBBox() {return getBoundingBox(e);}
         void setMins(Vector mins) { e->nDT_BaseEntity__m_Collision().OBBMins() = mins; }
         void setMaxs(Vector maxs) { e->nDT_BaseEntity__m_Collision().OBBMaxs() = maxs; }
+        Vector getMins() { return e->nDT_BaseEntity__m_Collision().OBBMins(); }
+        Vector getMaxs() { return e->nDT_BaseEntity__m_Collision().OBBMaxs(); }
         void onPreDataChanged(int updateType) { e->onPreDataChanged(updateType); }
         void onDataChanged(int updateType) { e->onDataChanged(updateType); }
         void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
@@ -249,6 +252,8 @@ namespace Lua {
             const char* surfaceName;
             int hitgroup;
             int hitbox;
+            int contents;
+            float slopeAngle;
             LuaEntity entityHit;
         };
         
@@ -261,7 +266,24 @@ namespace Lua {
             ray.Init(begin, end);
             Interfaces::trace->traceRay(ray, mask, &filter, &trace);
 
-            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, LuaEntity(trace.m_pEntityHit)};
+            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit)};
+        }
+        
+        TraceResult traceHull(Vector start, Vector end, Vector min, Vector max, LuaEntity skip, unsigned int mask) {
+            TraceFilter filter;
+            filter.pSkip = skip.e;
+
+            Trace trace;
+            Ray ray;
+            ray.Init(start, end, min, max);
+            Interfaces::trace->traceRay(ray, mask, &filter, &trace);
+
+            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit)};
+        }
+
+        TraceResult traceHullSimple(Vector start, Vector end, Vector min, Vector max) {
+                                                            // solid|opaque|moveable|ignore nodraw
+            return traceHull(start, end, min, max, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000));
         }
 
         TraceResult traceSimple(Vector begin, Vector end) {
@@ -275,6 +297,24 @@ namespace Lua {
             IUIPanel* root = Interfaces::panorama->getRoot();
             if (root)
                 Interfaces::panorama->AccessUIEngine()->RunScript(root, script, xmlContext, 8, 10, false);
+        }
+    }
+
+    namespace _Glow {
+        bool glowEntity(LuaEntity entity, ImColor color, int style) {
+            int index = Interfaces::glowManager->registerGlowObject(entity.e);
+            if (index == -1)
+                return false;
+
+            Glow::customGlowEntities.emplace_back(entity.index(), index);
+            
+		    GlowObjectDefinition& glowObject = Interfaces::glowManager->glowObjectDefinitions[index];
+
+            glowObject.renderWhenOccluded = true;
+            glowObject.glowAlpha = color.Value.w;
+            glowObject.glowStyle = style;
+            glowObject.glowColor = {color.Value.x, color.Value.y, color.Value.z};
+            return true;
         }
     }
 
@@ -319,14 +359,14 @@ namespace Lua {
             CONFIGSTR(configVarName) = buf;
             return CONFIGSTR(configVarName).c_str();
         }
-        const char* textInputMultiline(const char* label, const char* configVarName) {
+        const char* textInputMultiline(const char* label, const char* configVarName, int height) {
             char labelBuf[64] = "##";
             strcat(labelBuf, label);
             char buf[1024];
             strcpy(buf, CONFIGSTR(configVarName).c_str());
             ImGui::Text("%s", label);
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
-            ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf));
+            ImGui::InputTextMultiline(labelBuf, buf, sizeof(buf), ImVec2(ImGui::GetContentRegionAvailWidth(), height));
             CONFIGSTR(configVarName) = buf;
             return CONFIGSTR(configVarName).c_str();
         }
@@ -537,6 +577,8 @@ namespace Lua {
                 .addFunction("getBBox", &LuaEntity::getBBox)
                 .addFunction("setMins", &LuaEntity::setMins)
                 .addFunction("setMaxs", &LuaEntity::setMaxs)
+                .addFunction("getMins", &LuaEntity::getMins)
+                .addFunction("getMaxs", &LuaEntity::getMaxs)
                 .addFunction("onPreDataChanged", &LuaEntity::onPreDataChanged)
                 .addFunction("onDataChanged", &LuaEntity::onDataChanged)
                 .addFunction("preDataUpdate", &LuaEntity::preDataUpdate)
@@ -620,17 +662,24 @@ namespace Lua {
             .endNamespace()
             .beginNamespace("trace")
                 .beginClass<TraceRay::TraceResult>("TraceResult")
+                    .addProperty("contents", &TraceRay::TraceResult::contents)
                     .addProperty("entityHit", &TraceRay::TraceResult::entityHit)
                     .addProperty("fraction", &TraceRay::TraceResult::fraction)
                     .addProperty("hitbox", &TraceRay::TraceResult::hitbox)
                     .addProperty("hitgroup", &TraceRay::TraceResult::hitgroup)
                     .addProperty("surfaceName", &TraceRay::TraceResult::surfaceName)
+                    .addProperty("slopeAngle", &TraceRay::TraceResult::slopeAngle)
                 .endClass()
                 .addFunction("trace", TraceRay::trace)
                 .addFunction("traceSimple", TraceRay::traceSimple)
+                .addFunction("traceHull", TraceRay::traceHull)
+                .addFunction("traceHullSimple", TraceRay::traceHullSimple)
             .endNamespace()
             .beginNamespace("panorama")
                 .addFunction("executeScript", Panorama::executeScript)
+            .endNamespace()
+            .beginNamespace("glow")
+                .addFunction("glowEntity", _Glow::glowEntity)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)
@@ -729,6 +778,7 @@ namespace Lua {
             curEngineBeingRan = &engine.second;
             curEngineBeingRanName = engine.first.c_str();
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
+                INFO("running %s for %s", hook, engine.first.c_str());
                 int oldStackSize = 0;
                 if (strstr(hook, "draw"))
                     oldStackSize = ImGui::GetCurrentContext()->CurrentWindowStack.Size;
@@ -758,6 +808,7 @@ namespace Lua {
                         WARN("lua %s: ui.beginWindow missing ui.endWindow", engine.first.c_str());
                     }
                 }
+                INFO("ran %s for %s", hook, engine.first.c_str());
             }
         }
     }

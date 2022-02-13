@@ -2,10 +2,9 @@
 #include "glow.hpp"
 #include "../menu/config.hpp"
 #include "../sdk/entity.hpp"
+#include "lua.hpp"
 
 namespace Glow {
-
-    static std::vector<std::pair<int, int>> customGlowEntities;
 
     void refreshGlowEntities() {
         // clear old custom entities
@@ -21,7 +20,6 @@ namespace Glow {
                 continue;
 
             switch (entity->clientClass()->m_ClassID) {
-            case ClassId::CEconEntity:
             case ClassId::CBaseCSGrenadeProjectile:
             case ClassId::CBreachChargeProjectile:
             case ClassId::CBumpMineProjectile:
@@ -30,8 +28,6 @@ namespace Glow {
             case ClassId::CSensorGrenadeProjectile:
             case ClassId::CSmokeGrenadeProjectile:
             case ClassId::CSnowballProjectile:
-            case ClassId::CHostage:
-            case ClassId::CCSRagdoll:
                 if (!Interfaces::glowManager->hasGlowEffect(entity)) {
                     int index = Interfaces::glowManager->registerGlowObject(entity);
                     if (index != -1)
@@ -42,18 +38,13 @@ namespace Glow {
         }
     }
 
-    void glowEntity(GlowObjectDefinition& glowObject) {
-        glowObject.renderWhenOccluded = true;
-        glowObject.glowAlpha = 1.f;
-        glowObject.glowStyle = 0;
-        glowObject.glowColor = {1.f, 0.f, 0.f};
-    }
-
     void draw() {
         if (!EntityCache::localPlayer)
             return;
 
         refreshGlowEntities();
+
+        Lua::handleHook("doPostScreenEffects");
 
 	    for (int i = 0; i < Interfaces::glowManager->glowObjectDefinitions.Count(); i++) {
 		    GlowObjectDefinition& glowObject = Interfaces::glowManager->glowObjectDefinitions[i];

@@ -75,12 +75,14 @@ namespace Lua {
             curEngineBeingRan = &engine.second;
             curEngineBeingRanName = engine.first.c_str();
             if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
+                INFO("running %s for %s", hook, engine.first.c_str());
                 try { 
                     engine.second.hooks.at(hook)(arg1);
                 }
                 catch (luabridge::LuaException const& e) {
                     ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
                 }
+                INFO("ran %s for %s", hook, engine.first.c_str());
             }
         }
     }
