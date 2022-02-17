@@ -15,6 +15,7 @@
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
 #include "keybinders.hpp"
+#include <GL/gl.h>
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -31,7 +32,6 @@ namespace Menu {
         }
     }
 
-    ImFont* menuFont;
     /*bool loggedIn = false;
 
     void loginScreen() {
@@ -76,6 +76,8 @@ namespace Menu {
             ImFontConfig fontConfig;
             fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
+
+            weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);
 		    ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
 
             ImGui::GetStyle().WindowPadding = ImVec2(6, 6);
@@ -158,7 +160,54 @@ namespace Menu {
                 case 0: {
                     ImGui::SetCursorPos(ImVec2(6, 6));
 
-                    BEGINGROUPBOX("legitbot", ImVec2(438, 250));
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+                    ImGui::BeginChild("tabs", ImVec2(ImGui::GetWindowContentRegionWidth(), 30), true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8, 0.8, 0.8, 0.8));
+                    static int curSubTab = 0;
+                    static int lastCurSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("default", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 0;
+                    if (lastCurSubTab == 0) ImGui::PopStyleColor();
+                    ImGui::PushFont(weaponFont);
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("G", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 1;
+                    if (lastCurSubTab == 1) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 2) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("A", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 2;
+                    if (lastCurSubTab == 2) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 3) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("W", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 3;
+                    if (lastCurSubTab == 3) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 4) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("a", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 4;
+                    if (lastCurSubTab == 4) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 5) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("Z", ImVec2(ImGui::GetWindowWidth()/6, ImGui::GetWindowHeight()))) curSubTab = 5;
+                    if (lastCurSubTab == 5) ImGui::PopStyleColor();
+                    lastCurSubTab = curSubTab;
+                    ImGui::PopFont();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleVar();
+                    ImGui::EndChild();
+                    ImGui::PopStyleVar();
+
+                    ImGui::SetCursorPos(ImVec2(6, 42));
+
+                    BEGINGROUPBOX("legitbot", ImVec2(438, 214));
                     ImGui::Text("fov");
                     ImGui::SameLine();
                     drawKeyBinder(&CONFIGBIND("legitbot key"));

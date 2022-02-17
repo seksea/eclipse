@@ -6,6 +6,9 @@ namespace Menu {
     inline bool menuOpen = true;
     inline int curTab = 0;
     inline char curConfigLoaded[128] = "";
+    
+    inline ImFont* menuFont;
+    inline ImFont* weaponFont;
 
     inline ImVec2 windowPos, windowSize;
 
