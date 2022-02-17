@@ -51,7 +51,7 @@ namespace Log {
                 break;
             }
             case INFO: {
-                break;
+                return;
             }
         }
         fputs(buf, stdout); 
