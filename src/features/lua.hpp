@@ -86,4 +86,42 @@ namespace Lua {
             }
         }
     }
+
+    template <class T1, class T2>
+    inline void handleHook(const char* hook, T1 arg1, T2 arg2) {
+        std::lock_guard<std::mutex> lock(luaLock);
+        for (auto& engine : scripts) {
+            curEngineBeingRan = &engine.second;
+            curEngineBeingRanName = engine.first.c_str();
+            if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
+                INFO("running %s for %s", hook, engine.first.c_str());
+                try { 
+                    engine.second.hooks.at(hook)(arg1, arg2);
+                }
+                catch (luabridge::LuaException const& e) {
+                    ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
+                }
+                INFO("ran %s for %s", hook, engine.first.c_str());
+            }
+        }
+    }
+
+    template <class T1, class T2, class T3>
+    inline void handleHook(const char* hook, T1 arg1, T2 arg2, T3 arg3) {
+        std::lock_guard<std::mutex> lock(luaLock);
+        for (auto& engine : scripts) {
+            curEngineBeingRan = &engine.second;
+            curEngineBeingRanName = engine.first.c_str();
+            if (engine.second.hooks.find(hook) != engine.second.hooks.end()) {
+                INFO("running %s for %s", hook, engine.first.c_str());
+                try { 
+                    engine.second.hooks.at(hook)(arg1, arg2, arg3);
+                }
+                catch (luabridge::LuaException const& e) {
+                    ERR("lua error (%s) (%s): %s", engine.first.c_str(), hook, e.what());
+                }
+                INFO("ran %s for %s", hook, engine.first.c_str());
+            }
+        }
+    }
 }

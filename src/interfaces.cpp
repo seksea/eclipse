@@ -32,6 +32,7 @@ namespace Interfaces {
         prediction = getInterface<IPrediction>("./csgo/bin/linux64/client_client.so", "VClientPrediction001", true);
 	    movement = getInterface<IGameMovement>("./csgo/bin/linux64/client_client.so", "GameMovement");
 	    trace = getInterface<IEngineTrace>("./bin/linux64/engine_client.so", "EngineTraceClient");
+	    effects = getInterface<CEffects>("./bin/linux64/engine_client.so", "VEngineEffects");
 
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);

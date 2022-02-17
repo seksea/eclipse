@@ -4,11 +4,6 @@
 #include "../sdk/math.hpp"
 #include "../menu/config.hpp"
 
-void aimAtAngle(CUserCmd* cmd, float closestDelta, QAngle ang, float smoothing, float fov) {
-    if (closestDelta < fov)
-        cmd->viewangles += (ang - (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2)) / smoothing;
-}
-
 namespace Legitbot {
     void run(CUserCmd* cmd) {
         if (isKeyBinderPressed(&CONFIGBIND("legitbot key"))) {

@@ -74,7 +74,7 @@ namespace Hooks {
         Movement::bunnyhop(cmd);
 
         Lua::curCmd = cmd;
-        Lua::handleHook("createMove", *cmd);
+        Lua::handleHook("createMove", cmd);
 
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
@@ -100,8 +100,6 @@ namespace Hooks {
     std::vector<std::pair<int, int>> custom_glow_entities;
     void FrameStageNotify::hook(void* thisptr, FrameStage stage) {
         INFO("started FSN %i hook.", stage);
-        Lua::handleHook("frameStageNotify", stage);
-        
         if (!Interfaces::engine->isInGame())
             return original(thisptr, stage);
 

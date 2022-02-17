@@ -39,6 +39,7 @@ namespace Lua {
         void setMaxs(Vector maxs) { e->nDT_BaseEntity__m_Collision().OBBMaxs() = maxs; }
         Vector getMins() { return e->nDT_BaseEntity__m_Collision().OBBMins(); }
         Vector getMaxs() { return e->nDT_BaseEntity__m_Collision().OBBMaxs(); }
+        bool teammate() {return e->teammate(); }
         void onPreDataChanged(int updateType) { e->onPreDataChanged(updateType); }
         void onDataChanged(int updateType) { e->onDataChanged(updateType); }
         void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
@@ -145,7 +146,7 @@ namespace Lua {
     }
 
     namespace Beam {
-        void createBeam(Vector start, Vector end, const char* modelName, ImColor color, float dieTime, float width, float amplitude) {
+        void createBeam(Vector start, Vector end, const char* modelName, ImColor color, float life, float width, float amplitude) {
             BeamInfo beamInfo;
 
             beamInfo.start = start;
@@ -178,7 +179,7 @@ namespace Lua {
             if (const auto beam = Interfaces::renderBeams->createBeamPoints(&beamInfo)) {
                 constexpr auto FBEAM_FOREVER = 0x4000;
                 beam->flags &= ~FBEAM_FOREVER;
-                beam->die = Interfaces::globals->curtime + dieTime;
+                beam->die = Interfaces::globals->curtime + life;
             }
         }
 
@@ -215,9 +216,12 @@ namespace Lua {
     namespace EntityList {
         LuaEntity getEntity(int i) {
             Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i);
-            if (ent) {
-                return LuaEntity(ent);
-            }
+            return LuaEntity(ent);
+        }
+
+        LuaEntity getEntityFromHandle(int i) {
+            Entity* ent = (Entity*)Interfaces::entityList->getClientEntity(i & 0xfff);
+            return LuaEntity(ent);
         }
 
         std::vector<LuaEntity> getEntities() {
@@ -315,6 +319,21 @@ namespace Lua {
             glowObject.glowStyle = style;
             glowObject.glowColor = {color.Value.x, color.Value.y, color.Value.z};
             return true;
+        }
+
+        void createDlight(Vector origin, int index, float dieTime, ImColor color, float radius, float decay) {
+            dlight_t* dLight = Interfaces::effects->CL_AllocDlight(index);
+            dLight->key = index;
+            dLight->color.r = color.Value.x * 255;
+            dLight->color.g = color.Value.y * 255;
+            dLight->color.b = color.Value.z * 255;
+            dLight->color.exponent = true;
+            dLight->flags = 0;
+            dLight->direction = origin;
+            dLight->origin = origin;
+            dLight->radius = radius;
+            dLight->die = Interfaces::globals->curtime + dieTime;
+            dLight->decay = decay;
         }
     }
 
@@ -439,7 +458,7 @@ namespace Lua {
 
         void pushFont(uintptr_t font) { ImGui::PushFont((ImFont*)font); }
         void popFont() { ImGui::PopFont(); }
-        uintptr_t loadFont(const char* filename, int size, bool antiAliasing) { 
+        uintptr_t loadFont(const char* filename, int size, bool hinting) { 
             char path[512];
             strcpy(path, getenv("HOME"));
             strcat(path, "/.eclipse/");
@@ -448,7 +467,7 @@ namespace Lua {
             strcat(path, filename);
             
             ImFontConfig cfg;
-            cfg.FontBuilderFlags = antiAliasing ? 0 : ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
+            cfg.FontBuilderFlags = hinting ? 0 : ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             
             ImFont* font = ImGui::GetIO().Fonts->AddFontFromFileTTF(path, size, &cfg);
 		    ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
@@ -523,10 +542,6 @@ namespace Lua {
                 .addProperty("z", &ImVec4::z)
                 .addProperty("w", &ImVec4::w)
             .endClass()
-            .beginClass<ImColor>("Color")
-                .addConstructor<void (*) (float, float, float, float)>()
-                .addProperty("value", &ImColor::Value)
-            .endClass()
             .beginClass<Vector>("Vector")
                 .addConstructor<void (*) (float, float, float)>()
                 .addProperty("x", &Vector::x)
@@ -536,6 +551,10 @@ namespace Lua {
                 .addFunction("length2D", &Vector::Length2D)
                 .addFunction("distTo", &Vector::DistTo)
             .endClass()
+            .beginClass<ImColor>("Color")
+                .addConstructor<void (*) (float, float, float, float)>()
+                .addProperty("value", &ImColor::Value)
+            .endClass()
             .beginClass<QAngle>("QAngle")
                 .addConstructor<void (*) (float, float, float)>()
                 .addProperty("x", &QAngle::x)
@@ -543,7 +562,7 @@ namespace Lua {
                 .addProperty("z", &QAngle::z)
                 .addFunction("length", &QAngle::Length)
             .endClass()
-            .beginClass<CUserCmd>("userCmd")
+            .beginClass<CUserCmd>("UserCmd")
                 .addProperty("commandnumber", &CUserCmd::commandnumber)
                 .addProperty("tickcount", &CUserCmd::tickcount)
                 .addProperty("viewangles", &CUserCmd::viewangles)
@@ -583,6 +602,7 @@ namespace Lua {
                 .addFunction("onDataChanged", &LuaEntity::onDataChanged)
                 .addFunction("preDataUpdate", &LuaEntity::preDataUpdate)
                 .addFunction("postDataUpdate", &LuaEntity::postDataUpdate)
+                .addFunction("teammate", &LuaEntity::teammate)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
                 .addFunction("getPropFloat", &LuaEntity::getProp<float>)
@@ -608,7 +628,7 @@ namespace Lua {
                 .addFunction("ffiPtr", &LuaConvar::ffiPtr)
                 .addFunction("getFloat", &LuaConvar::getFloat)
                 .addFunction("getInt", &LuaConvar::getInt)
-                .addFunction("setString", &LuaConvar::setString)
+                .addFunction("setStr", &LuaConvar::setString)
                 .addFunction("setFloat", &LuaConvar::setFloat)
                 .addFunction("setInt", &LuaConvar::setInt)
             .endClass()
@@ -655,6 +675,7 @@ namespace Lua {
             .endNamespace()
             .beginNamespace("entitylist")
                 .addFunction("getEntity", EntityList::getEntity)
+                .addFunction("getEntityFromHandle", EntityList::getEntityFromHandle)
                 .addFunction("getEntities", EntityList::getEntities)
                 .addFunction("getEntitiesByClassID", EntityList::getEntitiesByClassID)
                 .addFunction("getLocalPlayer", EntityList::getLocalPlayer)
@@ -680,6 +701,7 @@ namespace Lua {
             .endNamespace()
             .beginNamespace("glow")
                 .addFunction("glowEntity", _Glow::glowEntity)
+                .addFunction("createDlight", _Glow::createDlight)
             .endNamespace()
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)
@@ -687,8 +709,10 @@ namespace Lua {
                 .addFunction("isMenuOpen", UI::isMenuOpen)
                 .addFunction("getConfigBool", UI::getConfigBool)
                 .addFunction("setConfigBool", UI::setConfigBool)
-                .addFunction("getConfigFloat", UI::getConfigFloat)
-                .addFunction("setConfigFloat", UI::setConfigFloat)
+                .addFunction("getConfigFloat", UI::getConfigFloat) // dep
+                .addFunction("setConfigFloat", UI::setConfigFloat) // dep
+                .addFunction("getConfigNumber", UI::getConfigFloat)
+                .addFunction("setConfigNumber", UI::setConfigFloat)
                 .addFunction("getConfigStr", UI::getConfigStr)
                 .addFunction("setConfigStr", UI::setConfigStr)
                 .addFunction("getConfigCol", UI::getConfigCol)

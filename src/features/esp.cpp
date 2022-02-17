@@ -61,7 +61,7 @@ namespace ESP {
                     }
                     break;
                 }
-                case EntityCache::EntityType::DROPPEDWEAPON: { // Player 
+                case EntityCache::EntityType::DROPPEDWEAPON: { // Weapon
                     ImColor boxColor = CONFIGCOL("weapon box color");
                     ImColor nameColor = CONFIGCOL("weapon name color");
                     QAngle viewAngles;

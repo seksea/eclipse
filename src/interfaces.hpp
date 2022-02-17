@@ -14,6 +14,7 @@
 #include "sdk/interfaces/igameevent.hpp"
 #include "sdk/interfaces/iprediction.hpp"
 #include "sdk/interfaces/ienginetrace.hpp"
+#include "sdk/interfaces/effects.hpp"
 
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
@@ -38,6 +39,7 @@ namespace Interfaces {
     inline IPrediction* prediction;
     inline IGameMovement* movement;
     inline IEngineTrace* trace;
+    inline CEffects* effects;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
