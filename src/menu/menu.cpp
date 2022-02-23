@@ -207,14 +207,89 @@ namespace Menu {
 
                     ImGui::SetCursorPos(ImVec2(6, 42));
 
-                    BEGINGROUPBOX("legitbot", ImVec2(438, 214));
-                    ImGui::Text("fov");
-                    ImGui::SameLine();
-                    drawKeyBinder(&CONFIGBIND("legitbot key"));
-                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                    ImGui::SliderFloat("##fov", &CONFIGFLOAT("legitbot fov"), 0, 180, "%.2f");
-                    SLIDERFLOAT("smoothing", &CONFIGFLOAT("legitbot smoothing"), 0, 100, "%.2f");
-                    ENDGROUPBOX();
+                    switch (curSubTab) {
+                        case 0: { // default
+                            BEGINGROUPBOX("default legitbot", ImVec2(438, 214));
+                            ImGui::Text("fov");
+                            ImGui::SameLine();
+                            drawKeyBinder(&CONFIGBIND("legitbot key"));
+                            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30);
+                            ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0, 180, "%.2f");
+                            SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0, 100, "%.2f");
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 1: { // pistol
+                            BEGINGROUPBOX("pistols", ImVec2(438, 214));
+                            CHECKBOX("override", &CONFIGBOOL("pistol override"));
+                            if (CONFIGBOOL("pistol override")) {
+                                ImGui::SameLine();
+                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                ImGui::Text("pistol fov");
+                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
+                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("pistol smoothing"), 0, 100, "%.2f");
+                            }
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 2: { // heavy pistol
+                            BEGINGROUPBOX("heavy pistols", ImVec2(438, 214));
+                            CHECKBOX("override", &CONFIGBOOL("heavy pistol override"));
+                            if (CONFIGBOOL("heavy pistol override")) {
+                                ImGui::SameLine();
+                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                ImGui::Text("heavy pistol fov");
+                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
+                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("heavy pistol smoothing"), 0, 100, "%.2f");
+                            }
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 3: { // rifle
+                            BEGINGROUPBOX("rifles", ImVec2(438, 214));
+                            CHECKBOX("override", &CONFIGBOOL("rifle override"));
+                            if (CONFIGBOOL("rifle override")) {
+                                ImGui::SameLine();
+                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                ImGui::Text("rifle fov");
+                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
+                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("rifle smoothing"), 0, 100, "%.2f");
+                            }
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 4: { // scout
+                            BEGINGROUPBOX("scout", ImVec2(438, 214));
+                            CHECKBOX("override", &CONFIGBOOL("scout override"));
+                            if (CONFIGBOOL("scout override")) {
+                                ImGui::SameLine();
+                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                ImGui::Text("scout fov");
+                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
+                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("scout smoothing"), 0, 100, "%.2f");
+                            }
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 5: { // AWP
+                            BEGINGROUPBOX("AWP", ImVec2(438, 214));
+                            CHECKBOX("override", &CONFIGBOOL("AWP override"));
+                            if (CONFIGBOOL("AWP override")) {
+                                ImGui::SameLine();
+                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                ImGui::Text("AWP fov");
+                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
+                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("AWP smoothing"), 0, 100, "%.2f");
+                            }
+                            ENDGROUPBOX();
+                            break;
+                        }
+                    }
 
                     ImGui::SetCursorPos(ImVec2(6, 262));
 

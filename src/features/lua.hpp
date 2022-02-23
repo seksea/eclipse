@@ -7,8 +7,8 @@
 #include <map>
 #include <mutex>
 
-#include <luajit-2.0/lua.hpp>
-#include <luajit-2.0/lualib.h>
+#include <luajit-2.1/lua.hpp>
+#include <luajit-2.1/lualib.h>
 
 #include "luabridge/LuaBridge.h"
 #include "luabridge/detail/LuaRef.h"

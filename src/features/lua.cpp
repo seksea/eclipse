@@ -340,6 +340,27 @@ namespace Lua {
     namespace UI {
         ImVec2 getMenuPos() { return Menu::windowPos; }
         ImVec2 getMenuSize() { return Menu::windowSize; }
+        ImVec2 getCurrentWindowPos() { return ImGui::GetWindowPos(); }
+        ImVec2 getCurrentWindowSize() { return ImGui::GetWindowSize(); }
+        ImVec2 getMousePos() { return ImGui::GetMousePos(); }
+        std::vector<int> getKeysPressed() {
+            ImGuiIO io = ImGui::GetIO();
+            std::vector<int> keysPressed;
+            for (int i = 0; i < sizeof(io.KeysDown); i++) {
+                if (io.KeysDown[i])
+                    keysPressed.push_back(i);
+            }
+            return keysPressed;
+        }
+        int getMousePressed() {
+            ImGuiIO io = ImGui::GetIO();
+            for (int i = 1; i <= sizeof(io.MouseDown); i++) {
+                if (io.MouseDown[i - 1]) {
+                    return i;
+                }
+            }
+            return 0;
+        }
         bool isMenuOpen() { return Menu::menuOpen; }
         bool getConfigBool(const char* var) { return CONFIGBOOL(var); }
         void setConfigBool(const char* var, bool val) { CONFIGBOOL(var) = val; }
@@ -706,6 +727,11 @@ namespace Lua {
             .beginNamespace("ui")
                 .addFunction("getMenuPos", UI::getMenuPos)
                 .addFunction("getMenuSize", UI::getMenuSize)
+                .addFunction("getCurrentWindowPos", UI::getCurrentWindowPos)
+                .addFunction("getCurrentWindowSize", UI::getCurrentWindowSize)
+                .addFunction("getMousePos", UI::getMousePos)
+                .addFunction("getKeysPressed", UI::getKeysPressed)
+                .addFunction("getMousePressed", UI::getMousePressed)
                 .addFunction("isMenuOpen", UI::isMenuOpen)
                 .addFunction("getConfigBool", UI::getConfigBool)
                 .addFunction("setConfigBool", UI::setConfigBool)

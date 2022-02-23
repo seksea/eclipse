@@ -143,7 +143,6 @@ namespace Hooks {
     EventListener::EventListener() {
         Interfaces::eventManager->addListener(this, "player_hurt", false);
         Interfaces::eventManager->addListener(this, "player_death", false);
-        Interfaces::eventManager->addListener(this, "bullet_impact", false);
     }
 
     EventListener::~EventListener() {
