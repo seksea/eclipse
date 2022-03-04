@@ -212,7 +212,7 @@ namespace Menu {
                             BEGINGROUPBOX("default legitbot", ImVec2(438, 214));
                             ImGui::Text("fov");
                             ImGui::SameLine();
-                            drawKeyBinder(&CONFIGBIND("legitbot key"));
+                            drawKeyBinder("legitbot key");
                             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30);
                             ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0, 180, "%.2f");
                             SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0, 100, "%.2f");
@@ -224,7 +224,7 @@ namespace Menu {
                             CHECKBOX("override", &CONFIGBOOL("pistol override"));
                             if (CONFIGBOOL("pistol override")) {
                                 ImGui::SameLine();
-                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                drawKeyBinder("legitbot key");
                                 ImGui::Text("pistol fov");
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
@@ -238,7 +238,7 @@ namespace Menu {
                             CHECKBOX("override", &CONFIGBOOL("heavy pistol override"));
                             if (CONFIGBOOL("heavy pistol override")) {
                                 ImGui::SameLine();
-                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                drawKeyBinder("legitbot key");
                                 ImGui::Text("heavy pistol fov");
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
@@ -252,7 +252,7 @@ namespace Menu {
                             CHECKBOX("override", &CONFIGBOOL("rifle override"));
                             if (CONFIGBOOL("rifle override")) {
                                 ImGui::SameLine();
-                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                drawKeyBinder("legitbot key");
                                 ImGui::Text("rifle fov");
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
@@ -266,7 +266,7 @@ namespace Menu {
                             CHECKBOX("override", &CONFIGBOOL("scout override"));
                             if (CONFIGBOOL("scout override")) {
                                 ImGui::SameLine();
-                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                drawKeyBinder("legitbot key");
                                 ImGui::Text("scout fov");
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
@@ -280,7 +280,7 @@ namespace Menu {
                             CHECKBOX("override", &CONFIGBOOL("AWP override"));
                             if (CONFIGBOOL("AWP override")) {
                                 ImGui::SameLine();
-                                drawKeyBinder(&CONFIGBIND("legitbot key"));
+                                drawKeyBinder("legitbot key");
                                 ImGui::Text("AWP fov");
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");

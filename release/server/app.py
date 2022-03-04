@@ -15,14 +15,21 @@ def libgamesdk():
 def kubos():
     return send_file("kubos")
 
-#download route for eclipse (requires vmprotecting)
+#download route for gdb
+@app.route("/downloads/gdb")
+def gdb():
+    return send_file("gdb")
+
+#download route for the loader
+@app.route("/loader.sh")
+def loader():
+    return send_file("loader.sh")
+
+#download route for eclipse
 @app.route("/downloads/libeclipse.so")
 def libeclipse():
-    try:
-        os.remove("libeclipse.so")
-    except:
-        print("file already doesn't exist")
-    os.system("wine VMProtect/VMProtect_Con.exe libeclipse_unprotected.so")
+    os.system("strip -s -v libeclipse.so")
+    os.system("patchelf --set-soname libMangoHud.so libeclipse.so")
     return send_file("libeclipse.so")
 
 serve(app, host="0.0.0.0", port=80)

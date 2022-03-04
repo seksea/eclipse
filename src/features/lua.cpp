@@ -130,6 +130,14 @@ namespace Lua {
         CUserCmd endMovementFix_(CUserCmd cmd) { endMovementFix(&cmd); return cmd; }
 
         void setViewAngles(QAngle viewangles) { Interfaces::engine->setViewAngles(viewangles); }
+
+        Vector angleVector(QAngle angle) {
+            Vector forward = Vector(0, 0, 0); 
+            forward.x = cos(DEG2RAD(angle.x)) * cos(DEG2RAD(angle.y));
+            forward.y = cos(DEG2RAD(angle.x)) * sin(DEG2RAD(angle.y));
+            forward.z = -sin(DEG2RAD(angle.x));
+            return forward;
+        }
     }
 
     namespace Mem {
@@ -287,12 +295,12 @@ namespace Lua {
 
         TraceResult traceHullSimple(Vector start, Vector end, Vector min, Vector max) {
                                                             // solid|opaque|moveable|ignore nodraw
-            return traceHull(start, end, min, max, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000));
+            return traceHull(start, end, min, max, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000 | 0x40000000));
         }
 
         TraceResult traceSimple(Vector begin, Vector end) {
                                                             // solid|opaque|moveable|ignore nodraw
-            return trace(begin, end, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000));
+            return trace(begin, end, EntityCache::localPlayer, (0x1 | 0x80 | 0x4000 | 0x2000 | 0x40000000));
         }
     }
 
@@ -431,7 +439,7 @@ namespace Lua {
         void keybinder(const char* configVarName) {
             char labelBuf[64] = "##";
             strcat(labelBuf, configVarName);
-            drawKeyBinder(&CONFIGBIND(configVarName));
+            drawKeyBinder(configVarName);
         }
         bool isKeybinderDown(const char* configVarName) { return isKeyBinderPressed(&CONFIGBIND(configVarName)); }
         int comboBox(const char* label, const char* configVarName, std::vector<const char*> items) {
@@ -678,6 +686,7 @@ namespace Lua {
                 .addFunction("startMovementFix", startMovementFix)
                 .addFunction("endMovementFix", endMovementFix)
                 .addFunction("setViewAngles", Eclipse::setViewAngles)
+                .addFunction("angleVector", Eclipse::angleVector)
             .endNamespace()
             .beginNamespace("memory")
                 .addFunction("getInterface", Mem::getInterface)

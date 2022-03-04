@@ -121,7 +121,7 @@ case $keys in
         shift
         ;;
     -r|--release)
-        cp build/libeclipse.so release/server/libeclipse_unprotected.so
+        cp build/libeclipse.so release/server/
         shift
         ;;
     -h|--help)
