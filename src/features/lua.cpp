@@ -305,10 +305,10 @@ namespace Lua {
     }
 
     namespace Panorama {
-        void executeScript(const char* script, const char* xmlContext) {
-            IUIPanel* root = Interfaces::panorama->getRoot();
+        void executeScript(const char* script, const char* panelName) {
+            IUIPanel* root = Interfaces::panorama->getPanel(panelName);
             if (root)
-                Interfaces::panorama->AccessUIEngine()->RunScript(root, script, xmlContext, 8, 10, false);
+                Interfaces::panorama->AccessUIEngine()->RunScript(root, script, "panorama/layout/base.xml", 8, 10, false);
         }
     }
 

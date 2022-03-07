@@ -74,7 +74,7 @@ namespace Menu {
             ImGui::StyleColorsDark();
 
             ImFontConfig fontConfig;
-            fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
+            //fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
 
             weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);

@@ -125,9 +125,9 @@ namespace Hooks {
     void EmitSound::hook(void* thisptr, void*& filter, int iEntIndex, int iChannel, const char* pSoundEntry, unsigned int nSoundEntryHash, const char *pSample, float flVolume, int nSeed, void* iSoundLevel, int iFlags, int iPitch, const Vector* pOrigin, const Vector* pDirection, void* pUtlVecOrigins, bool bUpdatePositions, float soundtime, int speakerentity, void*& params) {
         INFO("started emitSound hook.");
         if (strstr(pSoundEntry, "UIPanorama.popup_accept_match_beep") && CONFIGBOOL("auto accept")) {
-            IUIPanel* root = Interfaces::panorama->getRoot();
-            if (root)
-                Interfaces::panorama->AccessUIEngine()->RunScript(root, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
+            IUIPanel* mainMenu = Interfaces::panorama->getPanel("CSGOMainMenu");
+            if (mainMenu)
+                Interfaces::panorama->AccessUIEngine()->RunScript(mainMenu, "$.DispatchEvent(\"MatchAssistedAccept\");", "panorama/layout/base.xml", 8, 10, false);
             INFO("ended emitSound hook.");
             return;
         }

@@ -3374,5 +3374,5 @@ public:
     virtual void HandleInputEvent();
     virtual void unk1(); // calls this function in PanoramaUIEngine -- call    qword ptr [rax+0A0h]
     virtual void unk2();
-    IUIPanel* getRoot();
+    IUIPanel* getPanel(const char* panelName);
 };

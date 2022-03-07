@@ -1,7 +1,7 @@
 #include "../../interfaces.hpp"
 
 /* Get panorama root panel (credit LWSS' McDota project) */
-IUIPanel* IPanoramaUIEngine::getRoot() {
+IUIPanel* IPanoramaUIEngine::getPanel(const char* panelName) {
     IUIPanel* itr = nullptr;
     for (int i = 0; i < 4096; i++) {
         itr = panelArray->slots[i].panel;
@@ -9,7 +9,8 @@ IUIPanel* IPanoramaUIEngine::getRoot() {
             continue;
 
         while (itr && Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(itr)) {
-            if (strstr(itr->GetID(), "CSGOMainMenu")) {
+            LOG("%i looking for: %s, got %s", i, panelName, itr->GetID());
+            if (strstr(itr->GetID(), panelName)) {
                 return itr;
             }
             itr = itr->GetParent();
