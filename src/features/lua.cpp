@@ -305,27 +305,14 @@ namespace Lua {
     }
 
     namespace Panorama {
-        std::map<std::string_view, IUIPanel*> panelCache;
-
         void executeScript(const char* script, const char* panelName) {
-            IUIPanel* panel = nullptr;
-            if (panelCache.find(panelName) == panelCache.end() || !(panelCache.at(panelName))) {
-                WARN("%s panorama panel %s not in cache/invalid, getting it again...", curEngineBeingRanName, panelName);
-                panel = Interfaces::panorama->getPanel(panelName);
-                if (panel) {
-                    panelCache.insert(std::pair<std::string_view, IUIPanel*>(panelName, panel));
-                    LOG("%s panorama panel %s successfully got, %lx.", curEngineBeingRanName, panelName, panel);
-                }
-            }
-            else {
-                panel = panelCache.at(panelName);
-            }
+            IUIPanel* panel = Interfaces::panorama->getPanel(panelName);
 
             if (panel) {
                 Interfaces::panorama->AccessUIEngine()->RunScript(panel, script, "panorama/layout/base.xml", 8, 10, false);
             }
             else {
-                ERR("%s panorama error, %s panel not found.", curEngineBeingRanName, panelName);
+                ERR("%s could not get %s panel.", curEngineBeingRanName, panelName);
             }
         }
     }
