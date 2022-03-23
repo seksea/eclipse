@@ -9,7 +9,6 @@ IUIPanel* IPanoramaUIEngine::getPanel(const char* panelName) {
             continue;
 
         while (itr && Interfaces::panorama->AccessUIEngine()->IsValidPanelPointer(itr)) {
-            LOG("%i looking for: %s, got %s", i, panelName, itr->GetID());
             if (strstr(itr->GetID(), panelName)) {
                 return itr;
             }

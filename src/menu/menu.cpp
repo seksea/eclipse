@@ -74,7 +74,7 @@ namespace Menu {
             ImGui::StyleColorsDark();
 
             ImFontConfig fontConfig;
-            //fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
+            fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
             menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
 
             weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);
@@ -216,6 +216,7 @@ namespace Menu {
                             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30);
                             ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0, 180, "%.2f");
                             SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0, 100, "%.2f");
+                            CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
                             ENDGROUPBOX();
                             break;
                         }
@@ -229,6 +230,7 @@ namespace Menu {
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("pistol smoothing"), 0, 100, "%.2f");
+                                CHECKBOX("linear smoothing", &CONFIGBOOL("pistol linear"));
                             }
                             ENDGROUPBOX();
                             break;
@@ -243,6 +245,7 @@ namespace Menu {
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("heavy pistol smoothing"), 0, 100, "%.2f");
+                                CHECKBOX("linear smoothing", &CONFIGBOOL("heavy pistol linear"));
                             }
                             ENDGROUPBOX();
                             break;
@@ -257,6 +260,7 @@ namespace Menu {
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("rifle smoothing"), 0, 100, "%.2f");
+                                CHECKBOX("linear smoothing", &CONFIGBOOL("rifle linear"));
                             }
                             ENDGROUPBOX();
                             break;
@@ -271,6 +275,7 @@ namespace Menu {
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("scout smoothing"), 0, 100, "%.2f");
+                                CHECKBOX("linear smoothing", &CONFIGBOOL("scout linear"));
                             }
                             ENDGROUPBOX();
                             break;
@@ -285,6 +290,7 @@ namespace Menu {
                                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
                                 ImGui::SliderFloat("##fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("AWP smoothing"), 0, 100, "%.2f");
+                                CHECKBOX("linear smoothing", &CONFIGBOOL("AWP linear"));
                             }
                             ENDGROUPBOX();
                             break;

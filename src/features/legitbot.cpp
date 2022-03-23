@@ -9,6 +9,7 @@ namespace Legitbot {
         float fov = CONFIGFLOAT("default fov");
         float smoothing = CONFIGFLOAT("default smoothing");
         bool accountRecoil = true;
+        bool linearSmoothing = CONFIGBOOL("default linear");
 
         if (!EntityCache::localPlayer || !EntityCache::localPlayer->nDT_BaseCombatCharacter__m_hActiveWeapon())
             return;
@@ -32,6 +33,7 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("pistol fov");
                 smoothing = CONFIGFLOAT("pistol smoothing");
+                linearSmoothing = CONFIGBOOL("pistol linear");
                 break;
             }
             case WEAPON_DEAGLE:
@@ -42,6 +44,7 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("heavy pistol fov");
                 smoothing = CONFIGFLOAT("heavy pistol smoothing");
+                linearSmoothing = CONFIGBOOL("heavy pistol linear");
                 break;
             }
             case WEAPON_AK47:
@@ -57,6 +60,7 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("rifle fov");
                 smoothing = CONFIGFLOAT("rifle smoothing");
+                linearSmoothing = CONFIGBOOL("rifle linear");
                 break;
             }
             case WEAPON_SSG08: {
@@ -66,6 +70,7 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("scout fov");
                 smoothing = CONFIGFLOAT("scout smoothing");
+                linearSmoothing = CONFIGBOOL("scout linear");
                 break;
             }
             case WEAPON_AWP: {
@@ -75,6 +80,7 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("AWP fov");
                 smoothing = CONFIGFLOAT("AWP smoothing");
+                linearSmoothing = CONFIGBOOL("AWP linear");
                 break;
             }
         }
@@ -104,9 +110,26 @@ namespace Legitbot {
                     }
                 }
             }
-            if (closestBoneDelta < fov)
-                cmd->viewangles += angleToClosestBone / (1 + smoothing);
+            if (closestBoneDelta < fov) {
+                if (smoothing == 0) { // if smoothing is 0 don't do smoothing calculations
+                    cmd->viewangles += angleToClosestBone;
+                    Interfaces::engine->setViewAngles(cmd->viewangles);
+                    return;
+                }
+                
+                // calculate smoothing
+                if (!linearSmoothing) {
+                    cmd->viewangles += angleToClosestBone / (1 + smoothing);
+                }
+                else {
+                    float coeff = (1.0f - (smoothing/100)) / angleToClosestBone.Length() * 4.f;
+                    coeff = std::min(1.f, coeff);
+
+                    cmd->viewangles += angleToClosestBone * coeff;
+                }
+
                 Interfaces::engine->setViewAngles(cmd->viewangles);
+            }
         }
     }
 }

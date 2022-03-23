@@ -170,13 +170,10 @@ public:
 	float	Length2D(void) const;
 	float	Length2DSqr(void) const;
 	Vector& operator=(const Vector &vOther);
-	Vector	operator-(void) const;
 	Vector	operator+(const Vector& v) const;
 	Vector	operator-(const Vector& v) const;
 	Vector	operator*(const Vector& v) const;
 	Vector	operator/(const Vector& v) const;
-	Vector	operator*(float fl) const;
-	Vector	operator/(float fl) const;
 	// Base address...
 	float* Base();
 	float const* Base() const;
@@ -307,7 +304,7 @@ inline Vector&	Vector::operator-=(float fl)
 	CHECK_VALID(*this);
 	return *this;
 }
-//===============================================
+
 inline  Vector& Vector::operator/=(float fl)
 {
 	Assert(fl != 0.0f);
@@ -458,30 +455,12 @@ inline Vector Vector::operator-(const Vector& v) const
 	return res;
 }
 //===============================================
-inline Vector Vector::operator*(float fl) const
-{
-	Vector res;
-	res.x = x * fl;
-	res.y = y * fl;
-	res.z = z * fl;
-	return res;
-}
-//===============================================
 inline Vector Vector::operator*(const Vector& v) const
 {
 	Vector res;
 	res.x = x * v.x;
 	res.y = y * v.y;
 	res.z = z * v.z;
-	return res;
-}
-//===============================================
-inline Vector Vector::operator/(float fl) const
-{
-	Vector res;
-	res.x = x / fl;
-	res.y = y / fl;
-	res.z = z / fl;
 	return res;
 }
 //===============================================
@@ -706,8 +685,6 @@ public:
 	Vector2D(const Vector2D &vOther);
 
 	// arithmetic operations
-	Vector2D	operator-(void) const;
-
 	Vector2D	operator+(const Vector2D& v) const;
 	Vector2D	operator-(const Vector2D& v) const;
 	Vector2D	operator*(const Vector2D& v) const;
@@ -1201,11 +1178,6 @@ inline Vector2D Vector2D::Max(const Vector2D &vOther) const
 // arithmetic operations
 //-----------------------------------------------------------------------------
 
-inline Vector2D Vector2D::operator-(void) const
-{
-	return Vector2D(-x, -y);
-}
-
 inline Vector2D Vector2D::operator+(const Vector2D& v) const
 {
 	Vector2D res;
@@ -1314,9 +1286,6 @@ public:
 
 #ifndef VECTOR_NO_SLOW_OPERATIONS
 	// copy constructors
-
-	// arithmetic operations
-	QAngle  operator-(void) const;
 
 	QAngle  operator+(const QAngle& v) const;
 	QAngle  operator-(const QAngle& v) const;
@@ -1482,11 +1451,6 @@ inline float QAngle::LengthSqr() const
 // arithmetic operations (SLOW!!)
 //-----------------------------------------------------------------------------
 #ifndef VECTOR_NO_SLOW_OPERATIONS
-
-inline QAngle QAngle::operator-(void) const
-{
-	return QAngle(-x, -y, -z);
-}
 
 inline QAngle QAngle::operator+(const QAngle& v) const
 {

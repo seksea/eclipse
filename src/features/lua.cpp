@@ -305,10 +305,28 @@ namespace Lua {
     }
 
     namespace Panorama {
+        std::map<std::string_view, IUIPanel*> panelCache;
+
         void executeScript(const char* script, const char* panelName) {
-            IUIPanel* root = Interfaces::panorama->getPanel(panelName);
-            if (root)
-                Interfaces::panorama->AccessUIEngine()->RunScript(root, script, "panorama/layout/base.xml", 8, 10, false);
+            IUIPanel* panel = nullptr;
+            if (panelCache.find(panelName) == panelCache.end() || !(panelCache.at(panelName))) {
+                WARN("%s panorama panel %s not in cache/invalid, getting it again...", curEngineBeingRanName, panelName);
+                panel = Interfaces::panorama->getPanel(panelName);
+                if (panel) {
+                    panelCache.insert(std::pair<std::string_view, IUIPanel*>(panelName, panel));
+                    LOG("%s panorama panel %s successfully got, %lx.", curEngineBeingRanName, panelName, panel);
+                }
+            }
+            else {
+                panel = panelCache.at(panelName);
+            }
+
+            if (panel) {
+                Interfaces::panorama->AccessUIEngine()->RunScript(panel, script, "panorama/layout/base.xml", 8, 10, false);
+            }
+            else {
+                ERR("%s panorama error, %s panel not found.", curEngineBeingRanName, panelName);
+            }
         }
     }
 
@@ -350,6 +368,7 @@ namespace Lua {
         ImVec2 getMenuSize() { return Menu::windowSize; }
         ImVec2 getCurrentWindowPos() { return ImGui::GetWindowPos(); }
         ImVec2 getCurrentWindowSize() { return ImGui::GetWindowSize(); }
+        void setNextWindowSize(ImVec2 size) { ImGui::SetNextWindowSize(size); }
         ImVec2 getMousePos() { return ImGui::GetMousePos(); }
         std::vector<int> getKeysPressed() {
             ImGuiIO io = ImGui::GetIO();
@@ -369,6 +388,10 @@ namespace Lua {
             }
             return 0;
         }
+        int getMouseWheel() {
+            ImGuiIO io = ImGui::GetIO();
+            return io.MouseWheel;
+        }
         bool isMenuOpen() { return Menu::menuOpen; }
         bool getConfigBool(const char* var) { return CONFIGBOOL(var); }
         void setConfigBool(const char* var, bool val) { CONFIGBOOL(var) = val; }
@@ -378,7 +401,12 @@ namespace Lua {
         void setConfigStr(const char* var, const char* val) { CONFIGSTR(var) = val; }
         ImColor getConfigCol(const char* var) { return CONFIGCOL(var); }
         void setConfigCol(const char* var, ImColor val) { CONFIGCOL(var) = val; }
-        void beginWindow(const char* title) { ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus | (Menu::menuOpen ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs)); }
+        void beginWindow(const char* title) { 
+            ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | (Menu::menuOpen ? 0 : (ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs))); 
+        }
+        void beginComplexWindow(const char* title, int flags) { 
+            ImGui::Begin(title, nullptr, flags); 
+        }
         void endWindow() { ImGui::End(); }
         void sameLine() { ImGui::SameLine(); }
         void columns(int count, bool border) { ImGui::Columns(count, nullptr, border); }
@@ -554,18 +582,26 @@ namespace Lua {
             
             curDrawList->AddImage((void*)(intptr_t)image.image, min, max);
         }
-    }    
+    }
 
     void bridge(lua_State* L) {
         luabridge::getGlobalNamespace(L)
         .addFunction("print", print)
             .beginClass<ImVec2>("Vec2")
                 .addConstructor<void (*) (float, float)>()
+                .addFunction("__add", &ImVec2::operator+)
+                .addFunction("__sub", &ImVec2::operator-)
+                .addFunction("__mul", &ImVec2::operator*)
+                .addFunction("__div", &ImVec2::operator/)
                 .addProperty("x", &ImVec2::x)
                 .addProperty("y", &ImVec2::y)
             .endClass()
             .beginClass<ImVec4>("Vec4")
                 .addConstructor<void (*) (float, float, float, float)>()
+                .addFunction("__add", &ImVec4::operator+)
+                .addFunction("__sub", &ImVec4::operator-)
+                .addFunction("__mul", &ImVec4::operator*)
+                .addFunction("__div", &ImVec4::operator/)
                 .addProperty("x", &ImVec4::x)
                 .addProperty("y", &ImVec4::y)
                 .addProperty("z", &ImVec4::z)
@@ -573,6 +609,10 @@ namespace Lua {
             .endClass()
             .beginClass<Vector>("Vector")
                 .addConstructor<void (*) (float, float, float)>()
+                .addFunction("__add", &Vector::operator+)
+                .addFunction("__sub", &Vector::operator-)
+                .addFunction("__mul", &Vector::operator*)
+                .addFunction("__div", &Vector::operator/)
                 .addProperty("x", &Vector::x)
                 .addProperty("y", &Vector::y)
                 .addProperty("z", &Vector::z)
@@ -586,6 +626,10 @@ namespace Lua {
             .endClass()
             .beginClass<QAngle>("QAngle")
                 .addConstructor<void (*) (float, float, float)>()
+                .addFunction("__add", &QAngle::operator+)
+                .addFunction("__sub", &QAngle::operator-)
+                .addFunction("__mul", &QAngle::operator*)
+                .addFunction("__div", &QAngle::operator/)
                 .addProperty("x", &QAngle::x)
                 .addProperty("y", &QAngle::y)
                 .addProperty("z", &QAngle::z)
@@ -738,9 +782,11 @@ namespace Lua {
                 .addFunction("getMenuSize", UI::getMenuSize)
                 .addFunction("getCurrentWindowPos", UI::getCurrentWindowPos)
                 .addFunction("getCurrentWindowSize", UI::getCurrentWindowSize)
+                .addFunction("setNextWindowSize", UI::setNextWindowSize)
                 .addFunction("getMousePos", UI::getMousePos)
                 .addFunction("getKeysPressed", UI::getKeysPressed)
                 .addFunction("getMousePressed", UI::getMousePressed)
+                .addFunction("getMouseWheel", UI::getMouseWheel)
                 .addFunction("isMenuOpen", UI::isMenuOpen)
                 .addFunction("getConfigBool", UI::getConfigBool)
                 .addFunction("setConfigBool", UI::setConfigBool)
@@ -753,6 +799,7 @@ namespace Lua {
                 .addFunction("getConfigCol", UI::getConfigCol)
                 .addFunction("setConfigCol", UI::setConfigCol)
                 .addFunction("beginWindow", UI::beginWindow)
+                .addFunction("beginComplexWindow", UI::beginComplexWindow)
                 .addFunction("endWindow", UI::endWindow)
                 .addFunction("sameLine", UI::sameLine)
                 .addFunction("columns", UI::columns)

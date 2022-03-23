@@ -66,23 +66,27 @@ namespace Hooks {
             Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
         }
 
-        Backtrack::store(cmd);
-        Backtrack::run(cmd);
-
-        Legitbot::run(cmd);
-
         Movement::bunnyhop(cmd);
+
+        int commandsPredicted = Interfaces::prediction->Split->nCommandsPredicted-1;
+        Prediction::startPrediction(cmd);
+            Backtrack::store(cmd);
+            Legitbot::run(cmd);
+            Backtrack::run(cmd);
+        Prediction::endPrediction();
+        Interfaces::restoreEntityToPredictedFrame(Interfaces::prediction, 0, commandsPredicted);
 
         Lua::curCmd = cmd;
         Lua::handleHook("createMove", cmd);
 
+        // avoid untrust
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
         cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
         cmd->viewangles.y = fmod(cmd->viewangles.y + 180.f, 360.f) - 180.f; // normalize y before clamping
         
-        // clamp to avoid untrusted ban
+        // clamp angles
         cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
         cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
         cmd->viewangles.z = 0.0f;
