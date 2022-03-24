@@ -48,6 +48,7 @@ namespace SkinChanger {
         "galil",
         "m249",
         "m4a4",
+        "m4a1-s",
         "mac10",
         "p90",
         "ump45",

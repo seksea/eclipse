@@ -40,6 +40,8 @@ namespace Interfaces {
     inline IGameMovement* movement;
     inline IEngineTrace* trace;
     inline CEffects* effects;
+    inline class IFileSystem* fileSystem;
+    inline class ModelCache* modelCache;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;

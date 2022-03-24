@@ -35,6 +35,24 @@ namespace Hooks {
         inline func original;
         void hook(void* thisptr, void* param);
     }
+    
+    namespace CanLoadThirdPartyFiles {
+        using func = int(*)(void* thisptr);
+        inline func original;
+        int hook(void* thisptr);
+    }
+    
+    namespace GetUnverifiedFileHashes {
+        using func = int(*)(void* thisptr, void* tmp, int count);
+        inline func original;
+        int hook(void* thisptr, void* tmp, int count);
+    }
+    
+    namespace FindMdl {
+        using func = unsigned short(*)(void* thisptr, const char* modelPath);
+        inline func original;
+        unsigned short hook(void* thisptr, const char* modelPath);
+    }
 
     namespace SDL {
         bool initSDL();

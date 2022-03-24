@@ -33,6 +33,12 @@ namespace Hooks {
         EmitSound::original = (EmitSound::func)Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::hook, 6);
         LOG(" Hooking DoPostScreenEffects...");
         DoPostScreenEffects::original = (DoPostScreenEffects::func)Memory::VMT::hook(Interfaces::clientMode, (void*)DoPostScreenEffects::hook, 45);
+        LOG(" Hooking CanLoadThirdPartyFiles...");
+        CanLoadThirdPartyFiles::original = (CanLoadThirdPartyFiles::func)Memory::VMT::hook(Interfaces::fileSystem, (void*)CanLoadThirdPartyFiles::hook, 128);
+        LOG(" Hooking GetUnverifiedFileHashes...");
+        GetUnverifiedFileHashes::original = (GetUnverifiedFileHashes::func)Memory::VMT::hook(Interfaces::fileSystem, (void*)GetUnverifiedFileHashes::hook, 101);
+        LOG(" Hooking FindMdl...");
+        FindMdl::original = (FindMdl::func)Memory::VMT::hook(Interfaces::modelCache, (void*)FindMdl::hook, 10);
 
         eventListener = new EventListener;
     }
@@ -49,6 +55,12 @@ namespace Hooks {
         Memory::VMT::hook(Interfaces::sound, (void*)EmitSound::original, 6);
         LOG(" Unhooking DoPostScreenEffects...");
         Memory::VMT::hook(Interfaces::clientMode, (void*)DoPostScreenEffects::original, 45);
+        LOG(" Unhooking CanLoadThirdPartyFiles...");
+        Memory::VMT::hook(Interfaces::fileSystem, (void*)CanLoadThirdPartyFiles::original, 128);
+        LOG(" Unhooking GetUnverifiedFileHashes...");
+        Memory::VMT::hook(Interfaces::fileSystem, (void*)GetUnverifiedFileHashes::original, 101);
+        LOG(" Unhooking FindMdl...");
+        Memory::VMT::hook(Interfaces::modelCache, (void*)FindMdl::original, 10);
 
         delete eventListener;
     }
@@ -168,5 +180,23 @@ namespace Hooks {
         Glow::draw();
         INFO("ended doPostScreenEffects hook.");
         original(thisptr, param);
+    }
+
+    int CanLoadThirdPartyFiles::hook(void* thisptr) {
+        if (CONFIGBOOL("sv_pure bypass"))
+            return 1;
+        
+        return original(thisptr);
+    }
+
+    int GetUnverifiedFileHashes::hook(void* thisptr, void* tmp, int count) {
+        if (CONFIGBOOL("sv_pure bypass"))
+            return 0;
+
+        return original(thisptr, tmp, count);
+    }
+
+    unsigned short FindMdl::hook(void* thisptr, const char* modelPath) {
+        return original(thisptr, modelPath);
     }
 }

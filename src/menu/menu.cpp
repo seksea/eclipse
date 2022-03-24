@@ -505,6 +505,7 @@ namespace Menu {
                             BEGINGROUPBOX("misc", ImVec2(438, 214));
                                 CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
                                 CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
+                                CHECKBOX("sv_pure bypass", &CONFIGBOOL("sv_pure bypass"));
                                 bool alwaysFalse = false;
                                 CHECKBOX("insecure bypass", Interfaces::insecure ? &CONFIGBOOL("insecure bypass") : &alwaysFalse);
                             ENDGROUPBOX();
