@@ -16,6 +16,7 @@
 #include "../features/luabridge/LuaBridge.h"
 #include "keybinders.hpp"
 #include <GL/gl.h>
+#include <filesystem>
 
 #define BEGINGROUPBOX(name, size) ImGui::BeginChild(name, size, true); ImGui::TextColored(ImGui::IsMouseHoveringRect(ImGui::GetWindowPos(), ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight())) ? ImVec4(1.f, 1.f, 1.f, 1.f) : ImVec4(0.8f, 0.8f, 0.8f, 1.f), name); ImGui::Separator()
 #define ENDGROUPBOX() ImGui::EndChild()
@@ -213,7 +214,7 @@ namespace Menu {
                             ImGui::Text("fov");
                             ImGui::SameLine();
                             drawKeyBinder("legitbot key");
-                            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30);
+                            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
                             ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0, 180, "%.2f");
                             SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0, 100, "%.2f");
                             CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
@@ -226,9 +227,7 @@ namespace Menu {
                             if (CONFIGBOOL("pistol override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                ImGui::Text("pistol fov");
-                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("pistol smoothing"), 0, 100, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("pistol linear"));
                             }
@@ -241,9 +240,7 @@ namespace Menu {
                             if (CONFIGBOOL("heavy pistol override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                ImGui::Text("heavy pistol fov");
-                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("heavy pistol smoothing"), 0, 100, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("heavy pistol linear"));
                             }
@@ -256,9 +253,7 @@ namespace Menu {
                             if (CONFIGBOOL("rifle override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                ImGui::Text("rifle fov");
-                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("rifle smoothing"), 0, 100, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("rifle linear"));
                             }
@@ -271,9 +266,7 @@ namespace Menu {
                             if (CONFIGBOOL("scout override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                ImGui::Text("scout fov");
-                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("scout smoothing"), 0, 100, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("scout linear"));
                             }
@@ -286,9 +279,7 @@ namespace Menu {
                             if (CONFIGBOOL("AWP override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                ImGui::Text("AWP fov");
-                                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 30); 
-                                ImGui::SliderFloat("##fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");
                                 SLIDERFLOAT("smoothing", &CONFIGFLOAT("AWP smoothing"), 0, 100, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("AWP linear"));
                             }
@@ -566,8 +557,8 @@ namespace Menu {
                             break;
                         }
                         case 2: { /* models */
-                            BEGINGROUPBOX("model changer", ImVec2(438, 351));
-                                ImGui::TextWrapped("To use the model changer put the name of the model you wish to change on the left and the target model on the right.");
+                            BEGINGROUPBOX("model changer", ImVec2(438, 164));
+                                ImGui::TextWrapped("To use the model changer put the name of the model you wish to change on the top and the target model on the bottom.");
 
                                 for (int i = 0; i < 64; i++) {
                                     char countStr[5] = "";
@@ -577,24 +568,34 @@ namespace Menu {
                                     strcat(nameStr, countStr);
                                     char buf[512] = "";
                                     strcat(buf, CONFIGSTR(nameStr).c_str());
-                                    ImGui::SetNextItemWidth((ImGui::GetWindowContentRegionWidth()/2)-14);
+                                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                                     ImGui::InputText(nameStr, buf, sizeof(buf));
                                     CONFIGSTR(nameStr) = buf;
-
-                                    ImGui::SameLine();
-                                    ImGui::Text("->");
-                                    ImGui::SameLine();
                                     
                                     char nameStr2[64] = "##modelchanger output ";
                                     strcat(nameStr2, countStr);
                                     char buf2[512] = "";
                                     strcat(buf2, CONFIGSTR(nameStr2).c_str());
-                                    ImGui::SetNextItemWidth((ImGui::GetWindowContentRegionWidth()/2)-14);
+                                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
                                     ImGui::InputText(nameStr2, buf2, sizeof(buf2));
                                     CONFIGSTR(nameStr2) = buf2;
+
+                                    ImGui::Separator();
+                                    ImGui::Separator();
+                                    ImGui::Separator();
                                 }
 
                                 SkinChanger::updateModelChanges();
+                            ENDGROUPBOX();
+
+                            BEGINGROUPBOX("custom model list", ImVec2(438, 181));
+                                for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator("csgo/models")) {
+                                    if (entry.is_regular_file() && strstr(entry.path().extension().string().c_str(), "mdl")) {
+                                        if (ImGui::Button(entry.path().string().substr(5).c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 0))) {
+                                            SDL_SetClipboardText(entry.path().string().substr(5).c_str());
+                                        }
+                                    }
+                                }
                             ENDGROUPBOX();
                             break;
                         }
