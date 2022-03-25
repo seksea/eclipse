@@ -167,5 +167,9 @@ namespace SkinChanger {
         {ItemIndex::WEAPON_KNIFEGG, "gold"}
     };
 
+    inline std::vector<std::pair<std::string_view, std::string_view>> modelChanges;
+
+    void updateModelChanges();
+
     void run();
 }

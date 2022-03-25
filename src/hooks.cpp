@@ -197,6 +197,12 @@ namespace Hooks {
     }
 
     unsigned short FindMdl::hook(void* thisptr, const char* modelPath) {
+        for (auto& change : SkinChanger::modelChanges) {
+            if (strstr(modelPath, change.first.data())) {
+                LOG("replaced model %s with %s", modelPath, change.second.data());
+                return original(thisptr, change.second.data());
+            }
+        }
         return original(thisptr, modelPath);
     }
 }

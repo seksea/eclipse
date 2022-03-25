@@ -482,12 +482,16 @@ namespace Menu {
                     static int curSubTab = 0;
                     static int lastCurSubTab = 0;
                     if (lastCurSubTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                    if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 0;
+                    if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 0;
                     if (lastCurSubTab == 0) ImGui::PopStyleColor();
                     ImGui::SameLine();
                     if (lastCurSubTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                    if (ImGui::Button("skins", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 1;
+                    if (ImGui::Button("skins", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 1;
                     if (lastCurSubTab == 1) ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    if (lastCurSubTab == 2) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+                    if (ImGui::Button("models", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 2;
+                    if (lastCurSubTab == 2) ImGui::PopStyleColor();
                     lastCurSubTab = curSubTab;
                     ImGui::PopStyleColor();
                     ImGui::PopStyleColor();
@@ -554,10 +558,43 @@ namespace Menu {
 
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
-                            BEGINGROUPBOX("model changer", ImVec2(438, 131));
+                            BEGINGROUPBOX("knife changer", ImVec2(438, 131));
                                 int temp = CONFIGINT("knife model");
                                 COMBOBOX("knife model", &temp, SkinChanger::knives, IM_ARRAYSIZE(SkinChanger::knives));
                                 CONFIGFLOAT("knife model") = temp;
+                            ENDGROUPBOX();
+                            break;
+                        }
+                        case 2: { /* models */
+                            BEGINGROUPBOX("model changer", ImVec2(438, 351));
+                                ImGui::TextWrapped("To use the model changer put the name of the model you wish to change on the left and the target model on the right.");
+
+                                for (int i = 0; i < 64; i++) {
+                                    char countStr[5] = "";
+                                    SDL_itoa(i, countStr, 10);
+                                    
+                                    char nameStr[64] = "##modelchanger input ";
+                                    strcat(nameStr, countStr);
+                                    char buf[512] = "";
+                                    strcat(buf, CONFIGSTR(nameStr).c_str());
+                                    ImGui::SetNextItemWidth((ImGui::GetWindowContentRegionWidth()/2)-14);
+                                    ImGui::InputText(nameStr, buf, sizeof(buf));
+                                    CONFIGSTR(nameStr) = buf;
+
+                                    ImGui::SameLine();
+                                    ImGui::Text("->");
+                                    ImGui::SameLine();
+                                    
+                                    char nameStr2[64] = "##modelchanger output ";
+                                    strcat(nameStr2, countStr);
+                                    char buf2[512] = "";
+                                    strcat(buf2, CONFIGSTR(nameStr2).c_str());
+                                    ImGui::SetNextItemWidth((ImGui::GetWindowContentRegionWidth()/2)-14);
+                                    ImGui::InputText(nameStr2, buf2, sizeof(buf2));
+                                    CONFIGSTR(nameStr2) = buf2;
+                                }
+
+                                SkinChanger::updateModelChanges();
                             ENDGROUPBOX();
                             break;
                         }

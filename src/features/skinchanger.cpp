@@ -70,4 +70,23 @@ namespace SkinChanger {
             }
         }
     }
+
+    void updateModelChanges() {
+        modelChanges.clear();
+        for (int i = 0; i < 64; i++) {
+            char countStr[5] = "";
+            SDL_itoa(i, countStr, 10);
+            
+            char nameStr[64] = "##modelchanger input ";
+            strcat(nameStr, countStr);
+
+            if (CONFIGSTR(nameStr).length() < 2)
+                continue;
+
+            char nameStr2[64] = "##modelchanger output ";
+            strcat(nameStr2, countStr);
+
+            modelChanges.push_back(std::pair<std::string_view, std::string_view>(CONFIGSTR(nameStr), CONFIGSTR(nameStr2)));
+        }
+    }
 }
