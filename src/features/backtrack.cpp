@@ -7,8 +7,31 @@ namespace Backtrack {
     bool isRecordValid(float simtime) {
         // ty masterlooser
         // https://www.unknowncheats.me/forum/counterstrike-global-offensive/359885-fldeadtime-int.html
-        static Convar *sv_maxunlag = Interfaces::cvar->findVar("sv_maxunlag");
-        return simtime >= floorf(Interfaces::globals->curtime - sv_maxunlag->getFloat());
+        static Convar* sv_maxunlag = Interfaces::cvar->findVar("sv_maxunlag");
+        if (simtime < floorf(Interfaces::globals->curtime - sv_maxunlag->getFloat())) return false;
+
+        NetChannel* net = Interfaces::engine->getNetworkChannel();
+        if (!net) {
+            LOG("couldn't get netchannel...");
+            return false;
+        }
+
+        static Convar* sv_client_min_interp_ratio = Interfaces::cvar->findVar("sv_client_min_interp_ratio");
+        static Convar* sv_client_max_interp_ratio = Interfaces::cvar->findVar("sv_client_max_interp_ratio");
+        static Convar* cl_updaterate = Interfaces::cvar->findVar("cl_updaterate");
+        static Convar* sv_maxupdaterate = Interfaces::cvar->findVar("sv_maxupdaterate");
+        static Convar* cl_interp = Interfaces::cvar->findVar("cl_interp");
+        static Convar* cl_interp_ratio = Interfaces::cvar->findVar("cl_interp_ratio");
+
+        float lerp = std::max(cl_interp->getFloat(),
+                              ((std::clamp(cl_interp_ratio->getFloat(), sv_client_min_interp_ratio->getFloat(),
+                                           sv_client_max_interp_ratio->getFloat()))) /
+                                   ((sv_maxupdaterate->getFloat()) ? sv_maxupdaterate->getFloat() : cl_updaterate->getFloat()));
+
+        auto delta = std::clamp(net->getLatency(0) + net->getLatency(1) + lerp, 0.f, sv_maxunlag->getFloat()) -
+             (TICKS_TO_TIME(EntityCache::localPlayer->nDT_LocalPlayerExclusive__m_nTickBase()) - simtime);
+
+        return fabsf(delta) <= sv_maxunlag->getFloat();
     }
 
     void store(CUserCmd* cmd) {
@@ -20,7 +43,7 @@ namespace Backtrack {
                 if (ent) {
                     if (!ent->dormant() && ent->nDT_BasePlayer__m_iHealth() > 0 && ent != EntityCache::localPlayer && !ent->teammate()) {
                         Player p;
-                        p.simTime = ent->nDT_BaseEntity__m_flSimulationTime();
+                        p.simTime = ent->simtime();
                         if (ent->setupBones(p.boneMatrix, 128, BONE_USED_BY_ANYTHING, Interfaces::globals->curtime)) {
                             currentTick.players.insert({ent->index(), p});
                         }
@@ -68,4 +91,4 @@ namespace Backtrack {
             cmd->tickcount = closestTick;
         }
     }
-}
+}  // namespace Backtrack

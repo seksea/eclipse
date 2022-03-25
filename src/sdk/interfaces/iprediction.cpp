@@ -12,7 +12,7 @@ namespace Prediction {
         oldCurtime = Interfaces::globals->curtime;
         oldFrametime = Interfaces::globals->frametime;
 
-        Interfaces::globals->curtime = EntityCache::localPlayer->nDT_BasePlayer__m_nTickBase() * Interfaces::globals->interval_per_tick;
+        Interfaces::globals->curtime = EntityCache::localPlayer->nDT_LocalPlayerExclusive__m_nTickBase() * Interfaces::globals->interval_per_tick;
         Interfaces::globals->frametime = Interfaces::globals->interval_per_tick;
 
         Interfaces::movement->startTrackPredictionErrors(EntityCache::localPlayer);

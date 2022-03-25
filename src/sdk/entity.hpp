@@ -29,6 +29,7 @@ class Entity {
 	ALL_NETVARS;
 
 	NETVAR("DT_BaseCombatCharacter", "m_hMyWeapons", weapons, WeaponArr);
+	NETVAR("DT_BaseEntity", "m_flSimulationTime", simtime, float);
 	
 	void* networkable() {
 		return reinterpret_cast<void*>(uintptr_t(this) + 16);
