@@ -4,6 +4,8 @@
 #include "../sdk/math.hpp"
 #include "../menu/config.hpp"
 
+#include "../menu/keybinders.hpp"
+
 namespace Legitbot {
     void run(CUserCmd* cmd) {
         float fov = CONFIGFLOAT("default fov");
@@ -85,7 +87,7 @@ namespace Legitbot {
             }
         }
 
-        if (isKeyBinderPressed(&CONFIGBIND("legitbot key"))) {
+        if (isKeyBinderPressed(&CONFIGBIND("legitbot key")) || (CONFIGBIND("legitbot key").key == -1 /*mouse1*/ && cmd->buttons & IN_ATTACK)) {
             float closestBoneDelta = FLT_MAX;
             QAngle angleToClosestBone = { 0, 0, 0 };
             for (Backtrack::Tick tick : Backtrack::ticks) {

@@ -560,7 +560,7 @@ namespace Menu {
                             BEGINGROUPBOX("model changer", ImVec2(438, 164));
                                 ImGui::TextWrapped("To use the model changer put the name of the model you wish to change on the top and the target model on the bottom.");
 
-                                for (int i = 0; i < 64; i++) {
+                                for (int i = 0; i < 128; i++) {
                                     char countStr[5] = "";
                                     SDL_itoa(i, countStr, 10);
                                     
