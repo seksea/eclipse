@@ -15,6 +15,7 @@
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
 #include "keybinders.hpp"
+#include "blur/blur.hpp"
 #include <GL/gl.h>
 #include <filesystem>
 
@@ -119,6 +120,11 @@ namespace Menu {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
+        BlurEffect::newFrame();
+
+        if (Menu::menuOpen) {
+            BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
+        }
 
         static float timeSinceLastTick = 0.f;
         timeSinceLastTick += ImGui::GetIO().DeltaTime;
