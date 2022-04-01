@@ -120,7 +120,6 @@ namespace Menu {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
-        BlurEffect::newFrame();
 
         if (Menu::menuOpen) {
             BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);

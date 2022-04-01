@@ -6,6 +6,7 @@
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
+#include "../menu/blur/blur.hpp"
 #include "../menu/imgui/imgui_internal.h"
 #include "../menu/imgui/imgui_freetype.h"
 #include "../menu/imgui/imgui_impl_opengl3.h"
@@ -479,6 +480,9 @@ namespace Lua {
         
         void line(ImVec2 p1, ImVec2 p2, ImColor color, float thickness) { curDrawList->AddLine(p1, p2, color, thickness); }
 
+        void polygon(ImVec2 pos, float radius, ImColor color, float thickness, int nSides)                          { curDrawList->AddNgon(pos, radius, color, nSides, thickness); }
+        void filledPolygon(ImVec2 pos, float radius, ImColor color, int nSides)                          { curDrawList->AddNgonFilled(pos, radius, color, nSides); }
+
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
@@ -568,6 +572,12 @@ namespace Lua {
             }
             
             curDrawList->AddImage((void*)(intptr_t)image.image, min, max);
+        }
+
+        void drawBlurRect(ImVec2 min, ImVec2 max, float strength) {
+            curDrawList->PushClipRect(min, max);
+            BlurEffect::draw(curDrawList, strength);
+            curDrawList->PopClipRect();
         }
     }
 
@@ -813,6 +823,9 @@ namespace Lua {
 
                 .addFunction("line", Draw::line)
 
+                .addFunction("polygon", Draw::polygon)
+                .addFunction("filledPolygon", Draw::filledPolygon)
+
                 .addFunction("circle", Draw::circle)
                 .addFunction("filledCircle", Draw::filledCircle)
 
@@ -837,6 +850,7 @@ namespace Lua {
                 .endClass()
                 .addFunction("loadImage", Draw::loadImage)
                 .addFunction("drawImage", Draw::drawImage)
+                .addFunction("drawBlurRect", Draw::drawBlurRect)
             .endNamespace();
     }
 
