@@ -121,7 +121,7 @@ namespace Menu {
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
 
-        if (Menu::menuOpen) {
+        if (Menu::menuOpen && !CONFIGBOOL("disable blur")) {
             BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
         }
 
@@ -506,14 +506,15 @@ namespace Menu {
                                 CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
                                 CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
                                 CHECKBOX("sv_pure bypass", &CONFIGBOOL("sv_pure bypass"));
+                                CHECKBOX("clantag", &CONFIGBOOL("clantag"));
                                 bool alwaysFalse = false;
                                 CHECKBOX("insecure bypass", Interfaces::insecure ? &CONFIGBOOL("insecure bypass") : &alwaysFalse);
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
-                            BEGINGROUPBOX("clantag", ImVec2(216, 131));
-
+                            BEGINGROUPBOX("menu settings", ImVec2(216, 131));
+                                CHECKBOX("disable blur", &CONFIGBOOL("disable blur"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 262));

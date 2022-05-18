@@ -428,4 +428,5 @@ public:
     VFUNC(int, getModelIndex, 3, (const char* filename), (this, filename))
     VFUNC(const char*, getModelName, 4, (const Model* model), (this, model))
     VFUNC(Studiohdr*, getStudio, 31, (Model* model), (this, model))
+    VFUNC(Model*, findOrLoadModel, 43, (const char* name), (this, name))
 };

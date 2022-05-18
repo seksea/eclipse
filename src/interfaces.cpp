@@ -35,7 +35,7 @@ namespace Interfaces {
 	    effects = getInterface<CEffects>("./bin/linux64/engine_client.so", "VEngineEffects");
 	    fileSystem = getInterface<IFileSystem>("./bin/linux64/filesystem_stdio_client.so", "VFileSystem");
 	    modelCache = getInterface<ModelCache>("./bin/linux64/datacache_client.so", "MDLCache");
-
+        stringTableContainer = getInterface<CNetworkStringTableContainer>("./bin/linux64/engine_client.so", "VEngineClientStringTable");
         /* Get IClientMode */
         uintptr_t HudProcessInput = reinterpret_cast<uintptr_t>(Memory::getVTable(client)[10]);
         typedef IClientMode* (*GetClientMode)();

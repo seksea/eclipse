@@ -45,6 +45,8 @@ namespace Lua {
         void onDataChanged(int updateType) { e->onDataChanged(updateType); }
         void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
         void postDataUpdate(int updateType) { e->postDataUpdate(updateType); }
+        void setModelIndex(int modelIndex) { e->setModelIndex(modelIndex); }
+        int getModelIndex() { return e->nDT_BaseEntity__m_nModelIndex(); }
 
         Vector origin() {return e->origin();}
         Vector velocity() {return Vector(e->nDT_LocalPlayerExclusive__m_vecVelocity0(), e->nDT_LocalPlayerExclusive__m_vecVelocity1(), e->nDT_LocalPlayerExclusive__m_vecVelocity2()); }
@@ -145,6 +147,19 @@ namespace Lua {
         uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
         uintptr_t getAbsoluteAddress(uintptr_t ptr, int offset, int size) { return (uintptr_t)Memory::getAbsoluteAddress(ptr, offset, size); }
         /* patternScan */
+        bool precacheModel(const char* modelName) {
+                INetworkStringTable* modelPrecacheTable = Interfaces::stringTableContainer->findTable("modelprecache");
+    
+                if (modelPrecacheTable) {
+                    Interfaces::modelInfo->findOrLoadModel(modelName);
+                    int idx = modelPrecacheTable->addString(false, modelName);
+                    if (idx == -1)
+                        return false;
+                    return true;
+                }
+                return false;
+        }
+        int getModelIndex(const char* modelName) { return Interfaces::modelInfo->getModelIndex(modelName); }
     }
 
     namespace Pred {
@@ -672,6 +687,8 @@ namespace Lua {
                 .addFunction("onDataChanged", &LuaEntity::onDataChanged)
                 .addFunction("preDataUpdate", &LuaEntity::preDataUpdate)
                 .addFunction("postDataUpdate", &LuaEntity::postDataUpdate)
+                .addFunction("setModelIndex", &LuaEntity::setModelIndex)
+                .addFunction("getModelIndex", &LuaEntity::getModelIndex)
                 .addFunction("teammate", &LuaEntity::teammate)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
@@ -733,6 +750,8 @@ namespace Lua {
                 .addFunction("getInterface", Mem::getInterface)
                 .addFunction("getAbsoluteAddress", Mem::getAbsoluteAddress)
                 .addFunction("patternScan", Memory::patternScan)
+                .addFunction("precacheModel", Mem::precacheModel)
+                .addFunction("getModelIndex", Mem::getModelIndex)
             .endNamespace()
             .beginNamespace("prediction")
                 .addFunction("start", Pred::start)
