@@ -31,4 +31,4 @@ include_directories(/usr/local/include /usr/include/freetype2)
 link_directories(/usr/local/lib src)
 
 add_library(eclipse SHARED ${SOURCES})
-target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk curl)
+target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk ssl crypto)

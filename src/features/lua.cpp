@@ -1,5 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/gl.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include "httplib/httplib.hpp"
 #include "lua.hpp"
 #include "../interfaces.hpp"
 #include "../hooks.hpp"
@@ -595,6 +597,19 @@ namespace Lua {
             curDrawList->PopClipRect();
         }
     }
+    
+    namespace Web {
+        struct WebResult {
+            int status;
+            std::string body;
+        };
+
+        WebResult get(const char* host, const char* path) {
+            httplib::Client cli(host);
+            auto res = cli.Get(path);
+            return {res->status, res->body};
+        }
+    }
 
     void bridge(lua_State* L) {
         luabridge::getGlobalNamespace(L)
@@ -870,6 +885,14 @@ namespace Lua {
                 .addFunction("loadImage", Draw::loadImage)
                 .addFunction("drawImage", Draw::drawImage)
                 .addFunction("drawBlurRect", Draw::drawBlurRect)
+            .endNamespace()
+            .beginNamespace("web")
+                .beginClass<Web::WebResult>("WebResult")
+                    .addProperty("status", &Web::WebResult::status)
+                    .addProperty("body", &Web::WebResult::body)
+                .endClass()
+                .addFunction("get", Web::get)
+                .addFunction("getFile", Web::getFile)
             .endNamespace();
     }
 
