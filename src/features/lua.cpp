@@ -892,7 +892,7 @@ namespace Lua {
                     .addProperty("body", &Web::WebResult::body)
                 .endClass()
                 .addFunction("get", Web::get)
-                .addFunction("getFile", Web::getFile)
+                //.addFunction("getFile", Web::getFile)
             .endNamespace();
     }
 
