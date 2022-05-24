@@ -12,6 +12,7 @@
 #include "../features/chams.hpp"
 #include "../features/glow.hpp"
 #include "../features/skinchanger.hpp"
+#include "../features/legitbot.hpp"
 #include "../sdk/entity.hpp"
 #include "../features/luabridge/LuaBridge.h"
 #include "keybinders.hpp"
@@ -123,7 +124,10 @@ namespace Menu {
         BlurEffect::newFrame();
 
         if (Menu::menuOpen) {
-            BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
+            auto gay = false;
+			if(gay) {
+				BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
+			}
         }
 
         static float timeSinceLastTick = 0.f;
@@ -214,6 +218,47 @@ namespace Menu {
 
                     ImGui::SetCursorPos(ImVec2(6, 42));
 
+                    const auto hitboxSelectBox = [&](const char* configVarName) { // TODO: move this somewhere else, idk where
+                        ImGui::Text("hitboxes");
+                        ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
+
+                        int curSelected = CONFIGINT(configVarName);
+
+                        std::stringstream selectedHitboxes;
+                        selectedHitboxes << (curSelected & (int)Legitbot::HitBoxes::HEAD ? "head, " : "")
+                                         << (curSelected & (int)Legitbot::HitBoxes::NECK ? "neck, " : "")
+                                         << (curSelected & (int)Legitbot::HitBoxes::CHEST ? "chest, " : "")
+                                         << (curSelected & (int)Legitbot::HitBoxes::STOMACH ? "stomach, " : "")
+                                         << (curSelected & (int)Legitbot::HitBoxes::PELVIS ? "pelvis, " : "");
+
+                        if (ImGui::BeginCombo("##HitBoxes", selectedHitboxes.str().c_str())) {
+                            if (ImGui::Selectable("head", curSelected & (int)Legitbot::HitBoxes::HEAD,
+                                                  ImGuiSelectableFlags_DontClosePopups))
+                                curSelected ^= (int)Legitbot::HitBoxes::HEAD;
+
+                            if (ImGui::Selectable("neck", curSelected & (int)Legitbot::HitBoxes::NECK,
+                                                  ImGuiSelectableFlags_DontClosePopups))
+                                curSelected ^= (int)Legitbot::HitBoxes::NECK;
+
+                            if (ImGui::Selectable("chest", curSelected & (int)Legitbot::HitBoxes::CHEST,
+                                                  ImGuiSelectableFlags_DontClosePopups))
+                                curSelected ^= (int)Legitbot::HitBoxes::CHEST;
+
+                            if (ImGui::Selectable("stomach", curSelected & (int)Legitbot::HitBoxes::STOMACH,
+                                                  ImGuiSelectableFlags_DontClosePopups))
+                                curSelected ^= (int)Legitbot::HitBoxes::STOMACH;
+
+                            if (ImGui::Selectable("pelvis", curSelected & (int)Legitbot::HitBoxes::PELVIS,
+                                                  ImGuiSelectableFlags_DontClosePopups))
+                                curSelected ^= (int)Legitbot::HitBoxes::PELVIS;
+
+                            // CONFIGINT(configVarName) = curSelected; // expression must be a modifiable lvalueC/C++(137)
+                            CONFIGFLOAT(configVarName) = curSelected;
+
+                            ImGui::EndCombo();
+                        }
+                    };
+
                     switch (curSubTab) {
                         case 0: { // default
                             BEGINGROUPBOX("default legitbot", ImVec2(438, 214));
@@ -221,9 +266,11 @@ namespace Menu {
                             ImGui::SameLine();
                             drawKeyBinder("legitbot key");
                             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
-                            ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0, 180, "%.2f");
-                            SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0, 100, "%.2f");
+                            ImGui::SliderFloat("##fov", &CONFIGFLOAT("default fov"), 0.f, 180.f, "%.2f");
+                            CHECKBOX("distance based fov", &CONFIGBOOL("default distance fov"));
+                            SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0.f, 100.f, "%.2f");
                             CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
+                            hitboxSelectBox("default hitboxes");
                             ENDGROUPBOX();
                             break;
                         }
@@ -233,9 +280,11 @@ namespace Menu {
                             if (CONFIGBOOL("pistol override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                SLIDERFLOAT("fov", &CONFIGFLOAT("pistol fov"), 0, 180, "%.2f");
-                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("pistol smoothing"), 0, 100, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("pistol fov"), 0.f, 180.f, "%.2f");
+                                CHECKBOX("distance based fov", &CONFIGBOOL("pistol distance fov"));
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("pistol smoothing"), 0.f, 100.f, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("pistol linear"));
+                                hitboxSelectBox("pistol hitboxes");
                             }
                             ENDGROUPBOX();
                             break;
@@ -246,9 +295,11 @@ namespace Menu {
                             if (CONFIGBOOL("heavy pistol override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                SLIDERFLOAT("fov", &CONFIGFLOAT("heavy pistol fov"), 0, 180, "%.2f");
-                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("heavy pistol smoothing"), 0, 100, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("heavy pistol fov"), 0.f, 180.f, "%.2f");
+                                CHECKBOX("distance based fov", &CONFIGBOOL("heavy pistol distance fov"));
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("heavy pistol smoothing"), 0.f, 100.f, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("heavy pistol linear"));
+                                hitboxSelectBox("heavy pistol hitboxes");
                             }
                             ENDGROUPBOX();
                             break;
@@ -259,9 +310,11 @@ namespace Menu {
                             if (CONFIGBOOL("rifle override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                SLIDERFLOAT("fov", &CONFIGFLOAT("rifle fov"), 0, 180, "%.2f");
-                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("rifle smoothing"), 0, 100, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("rifle fov"), 0.f, 180.f, "%.2f");
+                                CHECKBOX("distance based fov", &CONFIGBOOL("rifle distance fov"));
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("rifle smoothing"), 0.f, 100.f, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("rifle linear"));
+                                hitboxSelectBox("rifle hitboxes");
                             }
                             ENDGROUPBOX();
                             break;
@@ -272,9 +325,11 @@ namespace Menu {
                             if (CONFIGBOOL("scout override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                SLIDERFLOAT("fov", &CONFIGFLOAT("scout fov"), 0, 180, "%.2f");
-                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("scout smoothing"), 0, 100, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("scout fov"), 0.f, 180.f, "%.2f");
+                                CHECKBOX("distance based fov", &CONFIGBOOL("scout distance fov"));
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("scout smoothing"), 0.f, 100.f, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("scout linear"));
+                                hitboxSelectBox("scout hitboxes");
                             }
                             ENDGROUPBOX();
                             break;
@@ -285,9 +340,11 @@ namespace Menu {
                             if (CONFIGBOOL("AWP override")) {
                                 ImGui::SameLine();
                                 drawKeyBinder("legitbot key");
-                                SLIDERFLOAT("fov", &CONFIGFLOAT("AWP fov"), 0, 180, "%.2f");
-                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("AWP smoothing"), 0, 100, "%.2f");
+                                SLIDERFLOAT("fov", &CONFIGFLOAT("AWP fov"), 0.f, 180.f, "%.2f");
+                                CHECKBOX("distance based fov", &CONFIGBOOL("AWP distance fov"));
+                                SLIDERFLOAT("smoothing", &CONFIGFLOAT("AWP smoothing"), 0.f, 100.f, "%.2f");
                                 CHECKBOX("linear smoothing", &CONFIGBOOL("AWP linear"));
+                                hitboxSelectBox("AWP hitboxes");
                             }
                             ENDGROUPBOX();
                             break;
@@ -304,7 +361,11 @@ namespace Menu {
                     ImGui::SetCursorPos(ImVec2(228, 262));
 
                     BEGINGROUPBOX("triggerbot", ImVec2(216, 131));
-                    
+                        CHECKBOX("active", &CONFIGBOOL("triggerbot active"));
+                        ImGui::SameLine();
+                        drawKeyBinder("triggerbot key");
+                        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
+                        SLIDERFLOAT("hitchance", &CONFIGFLOAT("hitchance"), 0, 100, "%.0f%%");
                     ENDGROUPBOX();
                     break;
                 }
@@ -414,7 +475,7 @@ namespace Menu {
                         }
                         case 2: { /* World */
                             BEGINGROUPBOX("world", ImVec2(216, 154));
-                                SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0, 1, "%.2f");
+                                SLIDERFLOAT("nightmode", &CONFIGFLOAT("nightmode"), 0.f, 1.f, "%.2f");
 
                                 CHECKBOX("remove 3d skybox", &CONFIGBOOL("remove 3d skybox"));
                                 static int curSkyBoxSelected = CONFIGINT("skybox");
@@ -542,7 +603,7 @@ namespace Menu {
 
                                     strcpy(buf2, buf);
                                     strcat(buf2, " wear");
-                                    SLIDERFLOAT("wear", &CONFIGFLOAT(buf2), 0, 1, "%.3f");
+                                    SLIDERFLOAT("wear", &CONFIGFLOAT(buf2), 0.f, 1.f, "%.3f");
 
                                     strcpy(buf2, buf);
                                     strcat(buf2, " stattrack");

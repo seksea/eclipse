@@ -37,6 +37,8 @@ class Entity {
 
 	bool visCheck();
 
+	bool canShoot();
+
 	void* renderable() {
 		return reinterpret_cast<void*>(uintptr_t(this) + 0x8);
 	}
@@ -53,6 +55,9 @@ class Entity {
     VFUNC(bool, setupBones, 13, (matrix3x4_t* boneMatrix, int maxBones, int boneMask, float curTime = 0), (renderable(), boneMatrix, maxBones, boneMask, curTime))
 
     VFUNC(Vector&, origin, 12, (), (this))
+
+	VFUNC(float, getSpread, 521, (), (this))
+	VFUNC(float, getInaccuracy, 551, (), (this))
 
 	bool teammate() {
 		if (strstr(Interfaces::engine->getLevelName(), "dz_")) return false;

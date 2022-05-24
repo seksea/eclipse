@@ -28,6 +28,21 @@ bool Entity::visCheck() {
             !Interfaces::lineGoesThroughSmoke(EntityCache::localPlayer->eyepos(), this->eyepos(), 1);
 }
 
+bool Entity::canShoot() {
+    const float serverTime = TICKS_TO_TIME(this->nDT_LocalPlayerExclusive__m_nTickBase());
+    Entity* weapon = (Entity*)Interfaces::entityList->getClientEntity(
+         (uintptr_t)this->nDT_BaseCombatCharacter__m_hActiveWeapon() & 0xFFF);
+    if (!weapon) return false;
+    if (!weapon->nDT_BaseCombatWeapon__m_iClip1()) return false;
+    if (this->nDT_BCCLocalPlayerExclusive__m_flNextAttack() > serverTime) return false;
+    if (weapon->nDT_LocalActiveWeaponData__m_flNextPrimaryAttack() > serverTime) return false;
+    if (weapon->nDT_ScriptCreatedItem__m_iItemDefinitionIndex() == ItemIndex::WEAPON_REVOLVER &&
+        weapon->nDT_WeaponCSBase__m_flPostponeFireReadyTime() > serverTime)
+        return false;
+
+    return true;
+}
+
 void EntityCache::cacheEntities() {
     EntityCache::localPlayer = Interfaces::entityList->getClientEntity(Interfaces::engine->getLocalPlayer());
     std::lock_guard<std::mutex> lock(entityCacheLock);

@@ -6,20 +6,63 @@
 
 #include "../menu/keybinders.hpp"
 
+Entity* findPlayerThatRayHits(Vector start, Vector end, Trace* traceToPlayer) {
+    Ray ray;
+    ray.Init(start, end);
+    TraceFilter filter;
+    filter.pSkip = EntityCache::localPlayer;
+    //   hitbox  |  monster  | solid
+    Interfaces::trace->traceRay(ray, (0x40000000 | 0x40000 | 0x1), &filter, traceToPlayer);
+
+    return traceToPlayer->m_pEntityHit;
+}
+
 namespace Legitbot {
-    void run(CUserCmd* cmd) {
+    bool shouldHit(QAngle viewAngles, int minChance) {
+        if (!EntityCache::localPlayer || !EntityCache::localPlayer->canShoot()) return false;
+        Entity* activeWeapon = Interfaces::entityList->getClientEntity(
+             EntityCache::localPlayer->nDT_BaseCombatCharacter__m_hActiveWeapon() & 0xfff);
+        if (!activeWeapon) return false;
+
+        Vector endPos;
+        Trace traceToPlayer;
+        int hitChance = 0;
+
+        float spread = RAD2DEG(activeWeapon->getInaccuracy() + activeWeapon->getSpread());
+        for (int i = 0; i < 100 && hitChance < minChance; i++) {
+            QAngle randomSpreadAngle = {randFloat(0, spread) - (spread / 2), randFloat(0, spread) - (spread / 2),
+                                        randFloat(0, spread) - (spread / 2)};
+
+            angleVectors(viewAngles + randomSpreadAngle, endPos);
+
+            endPos = EntityCache::localPlayer->eyepos() + (endPos *= 4096.f);
+
+            Entity* e = findPlayerThatRayHits(EntityCache::localPlayer->eyepos(), endPos, &traceToPlayer);
+            if (!e || e == EntityCache::localPlayer || e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() ||
+                e->nDT_CSPlayer__m_bGunGameImmunity())
+                continue;
+
+            hitChance++;
+        }
+
+        return hitChance >= minChance;
+    }
+
+    void aimbot(CUserCmd* cmd) {
         float fov = CONFIGFLOAT("default fov");
         float smoothing = CONFIGFLOAT("default smoothing");
+        int hitboxes = CONFIGINT("default hitboxes");
         bool accountRecoil = true;
+        bool distanceFov = CONFIGBOOL("default distance fov");
         bool linearSmoothing = CONFIGBOOL("default linear");
 
         if (!EntityCache::localPlayer || !EntityCache::localPlayer->nDT_BaseCombatCharacter__m_hActiveWeapon())
             return;
         
         Entity* activeWeapon = Interfaces::entityList->getClientEntity(EntityCache::localPlayer->nDT_BaseCombatCharacter__m_hActiveWeapon() & 0xfff);
-        if (!activeWeapon)
+        if (!activeWeapon || activeWeapon->clientClass()->m_ClassID == CKnife)
             return;
-
+        
         switch(activeWeapon->nDT_ScriptCreatedItem__m_iItemDefinitionIndex()) {
             case WEAPON_ELITE:
             case WEAPON_FIVESEVEN:
@@ -29,23 +72,27 @@ namespace Legitbot {
             case WEAPON_P250:
             case WEAPON_USP_SILENCER:
             case WEAPON_CZ75A: {
-                accountRecoil = false;
+                //accountRecoil = false;
 
                 if (!CONFIGBOOL("pistol override"))
                     break;
                 fov = CONFIGFLOAT("pistol fov");
                 smoothing = CONFIGFLOAT("pistol smoothing");
+                hitboxes = CONFIGINT("pistol hitboxes");
+                distanceFov = CONFIGBOOL("pistol distance fov");
                 linearSmoothing = CONFIGBOOL("pistol linear");
                 break;
             }
             case WEAPON_DEAGLE:
             case WEAPON_REVOLVER: {
-                accountRecoil = false;
+                accountRecoil = false; // we want the rest of the pistols besides deagle and revolvo to account for recoil
 
                 if (!CONFIGBOOL("heavy pistol override"))
                     break;
                 fov = CONFIGFLOAT("heavy pistol fov");
                 smoothing = CONFIGFLOAT("heavy pistol smoothing");
+                hitboxes = CONFIGINT("heavy pistol hitboxes");
+                distanceFov = CONFIGBOOL("heavy pistol distance fov");
                 linearSmoothing = CONFIGBOOL("heavy pistol linear");
                 break;
             }
@@ -58,10 +105,13 @@ namespace Legitbot {
             case WEAPON_SCAR20:
             case WEAPON_SG556:
             case WEAPON_M4A1_SILENCER: {
+
                 if (!CONFIGBOOL("rifle override"))
                     break;
                 fov = CONFIGFLOAT("rifle fov");
                 smoothing = CONFIGFLOAT("rifle smoothing");
+                hitboxes = CONFIGINT("rifle hitboxes");
+                distanceFov = CONFIGBOOL("rifle distance fov");
                 linearSmoothing = CONFIGBOOL("rifle linear");
                 break;
             }
@@ -72,6 +122,8 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("scout fov");
                 smoothing = CONFIGFLOAT("scout smoothing");
+                hitboxes = CONFIGINT("scout hitboxes");
+                distanceFov = CONFIGBOOL("scout distance fov");
                 linearSmoothing = CONFIGBOOL("scout linear");
                 break;
             }
@@ -82,6 +134,8 @@ namespace Legitbot {
                     break;
                 fov = CONFIGFLOAT("AWP fov");
                 smoothing = CONFIGFLOAT("AWP smoothing");
+                hitboxes = CONFIGINT("AWP hitboxes");
+                distanceFov = CONFIGBOOL("AWP distance fov");
                 linearSmoothing = CONFIGBOOL("AWP linear");
                 break;
             }
@@ -96,35 +150,59 @@ namespace Legitbot {
                         continue;
                     Entity* e = Interfaces::entityList->getClientEntity(p.first);
                     if (!e || e == EntityCache::localPlayer || 
-                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck())
+                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() || e->nDT_CSPlayer__m_bGunGameImmunity())
                         continue;
-                    
-                    Vector targetBonePos = Vector(p.second.boneMatrix[8][0][3], p.second.boneMatrix[8][1][3], p.second.boneMatrix[8][2][3]);
 
-                    QAngle angleToCurrentBone = calcAngle(EntityCache::localPlayer->eyepos(), targetBonePos) -
-                                cmd->viewangles - (accountRecoil ? (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2) : QAngle(0, 0, 0));
-                    
-                    angleToCurrentBone.y = fmod(angleToCurrentBone.y + cmd->viewangles.y + 180.f, 360.f) - 180.f - cmd->viewangles.y;
+                    const int bones[5] = {8, 7, 6, 5, 3}; // TODO: make more sekc
+                    for (int i = 0; i < 5; i++) {
+                        int bone;
+                        if(hitboxes & 1 << i)
+                            bone = bones[i];
+                        else
+                            continue;
+                        Vector targetBonePos = Vector(p.second.boneMatrix[bone][0][3], p.second.boneMatrix[bone][1][3],
+                                                      p.second.boneMatrix[bone][2][3]);
 
-                    if (angleToCurrentBone.Length() < closestBoneDelta) {
-                        closestBoneDelta = angleToCurrentBone.Length();
-                        angleToClosestBone = angleToCurrentBone;
+                        QAngle angleToCurrentBone = calcAngle(EntityCache::localPlayer->eyepos(), targetBonePos) -
+                             cmd->viewangles -
+                             (accountRecoil ? (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2) : QAngle(0, 0, 0));
+
+                        angleToCurrentBone.y =
+                             fmod(angleToCurrentBone.y + cmd->viewangles.y + 180.f, 360.f) - 180.f - cmd->viewangles.y;
+
+                        if (angleToCurrentBone.Length() < closestBoneDelta) {
+                            if (distanceFov) {
+                                const float meterToInch = 39.37008f;
+                                const float minDist = 5.f * meterToInch;
+                                float curDist =
+                                     std::max((EntityCache::localPlayer->eyepos() - targetBonePos).Length(), minDist);
+                                if (angleToCurrentBone.Length() > fov * (minDist / curDist)) continue;
+                            }
+                            closestBoneDelta = angleToCurrentBone.Length();
+                            angleToClosestBone = angleToCurrentBone;
+                        }
                     }
                 }
+                if(smoothing == 0 && CONFIGINT("hitchance") > 0) break;
             }
             if (closestBoneDelta < fov) {
-                if (smoothing == 0) { // if smoothing is 0 don't do smoothing calculations
+                if (smoothing == 0) {  // if smoothing is 0 don't do smoothing calculations
+                    if (CONFIGINT("hitchance") > 0 &&
+                        !shouldHit(
+                             cmd->viewangles + angleToClosestBone + EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2,
+                             CONFIGINT("hitchance")))
+                        return;
                     cmd->viewangles += angleToClosestBone;
                     Interfaces::engine->setViewAngles(cmd->viewangles);
                     return;
                 }
-                
+
                 // calculate smoothing
                 if (!linearSmoothing) {
                     cmd->viewangles += angleToClosestBone / (1 + smoothing);
                 }
                 else {
-                    float coeff = (1.0f - (smoothing/100)) / angleToClosestBone.Length() * 4.f;
+                    float coeff = (1.0f - (smoothing/100)) / std::max(1.f, angleToClosestBone.Length()) * 4.f;
                     coeff = std::min(1.f, coeff);
 
                     cmd->viewangles += angleToClosestBone * coeff;
@@ -133,5 +211,50 @@ namespace Legitbot {
                 Interfaces::engine->setViewAngles(cmd->viewangles);
             }
         }
+    }
+
+    void triggerbot(CUserCmd* cmd) {
+        if (!EntityCache::localPlayer) return;
+        if (!CONFIGBOOL("triggerbot active") ||
+            (CONFIGBIND("triggerbot key").key && !isKeyBinderPressed(&CONFIGBIND("triggerbot key"))))
+            return;
+
+        auto viewAngles = cmd->viewangles + EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2;
+
+        static bool shotLast = false;
+        if (CONFIGINT("hitchance") > 0) {
+            if (shouldHit(viewAngles, CONFIGINT("hitchance"))) {
+                if (!shotLast) {
+                    cmd->buttons |= IN_ATTACK;
+                    shotLast = true;
+                } else {
+                    shotLast = false;
+                }
+            }
+        } else {
+            Vector endPos;
+            Trace traceToPlayer;
+
+            angleVectors(viewAngles, endPos);
+
+            endPos = EntityCache::localPlayer->eyepos() + (endPos *= 4096.f);
+
+            Entity* e = findPlayerThatRayHits(EntityCache::localPlayer->eyepos(), endPos, &traceToPlayer);
+            if (!e || e == EntityCache::localPlayer || e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() ||
+                e->nDT_CSPlayer__m_bGunGameImmunity())
+                return;
+
+            if (!shotLast) {
+                cmd->buttons |= IN_ATTACK;
+                shotLast = true;
+            } else {
+                shotLast = false;
+            }
+        }
+    }
+
+    void run(CUserCmd* cmd) {
+        aimbot(cmd);
+        triggerbot(cmd);
     }
 }

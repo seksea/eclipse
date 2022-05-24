@@ -1622,6 +1622,28 @@ inline void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& o
 
 QAngle calcAngle(const Vector& src, const Vector& dst);
 
+inline void angleVectors(const QAngle &angles, Vector& forward) {
+	forward.x = cos(DEG2RAD(angles.x)) * cos(DEG2RAD(angles.y));
+	forward.y = cos(DEG2RAD(angles.x)) * sin(DEG2RAD(angles.y));
+	forward.z = -sin(DEG2RAD(angles.x));
+}
+
+inline void vectorAngles(const Vector& vec, QAngle& angles) {
+    float pitch, yaw;
+    if (!(vec.x || vec.y)) {
+        pitch = vec.z > 0 ? 270.f : 90.f;
+        yaw = 0.f;
+    } else {
+        pitch = atan2f(-vec.z, vec.Length2D()) * 180.f / M_PI;
+        if (pitch < 0.f) pitch += 360.f;
+        yaw = atan2f(vec.y, vec.x) * 180.f / M_PI;
+        if (yaw < 0.f) yaw += 360.f;
+    }
+    angles.x = pitch;
+    angles.y = yaw;
+    angles.z = 0.f;
+}
+
 class Entity;
 ImVec4 getBoundingBox(Entity* e);
 
@@ -1630,3 +1652,7 @@ bool worldToScreen(const Vector& origin, Vector& screen);
 
 void startMovementFix(class CUserCmd* cmd);
 void endMovementFix(class CUserCmd* cmd);
+
+inline float randFloat(float min, float max) {
+    return min + ((((float)rand()) / (float)RAND_MAX) * (max - min));
+}

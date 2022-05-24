@@ -52,7 +52,7 @@ namespace Chams {
         }
 
         Entity* ent = Interfaces::entityList->getClientEntity(pInfo.entity_index);
-        if (!ent || !EntityCache::localPlayer || ent->nDT_BasePlayer__m_iHealth() == 0) {
+        if (!ent || !EntityCache::localPlayer || ent->nDT_BasePlayer__m_iHealth() == 0 || ent->nDT_CSPlayer__m_bGunGameImmunity()) {
             Hooks::DrawModelExecute::original(thisptr, ctx, state, pInfo, pCustomBoneToWorld);
             return;
         }

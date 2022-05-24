@@ -445,7 +445,7 @@
 	NETVAR("DT_CSPlayer", "m_angEyeAngles[1]", nDT_CSPlayer__m_angEyeAngles1, float) \
 	NETVAR("DT_CSPlayer", "m_bCanControlObservedBot", nDT_CSPlayer__m_bCanControlObservedBot, int) \
 	NETVAR("DT_CSPlayer", "m_bCanMoveDuringFreezePeriod", nDT_CSPlayer__m_bCanMoveDuringFreezePeriod, int) \
-	NETVAR("DT_CSPlayer", "m_bGunGameImmunity", nDT_CSPlayer__m_bGunGameImmunity, int) \
+	NETVAR("DT_CSPlayer", "m_bGunGameImmunity", nDT_CSPlayer__m_bGunGameImmunity, bool) \
 	NETVAR("DT_CSPlayer", "m_bHasControlledBotThisRound", nDT_CSPlayer__m_bHasControlledBotThisRound, int) \
 	NETVAR("DT_CSPlayer", "m_bHasDefuser", nDT_CSPlayer__m_bHasDefuser, int) \
 	NETVAR("DT_CSPlayer", "m_bHasHeavyArmor", nDT_CSPlayer__m_bHasHeavyArmor, int) \
