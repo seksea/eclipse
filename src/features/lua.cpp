@@ -285,6 +285,10 @@ namespace Lua {
             int contents;
             float slopeAngle;
             LuaEntity entityHit;
+            Vector startpos;
+            Vector endpos;
+            bool allsolid;
+            bool startsolid;
         };
         
         TraceResult trace(Vector begin, Vector end, LuaEntity skip, unsigned int mask) {
@@ -296,7 +300,7 @@ namespace Lua {
             ray.Init(begin, end);
             Interfaces::trace->traceRay(ray, mask, &filter, &trace);
 
-            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit)};
+            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit), trace.startpos, trace.endpos, trace.allsolid, trace.startsolid};
         }
         
         TraceResult traceHull(Vector start, Vector end, Vector min, Vector max, LuaEntity skip, unsigned int mask) {
@@ -308,7 +312,7 @@ namespace Lua {
             ray.Init(start, end, min, max);
             Interfaces::trace->traceRay(ray, mask, &filter, &trace);
 
-            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit)};
+            return {trace.fraction, trace.surface.name, trace.hitgroup, trace.hitbox, trace.contents, trace.plane.normal.z, LuaEntity(trace.m_pEntityHit), trace.startpos, trace.endpos, trace.allsolid, trace.startsolid};
         }
 
         TraceResult traceHullSimple(Vector start, Vector end, Vector min, Vector max) {
@@ -795,6 +799,10 @@ namespace Lua {
                     .addProperty("hitgroup", &TraceRay::TraceResult::hitgroup)
                     .addProperty("surfaceName", &TraceRay::TraceResult::surfaceName)
                     .addProperty("slopeAngle", &TraceRay::TraceResult::slopeAngle)
+                    .addProperty("startpos", &TraceRay::TraceResult::startpos)
+                    .addProperty("endpos", &TraceRay::TraceResult::endpos)
+                    .addProperty("allsolid", &TraceRay::TraceResult::allsolid)
+                    .addProperty("startsolid", &TraceRay::TraceResult::startsolid)
                 .endClass()
                 .addFunction("trace", TraceRay::trace)
                 .addFunction("traceSimple", TraceRay::traceSimple)
