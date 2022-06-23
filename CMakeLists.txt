@@ -11,13 +11,13 @@ if(USE_CLANG STREQUAL "true")
   set(CMAKE_C_COMPILER "/usr/bin/clang")
   set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
-  set(CMAKE_C_FLAGS_RELEASE "-W -Wall -Wextra -O3 -fvisibility=hidden -flto")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -std=c++2a -Wall -Wextra")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -fvisibility=hidden -flto")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -std=c++2a")
 else()
   set(CMAKE_C_COMPILER "/usr/bin/gcc")
   set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-  set(CMAKE_C_FLAGS_RELEASE "-W -Wall -Wextra -O3 -s -fvisibility=hidden -flto -fwhole-program -Wl,--strip-all")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -s -fvisibility=hidden -flto -fwhole-program -Wl,--strip-all")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} --no-gnu-unique -std=c++2a")
 endif()
 
@@ -31,4 +31,4 @@ include_directories(/usr/local/include /usr/include/freetype2)
 link_directories(/usr/local/lib src)
 
 add_library(eclipse SHARED ${SOURCES})
-target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk curl)
+target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk ssl crypto)

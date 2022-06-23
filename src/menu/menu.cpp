@@ -121,13 +121,9 @@ namespace Menu {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
-        BlurEffect::newFrame();
 
-        if (Menu::menuOpen) {
-            auto gay = false;
-			if(gay) {
-				BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
-			}
+        if (Menu::menuOpen && !CONFIGBOOL("disable blur")) {
+            BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
         }
 
         static float timeSinceLastTick = 0.f;
@@ -540,16 +536,12 @@ namespace Menu {
                     static int curSubTab = 0;
                     static int lastCurSubTab = 0;
                     if (lastCurSubTab == 0) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                    if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 0;
+                    if (ImGui::Button("misc", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 0;
                     if (lastCurSubTab == 0) ImGui::PopStyleColor();
                     ImGui::SameLine();
                     if (lastCurSubTab == 1) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                    if (ImGui::Button("skins", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 1;
+                    if (ImGui::Button("skins", ImVec2(ImGui::GetWindowWidth()/2, ImGui::GetWindowHeight()))) curSubTab = 1;
                     if (lastCurSubTab == 1) ImGui::PopStyleColor();
-                    ImGui::SameLine();
-                    if (lastCurSubTab == 2) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                    if (ImGui::Button("models", ImVec2(ImGui::GetWindowWidth()/3, ImGui::GetWindowHeight()))) curSubTab = 2;
-                    if (lastCurSubTab == 2) ImGui::PopStyleColor();
                     lastCurSubTab = curSubTab;
                     ImGui::PopStyleColor();
                     ImGui::PopStyleColor();
@@ -568,14 +560,15 @@ namespace Menu {
                                 CHECKBOX("auto accept", &CONFIGBOOL("auto accept"));
                                 CHECKBOX("rank reveal", &CONFIGBOOL("rank reveal"));
                                 CHECKBOX("sv_pure bypass", &CONFIGBOOL("sv_pure bypass"));
+                                CHECKBOX("clantag", &CONFIGBOOL("clantag"));
                                 bool alwaysFalse = false;
                                 CHECKBOX("insecure bypass", Interfaces::insecure ? &CONFIGBOOL("insecure bypass") : &alwaysFalse);
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(6, 262));
 
-                            BEGINGROUPBOX("clantag", ImVec2(216, 131));
-
+                            BEGINGROUPBOX("menu settings", ImVec2(216, 131));
+                                CHECKBOX("disable blur", &CONFIGBOOL("disable blur"));
                             ENDGROUPBOX();
 
                             ImGui::SetCursorPos(ImVec2(228, 262));
@@ -620,49 +613,6 @@ namespace Menu {
                                 int temp = CONFIGINT("knife model");
                                 COMBOBOX("knife model", &temp, SkinChanger::knives, IM_ARRAYSIZE(SkinChanger::knives));
                                 CONFIGFLOAT("knife model") = temp;
-                            ENDGROUPBOX();
-                            break;
-                        }
-                        case 2: { /* models */
-                            BEGINGROUPBOX("model changer", ImVec2(438, 164));
-                                ImGui::TextWrapped("To use the model changer put the name of the model you wish to change on the top and the target model on the bottom.");
-
-                                for (int i = 0; i < 128; i++) {
-                                    char countStr[5] = "";
-                                    SDL_itoa(i, countStr, 10);
-                                    
-                                    char nameStr[64] = "##modelchanger input ";
-                                    strcat(nameStr, countStr);
-                                    char buf[512] = "";
-                                    strcat(buf, CONFIGSTR(nameStr).c_str());
-                                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-                                    ImGui::InputText(nameStr, buf, sizeof(buf));
-                                    CONFIGSTR(nameStr) = buf;
-                                    
-                                    char nameStr2[64] = "##modelchanger output ";
-                                    strcat(nameStr2, countStr);
-                                    char buf2[512] = "";
-                                    strcat(buf2, CONFIGSTR(nameStr2).c_str());
-                                    ImGui::SetNextItemWidth(ImGui::GetWindowContentRegionWidth());
-                                    ImGui::InputText(nameStr2, buf2, sizeof(buf2));
-                                    CONFIGSTR(nameStr2) = buf2;
-
-                                    ImGui::Separator();
-                                    ImGui::Separator();
-                                    ImGui::Separator();
-                                }
-
-                                SkinChanger::updateModelChanges();
-                            ENDGROUPBOX();
-
-                            BEGINGROUPBOX("custom model list", ImVec2(438, 181));
-                                for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator("csgo/models")) {
-                                    if (entry.is_regular_file() && strstr(entry.path().extension().string().c_str(), "mdl")) {
-                                        if (ImGui::Button(entry.path().string().substr(5).c_str(), ImVec2(ImGui::GetWindowContentRegionWidth(), 0))) {
-                                            SDL_SetClipboardText(entry.path().string().substr(5).c_str());
-                                        }
-                                    }
-                                }
                             ENDGROUPBOX();
                             break;
                         }

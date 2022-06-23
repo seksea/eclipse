@@ -1,11 +1,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <GL/gl.h>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include "httplib/httplib.hpp"
 #include "lua.hpp"
 #include "../interfaces.hpp"
 #include "../hooks.hpp"
 #include "../util/log.hpp"
 #include "../menu/config.hpp"
 #include "../menu/menu.hpp"
+#include "../menu/blur/blur.hpp"
 #include "../menu/imgui/imgui_internal.h"
 #include "../menu/imgui/imgui_freetype.h"
 #include "../menu/imgui/imgui_impl_opengl3.h"
@@ -44,6 +47,8 @@ namespace Lua {
         void onDataChanged(int updateType) { e->onDataChanged(updateType); }
         void preDataUpdate(int updateType) { e->preDataUpdate(updateType); }
         void postDataUpdate(int updateType) { e->postDataUpdate(updateType); }
+        void setModelIndex(int modelIndex) { e->setModelIndex(modelIndex); }
+        int getModelIndex() { return e->nDT_BaseEntity__m_nModelIndex(); }
 
         Vector origin() {return e->origin();}
         Vector velocity() {return Vector(e->nDT_LocalPlayerExclusive__m_vecVelocity0(), e->nDT_LocalPlayerExclusive__m_vecVelocity1(), e->nDT_LocalPlayerExclusive__m_vecVelocity2()); }
@@ -144,6 +149,19 @@ namespace Lua {
         uintptr_t getInterface(const char* file, const char* name) { return (uintptr_t)Interfaces::getInterface<void*>(file, name); }
         uintptr_t getAbsoluteAddress(uintptr_t ptr, int offset, int size) { return (uintptr_t)Memory::getAbsoluteAddress(ptr, offset, size); }
         /* patternScan */
+        bool precacheModel(const char* modelName) {
+                INetworkStringTable* modelPrecacheTable = Interfaces::stringTableContainer->findTable("modelprecache");
+    
+                if (modelPrecacheTable) {
+                    Interfaces::modelInfo->findOrLoadModel(modelName);
+                    int idx = modelPrecacheTable->addString(false, modelName);
+                    if (idx == -1)
+                        return false;
+                    return true;
+                }
+                return false;
+        }
+        int getModelIndex(const char* modelName) { return Interfaces::modelInfo->getModelIndex(modelName); }
     }
 
     namespace Pred {
@@ -479,6 +497,9 @@ namespace Lua {
         
         void line(ImVec2 p1, ImVec2 p2, ImColor color, float thickness) { curDrawList->AddLine(p1, p2, color, thickness); }
 
+        void polygon(ImVec2 pos, float radius, ImColor color, float thickness, int nSides)                          { curDrawList->AddNgon(pos, radius, color, nSides, thickness); }
+        void filledPolygon(ImVec2 pos, float radius, ImColor color, int nSides)                          { curDrawList->AddNgonFilled(pos, radius, color, nSides); }
+
         void circle(ImVec2 center, float radius, ImColor color, float thickness)                        { curDrawList->AddCircle(center, radius, color, 0, thickness); }
         void filledCircle(ImVec2 center, float radius, ImColor color)                                   { curDrawList->AddCircleFilled(center, radius, color); }
 
@@ -568,6 +589,25 @@ namespace Lua {
             }
             
             curDrawList->AddImage((void*)(intptr_t)image.image, min, max);
+        }
+
+        void drawBlurRect(ImVec2 min, ImVec2 max, float strength) {
+            curDrawList->PushClipRect(min, max);
+            BlurEffect::draw(curDrawList, strength);
+            curDrawList->PopClipRect();
+        }
+    }
+    
+    namespace Web {
+        struct WebResult {
+            int status;
+            std::string body;
+        };
+
+        WebResult get(const char* host, const char* path) {
+            httplib::Client cli(host);
+            auto res = cli.Get(path);
+            return {res->status, res->body};
         }
     }
 
@@ -662,6 +702,8 @@ namespace Lua {
                 .addFunction("onDataChanged", &LuaEntity::onDataChanged)
                 .addFunction("preDataUpdate", &LuaEntity::preDataUpdate)
                 .addFunction("postDataUpdate", &LuaEntity::postDataUpdate)
+                .addFunction("setModelIndex", &LuaEntity::setModelIndex)
+                .addFunction("getModelIndex", &LuaEntity::getModelIndex)
                 .addFunction("teammate", &LuaEntity::teammate)
                 .addFunction("getPropBool", &LuaEntity::getProp<bool>)
                 .addFunction("getPropInt", &LuaEntity::getProp<int>)
@@ -723,6 +765,8 @@ namespace Lua {
                 .addFunction("getInterface", Mem::getInterface)
                 .addFunction("getAbsoluteAddress", Mem::getAbsoluteAddress)
                 .addFunction("patternScan", Memory::patternScan)
+                .addFunction("precacheModel", Mem::precacheModel)
+                .addFunction("getModelIndex", Mem::getModelIndex)
             .endNamespace()
             .beginNamespace("prediction")
                 .addFunction("start", Pred::start)
@@ -813,6 +857,9 @@ namespace Lua {
 
                 .addFunction("line", Draw::line)
 
+                .addFunction("polygon", Draw::polygon)
+                .addFunction("filledPolygon", Draw::filledPolygon)
+
                 .addFunction("circle", Draw::circle)
                 .addFunction("filledCircle", Draw::filledCircle)
 
@@ -837,6 +884,15 @@ namespace Lua {
                 .endClass()
                 .addFunction("loadImage", Draw::loadImage)
                 .addFunction("drawImage", Draw::drawImage)
+                .addFunction("drawBlurRect", Draw::drawBlurRect)
+            .endNamespace()
+            .beginNamespace("web")
+                .beginClass<Web::WebResult>("WebResult")
+                    .addProperty("status", &Web::WebResult::status)
+                    .addProperty("body", &Web::WebResult::body)
+                .endClass()
+                .addFunction("get", Web::get)
+                //.addFunction("getFile", Web::getFile)
             .endNamespace();
     }
 

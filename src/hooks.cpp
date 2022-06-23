@@ -15,6 +15,7 @@
 #include "features/legitbot.hpp"
 #include "features/skinchanger.hpp"
 #include "features/glow.hpp"
+#include "features/misc.hpp"
 
 namespace Hooks {
     void init() {
@@ -78,6 +79,7 @@ namespace Hooks {
             Interfaces::client->dispatchUserMessage(50, 0, 0, nullptr);
         }
 
+        Misc::clantag(cmd);
         Movement::bunnyhop(cmd);
 
         int commandsPredicted = Interfaces::prediction->Split->nCommandsPredicted-1;

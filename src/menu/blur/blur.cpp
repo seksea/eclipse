@@ -124,14 +124,6 @@ namespace BlurEffect {
         }
     }
 
-    void newFrame() {
-        if (const auto [width, height] = ImGui::GetIO().DisplaySize; backbufferWidth != static_cast<int>(width) || backbufferHeight != static_cast<int>(height)) {
-            clearTextures();
-            backbufferWidth = static_cast<int>(width);
-            backbufferHeight = static_cast<int>(height);
-        }
-    }
-
     void createTextures() noexcept {
         if (!blurTexture1)
             blurTexture1 = createTexture(backbufferWidth / blurDownsample, backbufferHeight / blurDownsample);
@@ -154,6 +146,12 @@ namespace BlurEffect {
     }
 
     void draw(ImDrawList* drawList, float alpha) noexcept {
+        if (const auto [width, height] = ImGui::GetIO().DisplaySize; backbufferWidth != static_cast<int>(width) || backbufferHeight != static_cast<int>(height)) {
+            clearTextures();
+            backbufferWidth = static_cast<int>(width);
+            backbufferHeight = static_cast<int>(height);
+        }
+
         createTextures();
         createShaders();
 

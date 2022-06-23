@@ -55,6 +55,7 @@ class Entity {
     VFUNC(bool, setupBones, 13, (matrix3x4_t* boneMatrix, int maxBones, int boneMask, float curTime = 0), (renderable(), boneMatrix, maxBones, boneMask, curTime))
 
     VFUNC(Vector&, origin, 12, (), (this))
+    VFUNC(void, setModelIndex, 111, (int index), (this, index))
 
 	VFUNC(float, getSpread, 521, (), (this))
 	VFUNC(float, getInaccuracy, 551, (), (this))

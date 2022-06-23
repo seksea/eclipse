@@ -15,6 +15,7 @@
 #include "sdk/interfaces/iprediction.hpp"
 #include "sdk/interfaces/ienginetrace.hpp"
 #include "sdk/interfaces/effects.hpp"
+#include "sdk/interfaces/stringtable.hpp"
 
 #include "sdk/interfaces/globals.hpp"
 #include "sdk/interfaces/iclientmode.hpp"
@@ -42,6 +43,7 @@ namespace Interfaces {
     inline CEffects* effects;
     inline class IFileSystem* fileSystem;
     inline class ModelCache* modelCache;
+    inline CNetworkStringTableContainer* stringTableContainer;
 
     inline GlobalVars* globals;
     inline IClientMode* clientMode;
