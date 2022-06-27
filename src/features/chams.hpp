@@ -11,9 +11,9 @@ namespace Chams {
     inline IMaterial* createMaterial(const char* materialName, const char* materialType, const char* material) {
         KeyValues* keyValues = new KeyValues(materialName);
 
-        typedef void (*InitKeyValues)(KeyValues*, const char*);
-        static InitKeyValues initKeyValues = (InitKeyValues)Memory::patternScan("/client_client.so", "81 27 00 00 00 FF 55 31 C0 48 89 E5 5D");
-        initKeyValues(keyValues, materialType);
+        typedef void (*InitKeyValues)(KeyValues*, const char*,int,int);
+        static InitKeyValues initKeyValues = (InitKeyValues)Memory::patternScan("/client_client.so", "81 27 00 00 00 FF 55 45 31 C0 48 89 E5 5D"); // xref: OldParticleSystem_Destroy
+        initKeyValues(keyValues, materialType,0,0);
 
         typedef void (*LoadFromBuffer)(KeyValues*, const char*, const char*, void*, const char*, void*);
         static LoadFromBuffer loadFromBuffer = (LoadFromBuffer)Memory::patternScan("/client_client.so", "55 48 89 E5 41 57 41 56 41 55 41 54 49 89 D4 53 48 81 EC ? ? ? ? 48 85");
