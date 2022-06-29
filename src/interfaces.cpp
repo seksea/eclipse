@@ -29,6 +29,7 @@ namespace Interfaces {
         panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_gl_client.so", "PanoramaUIEngine");
         sound = getInterface<IEngineSound>("./bin/linux64/engine_client.so", "IEngineSoundClient");
         eventManager = getInterface<IGameEventManager2>("./bin/linux64/engine_client.so", "GAMEEVENTSMANAGER002", true);
+        physics = getInterface<IPhysicsSurfaceProps>("./bin/linux64/vphysics_client.so", "VPhysicsSurfaceProps");
         prediction = getInterface<IPrediction>("./csgo/bin/linux64/client_client.so", "VClientPrediction001", true);
 	    movement = getInterface<IGameMovement>("./csgo/bin/linux64/client_client.so", "GameMovement");
 	    trace = getInterface<IEngineTrace>("./bin/linux64/engine_client.so", "EngineTraceClient");

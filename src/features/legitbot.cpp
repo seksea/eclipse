@@ -3,16 +3,16 @@
 #include "../sdk/entity.hpp"
 #include "../sdk/math.hpp"
 #include "../menu/config.hpp"
-
 #include "../menu/keybinders.hpp"
+#include "ragebot.hpp"
 
 Entity* findPlayerThatRayHits(Vector start, Vector end, Trace* traceToPlayer) {
     Ray ray;
     ray.Init(start, end);
     TraceFilter filter;
     filter.pSkip = EntityCache::localPlayer;
-    //   hitbox  |  monster  | solid
-    Interfaces::trace->traceRay(ray, (0x40000000 | 0x40000 | 0x1), &filter, traceToPlayer);
+                       // (MASK_SHOT_HULL | CONTENTS_HITBOX)
+    Interfaces::trace->traceRay(ray, 1174421515, &filter, traceToPlayer);
 
     return traceToPlayer->m_pEntityHit;
 }
@@ -150,7 +150,7 @@ namespace Legitbot {
                         continue;
                     Entity* e = Interfaces::entityList->getClientEntity(p.first);
                     if (!e || e == EntityCache::localPlayer || 
-                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() || e->nDT_CSPlayer__m_bGunGameImmunity())
+                        e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || (!CONFIGBOOL("autowall") && !e->visCheck()) || e->nDT_CSPlayer__m_bGunGameImmunity())
                         continue;
 
                     const int bones[5] = {8, 7, 6, 5, 3}; // TODO: make more sekc
@@ -178,6 +178,22 @@ namespace Legitbot {
                                      std::max((EntityCache::localPlayer->eyepos() - targetBonePos).Length(), minDist);
                                 if (angleToCurrentBone.Length() > fov * (minDist / curDist)) continue;
                             }
+                            if ((smoothing == 0 &&
+                                 !Ragebot::shouldWallbang(
+                                      cmd->viewangles + angleToCurrentBone +
+                                           EntityCache::localPlayer
+                                                     ->nDT_Local__m_aimPunchAngle() *
+                                                2, 0,
+                                      CONFIGINT("mindmg"))) 
+                                ||
+                                (CONFIGBOOL("autowall") &&
+                                 !Ragebot::shouldWallbang(
+                                      cmd->viewangles + angleToCurrentBone +
+                                           EntityCache::localPlayer
+                                                     ->nDT_Local__m_aimPunchAngle() *
+                                                2,
+                                      0)))
+                                continue;
                             closestBoneDelta = angleToCurrentBone.Length();
                             angleToClosestBone = angleToCurrentBone;
                         }
@@ -187,10 +203,30 @@ namespace Legitbot {
             }
             if (closestBoneDelta < fov) {
                 if (smoothing == 0) {  // if smoothing is 0 don't do smoothing calculations
-                    if (CONFIGINT("hitchance") > 0 &&
-                        !shouldHit(
-                             cmd->viewangles + angleToClosestBone + EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2,
-                             CONFIGINT("hitchance")))
+                    if (CONFIGINT("hitchance") > 0 &&                               // J
+                        ((!CONFIGBOOL("autowall") &&                                // E
+                          !(shouldHit(                                              // S
+                                 cmd->viewangles + angleToClosestBone +             // U
+                                      EntityCache::localPlayer                      // S
+                                                ->nDT_Local__m_aimPunchAngle() *    
+                                           2,                                       // C
+                                 CONFIGINT("hitchance")) &&                         // H
+                            Ragebot::shouldWallbang(                                // R
+                                 cmd->viewangles + angleToClosestBone +             // I
+                                      EntityCache::localPlayer                      // S
+                                                ->nDT_Local__m_aimPunchAngle() *    // T
+                                           2,                                       
+                                 CONFIGINT("hitchance"),                            // W
+                                 CONFIGINT("mindmg"))))                             // T
+                         ||                                                         // F
+                         (CONFIGBOOL("autowall") &&
+                          !Ragebot::shouldWallbang(                                 // I
+                               cmd->viewangles + angleToClosestBone +               // S
+                                    EntityCache::localPlayer
+                                              ->nDT_Local__m_aimPunchAngle() *      // T
+                                         2,                                         // H
+                               CONFIGINT("hitchance"),                              // I
+                               CONFIGINT("mindmg")))))                              // S
                         return;
                     cmd->viewangles += angleToClosestBone;
                     Interfaces::engine->setViewAngles(cmd->viewangles);
@@ -216,14 +252,22 @@ namespace Legitbot {
     void triggerbot(CUserCmd* cmd) {
         if (!EntityCache::localPlayer) return;
         if (!CONFIGBOOL("triggerbot active") ||
-            (CONFIGBIND("triggerbot key").key && !isKeyBinderPressed(&CONFIGBIND("triggerbot key"))))
+            (CONFIGBIND("triggerbot key").key &&
+             !isKeyBinderPressed(&CONFIGBIND("triggerbot key"))))
             return;
 
-        auto viewAngles = cmd->viewangles + EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2;
+        auto viewAngles = cmd->viewangles +
+             EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2;
 
         static bool shotLast = false;
         if (CONFIGINT("hitchance") > 0) {
-            if (shouldHit(viewAngles, CONFIGINT("hitchance"))) {
+            if ((!CONFIGBOOL("autowall") &&
+                 shouldHit(viewAngles, CONFIGINT("hitchance")) &&
+                 Ragebot::shouldWallbang(viewAngles, 0,
+                                         CONFIGINT("mindmg"))) ||
+                (CONFIGBOOL("autowall") &&
+                 Ragebot::shouldWallbang(viewAngles, CONFIGINT("hitchance"),
+                                         CONFIGINT("mindmg")))) {
                 if (!shotLast) {
                     cmd->buttons |= IN_ATTACK;
                     shotLast = true;
@@ -232,18 +276,29 @@ namespace Legitbot {
                 }
             }
         } else {
-            Vector endPos;
-            Trace traceToPlayer;
+            if (!CONFIGBOOL("autowall")) {
+                Vector endPos;
+                Trace traceToPlayer;
 
-            angleVectors(viewAngles, endPos);
+                angleVectors(viewAngles, endPos);
 
-            endPos = EntityCache::localPlayer->eyepos() + (endPos *= 4096.f);
+                endPos =
+                     EntityCache::localPlayer->eyepos() + (endPos *= 4096.f);
 
-            Entity* e = findPlayerThatRayHits(EntityCache::localPlayer->eyepos(), endPos, &traceToPlayer);
-            if (!e || e == EntityCache::localPlayer || e->teammate() || e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() ||
-                e->nDT_CSPlayer__m_bGunGameImmunity())
-                return;
-
+                Entity* e = findPlayerThatRayHits(
+                     EntityCache::localPlayer->eyepos(), endPos,
+                     &traceToPlayer);
+                if (!e || e == EntityCache::localPlayer || e->teammate() ||
+                    e->nDT_BasePlayer__m_iHealth() == 0 || !e->visCheck() ||
+                    e->nDT_CSPlayer__m_bGunGameImmunity() ||
+                         !Ragebot::shouldWallbang(viewAngles, 0,
+                                                 CONFIGINT("mindmg")))
+                    return;
+            } else {
+                if (!Ragebot::shouldWallbang(viewAngles, 0,
+                                             CONFIGINT("mindmg")))
+                    return;
+            }
             if (!shotLast) {
                 cmd->buttons |= IN_ATTACK;
                 shotLast = true;

@@ -130,6 +130,13 @@ public:
 
 class IEngineTrace {
 public:
+	// Returns the contents mask + entity at a particular world-space position
+	virtual int getPointContents(const Vector &vecAbsPosition, int contentsMask = 4294967295U/*MASK_ALL*/, Entity** ppEntity = nullptr) = 0;
+
+	const char* clipRayToEntity(Ray &ray, unsigned int fMask, Entity *pEntity,  Trace  *pTrace) {
+		typedef const char* (*Fn)(void*, Ray&, unsigned int, Entity*, Trace*);
+		return ((Fn)Memory::getVTable(this)[3])(this, ray, fMask, pEntity, pTrace);
+	}
     //VFUNC(const char*, traceRay, 5, (Ray &ray, unsigned int fMask, ITraceFilter *pTraceFilter,  Trace  *pTrace), (this, ray, fMask, pTraceFilter, pTrace));
 	const char* traceRay(Ray &ray, unsigned int fMask, ITraceFilter *pTraceFilter,  Trace  *pTrace) {
 		typedef const char* (*Fn)(void*, Ray&, unsigned int, ITraceFilter*, Trace*);

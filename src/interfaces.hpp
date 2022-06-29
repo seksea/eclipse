@@ -12,6 +12,7 @@
 #include "sdk/interfaces/imaterialsystem.hpp"
 #include "sdk/interfaces/panorama.hpp"
 #include "sdk/interfaces/igameevent.hpp"
+#include "sdk/interfaces/iphysicssurfaceprops.hpp"
 #include "sdk/interfaces/iprediction.hpp"
 #include "sdk/interfaces/ienginetrace.hpp"
 #include "sdk/interfaces/effects.hpp"
@@ -37,6 +38,7 @@ namespace Interfaces {
     inline IPanoramaUIEngine* panorama;
     inline class IEngineSound* sound;
     inline IGameEventManager2* eventManager;
+    inline IPhysicsSurfaceProps* physics;
     inline IPrediction* prediction;
     inline IGameMovement* movement;
     inline IEngineTrace* trace;

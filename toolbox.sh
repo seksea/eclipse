@@ -44,14 +44,6 @@ function load {
     -ex "call \$dlopen(\"/usr/lib/$libname\", 1)" \
     -ex "detach" \
     -ex "quit" 2
-	if ! grep -q "cartographer" /proc/modules; then
-		sudo insmod cartographer_module.ko
-	fi
-	if grep -q "cartographer" /proc/modules; then
-    	echo "settarget $libname" | sudo tee /proc/cartographer > /dev/null
-	    echo "removeentry" | sudo tee /proc/cartographer > /dev/null
-    	echo "Cartographer has been configured to hide the cheat"
-	fi
 }
 
 function load_debug {
@@ -67,14 +59,6 @@ function load_debug {
         -ex "detach" \
         -ex "quit"
     $gdb -p "$csgo_pid"
-	if ! grep -q "cartographer" /proc/modules; then
-        sudo insmod cartographer_module.ko
-    fi
-	if grep -q "cartographer" /proc/modules; then
-        echo "settarget $libname" | sudo tee /proc/cartographer > /dev/null
-        echo "removeentry" | sudo tee /proc/cartographer > /dev/null
-        echo "Cartographer has been configured to hide the cheat"
-    fi
 }
 
 function build {

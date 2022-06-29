@@ -267,6 +267,7 @@ namespace Menu {
                             SLIDERFLOAT("smoothing", &CONFIGFLOAT("default smoothing"), 0.f, 100.f, "%.2f");
                             CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
                             hitboxSelectBox("default hitboxes");
+                            CHECKBOX("autowall", &CONFIGBOOL("autowall"));
                             ENDGROUPBOX();
                             break;
                         }
@@ -362,6 +363,7 @@ namespace Menu {
                         drawKeyBinder("triggerbot key");
                         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
                         SLIDERFLOAT("hitchance", &CONFIGFLOAT("hitchance"), 0, 100, "%.0f%%");
+                        SLIDERFLOAT("mindmg", &CONFIGFLOAT("mindmg"), 0, 100, "%.0fhp");
                     ENDGROUPBOX();
                     break;
                 }

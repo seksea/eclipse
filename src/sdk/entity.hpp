@@ -24,6 +24,123 @@ namespace EntityCache {
 
 using WeaponArr = std::array<unsigned long, 48>;
 
+class CHudTexture;
+
+class FileWeaponInfo_t
+{
+public:
+	FileWeaponInfo_t();
+
+	// Each game can override this to get whatever values it wants from the script.
+	virtual void Parse(KeyValues *pKeyValuesData, const char *szWeaponName);
+
+	bool bParsedScript;
+	bool bLoadedHudElements;
+
+	char szClassName[80];
+	char szPrintName[80];
+
+	char szViewModel[80];
+	char szWorldModel[80];
+	char szAmmo1[32];
+	char szWorldDroppedModel[80];
+	char szAnimationPrefix[16];
+	int iSlot;
+	int iPosition;
+	int iMaxClip1;
+	int iMaxClip2;
+	int iDefaultClip1;
+	int iDefaultClip2;
+	int iWeight;
+	int iRumbleEffect;
+	bool bAutoSwitchTo;
+	bool bAutoSwitchFrom;
+	int iFlags;
+	char szAmmo2[32];
+	char szAIAddOn[80];
+
+	// Sound blocks
+	char aShootSounds[17][80];
+
+	int iAmmoType;
+	int iAmmo2Type;
+	bool m_bMeleeWeapon;
+
+	// This tells if the weapon was built right-handed (defaults to true).
+	// This helps cl_righthand make the decision about whether to flip the model or not.
+	bool m_bBuiltRightHanded;
+	bool m_bAllowFlipping;
+
+	// Sprite data, read from the data file
+	int iSpriteCount;
+	CHudTexture* iconActive;
+	CHudTexture* iconInactive;
+	CHudTexture* iconAmmo;
+	CHudTexture* iconAmmo2;
+	CHudTexture* iconCrosshair;
+	CHudTexture* iconAutoaim;
+	CHudTexture* iconZoomedCrosshair;
+	CHudTexture* iconZoomedAutoaim;
+	CHudTexture* iconSmall;
+};
+
+class CCSWeaponInfo : public FileWeaponInfo_t {
+public:
+	char* GetConsoleName() {
+		return *( char** ) ( ( uintptr_t )this + 0x8);
+	}
+
+	int GetClipSize() {
+		return *( int* ) ( ( uintptr_t )this + 0x20);
+	}
+/*
+	CSWeaponType GetWeaponType() {
+		return *( CSWeaponType* ) ( ( uintptr_t )this + 0x140);
+	}
+
+	void SetWeaponType( CSWeaponType type ) {
+		*( CSWeaponType* ) ( ( uintptr_t )this + 0x140) = type;
+	}
+*/
+	int GetDamage() {
+		return *( int* ) ( ( uintptr_t )this + 0x16C);
+	}
+
+	float GetWeaponArmorRatio() {
+		return *( float* ) ( ( uintptr_t )this + 0x174);
+	}
+
+	float GetPenetration() {
+		return *( float* ) ( ( uintptr_t )this + 0x17C);
+	}
+
+	float GetRange() {
+		return *( float* ) ( ( uintptr_t )this + 0x188);
+	}
+
+	float GetRangeModifier() {
+		return *( float* ) ( ( uintptr_t )this + 0x18C);
+	}
+
+	float GetMaxPlayerSpeed() {
+		return *( float* ) ( ( uintptr_t )this + 0x1B8);
+	}
+
+	// i haven't updated the offset of this since 22 september 2021 (shark operation or whatever)
+	// should be 0x8 to 0x10 higher
+	int GetZoomLevels() { // Doesn't work correctly on some weapons.
+		return *( int* ) ( ( uintptr_t )this + 0x23C); // DT_WeaponCSBaseGun.m_zoomLevel ?
+	}
+
+	char* GetTracerEffect() {
+		return *( char** ) ( ( uintptr_t )this + 0x290);
+	}
+
+	int* GetTracerFrequency() {
+		return ( int* ) ( ( uintptr_t )this + 0x298);
+	}
+};
+
 class Entity {
     public:
 	ALL_NETVARS;
@@ -59,6 +176,8 @@ class Entity {
 
 	VFUNC(float, getSpread, 521, (), (this))
 	VFUNC(float, getInaccuracy, 551, (), (this))
+
+	VFUNC(CCSWeaponInfo*, getCSWpnData, 529, (), (this))
 
 	bool teammate() {
 		if (strstr(Interfaces::engine->getLevelName(), "dz_")) return false;
