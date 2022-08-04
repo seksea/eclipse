@@ -11,20 +11,6 @@ void outlineText(ImDrawList* drawList, ImVec2 pos, ImColor color, const char* te
     drawList->AddText(pos, color, text);
 }
 
-void normalizeAngles(QAngle& angle) {
-	while (angle.x > 89.0f)
-		angle.x -= 180.f;
-
-	while (angle.x < -89.0f)
-		angle.x += 180.f;
-
-	while (angle.y > 180.f)
-		angle.y -= 360.f;
-
-	while (angle.y < -180.f)
-		angle.y += 360.f;
-}
-
 namespace ESP {
     void draw(ImDrawList* drawList) {
 		std::lock_guard<std::mutex> lock(EntityCache::entityCacheLock);

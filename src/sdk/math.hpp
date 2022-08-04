@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <algorithm>
 #include "../menu/imgui/imgui.h"
 
 #pragma once
@@ -1642,6 +1643,24 @@ inline void vectorAngles(const Vector& vec, QAngle& angles) {
     angles.x = pitch;
     angles.y = yaw;
     angles.z = 0.f;
+}
+
+inline void normalizeAngles(QAngle& angle) {
+    while (angle.x > 89.0f) 
+		angle.x -= 180.f;
+    while (angle.x < -89.0f) 
+		angle.x += 180.f;
+    while (angle.y > 180.f) 
+		angle.y -= 360.f;
+    while (angle.y < -180.f) 
+		angle.y += 360.f;
+}
+
+inline void sanitizeAngles(QAngle& angle) {
+    normalizeAngles(angle);
+    angle.x = std::clamp(angle.x, -89.0f, 89.0f);
+    angle.y = std::clamp(angle.y, -180.0f, 180.0f);
+    angle.z = 0.0f;
 }
 
 class Entity;

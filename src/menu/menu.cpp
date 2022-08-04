@@ -268,6 +268,14 @@ namespace Menu {
                             CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
                             hitboxSelectBox("default hitboxes");
                             CHECKBOX("autowall", &CONFIGBOOL("autowall"));
+                            if(CONFIGFLOAT("default fov") > 0.f && CONFIGFLOAT("default smoothing") == 0){
+                                CHECKBOX("aimstep", &CONFIGBOOL("aimstep"));
+                                CHECKBOX("silent", &CONFIGBOOL("silent"));
+                            }
+                            else{
+                                CONFIGBOOL("aimstep") = false;
+                                CONFIGBOOL("silent") = false;
+                            }
                             ENDGROUPBOX();
                             break;
                         }

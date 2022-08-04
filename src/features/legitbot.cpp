@@ -167,8 +167,8 @@ namespace Legitbot {
                              cmd->viewangles -
                              (accountRecoil ? (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2) : QAngle(0, 0, 0));
 
-                        angleToCurrentBone.y =
-                             fmod(angleToCurrentBone.y + cmd->viewangles.y + 180.f, 360.f) - 180.f - cmd->viewangles.y;
+                        // make sane ...
+                        sanitizeAngles(angleToCurrentBone);
 
                         if (angleToCurrentBone.Length() < closestBoneDelta) {
                             if (distanceFov) {
@@ -228,8 +228,16 @@ namespace Legitbot {
                                CONFIGINT("hitchance"),                              // I
                                CONFIGINT("mindmg")))))                              // S
                         return;
+                    
+                    if(CONFIGBOOL("silent")){
+                        startMovementFix(cmd);
+                        cmd->viewangles += angleToClosestBone;
+                        endMovementFix(cmd);
+                        return;
+                    }
                     cmd->viewangles += angleToClosestBone;
                     Interfaces::engine->setViewAngles(cmd->viewangles);
+ 
                     return;
                 }
 
@@ -308,8 +316,22 @@ namespace Legitbot {
         }
     }
 
+    QAngle lastViewangles;
     void run(CUserCmd* cmd) {
         aimbot(cmd);
+        // avoid kicks when raging in casual
+        if(CONFIGBOOL("aimstep")){
+            QAngle delta = cmd->viewangles - lastViewangles;
+            sanitizeAngles(delta); // make sane 
+            if(delta.Length() > 27.f){
+                delta.x /= delta.Length();
+                delta.y /= delta.Length();
+                delta *= 27.f;
+                cmd->viewangles = lastViewangles + delta;
+            }
+        }
+        sanitizeAngles(cmd->viewangles);
+        lastViewangles = cmd->viewangles;
         triggerbot(cmd);
     }
 }
