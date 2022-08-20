@@ -17,6 +17,8 @@ Entity* findPlayerThatRayHits(Vector start, Vector end, Trace* traceToPlayer) {
     return traceToPlayer->m_pEntityHit;
 }
 
+QAngle lastViewangles;
+
 namespace Legitbot {
     bool shouldHit(QAngle viewAngles, int minChance) {
         if (!EntityCache::localPlayer || !EntityCache::localPlayer->canShoot()) return false;
@@ -167,8 +169,8 @@ namespace Legitbot {
                              cmd->viewangles -
                              (accountRecoil ? (EntityCache::localPlayer->nDT_Local__m_aimPunchAngle() * 2) : QAngle(0, 0, 0));
 
-                        angleToCurrentBone.y =
-                             fmod(angleToCurrentBone.y + cmd->viewangles.y + 180.f, 360.f) - 180.f - cmd->viewangles.y;
+                        // make sane ...
+                        sanitizeAngles(angleToCurrentBone);
 
                         if (angleToCurrentBone.Length() < closestBoneDelta) {
                             if (distanceFov) {
@@ -203,33 +205,41 @@ namespace Legitbot {
             }
             if (closestBoneDelta < fov) {
                 if (smoothing == 0) {  // if smoothing is 0 don't do smoothing calculations
-                    if (CONFIGINT("hitchance") > 0 &&                               // J
-                        ((!CONFIGBOOL("autowall") &&                                // E
-                          !(shouldHit(                                              // S
-                                 cmd->viewangles + angleToClosestBone +             // U
-                                      EntityCache::localPlayer                      // S
+                    if (CONFIGINT("hitchance") > 0 &&                                   // J
+                        ((!CONFIGBOOL("autowall") &&                                    // E
+                          !(shouldHit(                                                  // S
+                                 cmd->viewangles + angleToClosestBone +                 // U
+                                      EntityCache::localPlayer                          // S
                                                 ->nDT_Local__m_aimPunchAngle() *    
-                                           2,                                       // C
-                                 CONFIGINT("hitchance")) &&                         // H
-                            Ragebot::shouldWallbang(                                // R
-                                 cmd->viewangles + angleToClosestBone +             // I
-                                      EntityCache::localPlayer                      // S
-                                                ->nDT_Local__m_aimPunchAngle() *    // T
+                                           2,                                           // C
+                                 CONFIGINT("hitchance")) &&                             // H
+                            Ragebot::shouldWallbang(                                    // R
+                                 cmd->viewangles + angleToClosestBone +                 // I
+                                      EntityCache::localPlayer                          // S
+                                                ->nDT_Local__m_aimPunchAngle() *        // T
                                            2,                                       
-                                 CONFIGINT("hitchance"),                            // W
-                                 CONFIGINT("mindmg"))))                             // T
-                         ||                                                         // F
+                                 CONFIGINT("hitchance"),                                // W
+                                 CONFIGINT("mindmg"))))                                 // T
+                         ||                                                             // F
                          (CONFIGBOOL("autowall") &&
-                          !Ragebot::shouldWallbang(                                 // I
-                               cmd->viewangles + angleToClosestBone +               // S
+                          !Ragebot::shouldWallbang(                                     // I
+                               cmd->viewangles + angleToClosestBone +                   // S
                                     EntityCache::localPlayer
-                                              ->nDT_Local__m_aimPunchAngle() *      // T
-                                         2,                                         // H
-                               CONFIGINT("hitchance"),                              // I
-                               CONFIGINT("mindmg")))))                              // S
+                                              ->nDT_Local__m_aimPunchAngle() *          // T
+                                         2,                                             // H
+                               CONFIGINT("hitchance"),                                  // I
+                               CONFIGINT("mindmg")))))                                  // S
                         return;
+                    
+                    if(CONFIGBOOL("silent")){
+                        startMovementFix(cmd);
+                        cmd->viewangles += angleToClosestBone;
+                        endMovementFix(cmd);
+                        return;
+                    }
                     cmd->viewangles += angleToClosestBone;
                     Interfaces::engine->setViewAngles(cmd->viewangles);
+ 
                     return;
                 }
 
@@ -310,6 +320,19 @@ namespace Legitbot {
 
     void run(CUserCmd* cmd) {
         aimbot(cmd);
+        // avoid kicks when raging in casual
+        if(CONFIGBOOL("aimstep")){
+            QAngle delta = cmd->viewangles - lastViewangles;
+            sanitizeAngles(delta); // make sane 
+            if(delta.Length() > 27.f){
+                delta.x /= delta.Length();
+                delta.y /= delta.Length();
+                delta *= 27.f;
+                cmd->viewangles = lastViewangles + delta;
+            }
+        }
+        sanitizeAngles(cmd->viewangles);
+        lastViewangles = cmd->viewangles;
         triggerbot(cmd);
     }
 }

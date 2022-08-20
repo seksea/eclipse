@@ -35,7 +35,7 @@ void __attribute__((destructor)) unload() {
     LOG("Unloading eclipse...");
     Hooks::unload();
     LOG("Unloaded eclipse!");
-    DiscordRPC::core->~Core();
+    //DiscordRPC::core->~Core();
 }
 #endif
 

@@ -1,7 +1,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_impl_sdl.h"
+#include "imgui/imgui_impl_vulkan.h"
 #include "imgui/imgui_freetype.h"
+#include "imgui/imgui_impl_sdl.h"
 #include "imgui/GL/gl3w.h"
 #include "menu.hpp"
 #include "fonts.hpp"
@@ -29,6 +30,55 @@
 #define SLIDERFLOAT(name, var, min, max, format) ImGui::Text("%s", name); ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth()); ImGui::SliderFloat("##" name, var, min, max, format);
 
 namespace Menu {
+    void init(SDL_Event* event, const int result, SDL_Window* pWindow) {
+        if (!ImGui::GetCurrentContext()) {
+            ImGui::CreateContext();
+
+            ImGui::StyleColorsDark();
+
+            ImFontConfig fontConfig;
+            fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
+            Menu::menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data,
+                                                                                  tahoma_compressed_size, 14, &fontConfig);
+
+            Menu::weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);
+            ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
+
+            ImGui::GetStyle().WindowPadding = ImVec2(6, 6);
+            ImGui::GetStyle().FramePadding = ImVec2(4, 0);
+            ImGui::GetStyle().WindowRounding = 1;
+            ImGui::GetStyle().ChildRounding = 1;
+            ImGui::GetStyle().FrameRounding = 1;
+            ImGui::GetStyle().WindowBorderSize = 0;
+            ImGui::GetStyle().FrameBorderSize = 1;
+            ImGui::GetStyle().ScrollbarRounding = 0;
+            ImGui::GetStyle().ScrollbarSize = 3;
+            ImGui::GetStyle().WindowMinSize = ImVec2(4, 4);
+
+            ImVec4* colors = ImGui::GetStyle().Colors;
+            colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.16f, 1.00f);
+            colors[ImGuiCol_ChildBg] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_Separator] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_Border] = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
+            colors[ImGuiCol_FrameBg] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_FrameBgHovered] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_FrameBgActive] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_Button] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_ButtonHovered] = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
+            colors[ImGuiCol_ButtonActive] = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+            colors[ImGuiCol_Header] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
+            colors[ImGuiCol_HeaderHovered] = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
+            colors[ImGuiCol_HeaderActive] = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
+
+            ImGui_ImplSDL2_InitForVulkan(pWindow);
+
+            ImGuiIO& io = ImGui::GetIO();
+
+            // io.IniFilename = nullptr;
+            // io.LogFilename = nullptr;
+        }
+    }
+
     void onPollEvent(SDL_Event* event, const int result) {
         if (result && ImGui_ImplSDL2_ProcessEvent(event) && menuOpen) {
             event->type = 0;
@@ -69,67 +119,21 @@ namespace Menu {
         ImGui::End();
     }*/
 
-    void onSwapWindow(SDL_Window* window) {
+    void render(SDL_Window* window) {
         if (!initialised) {
-            gl3wInit();
-            IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
-            ImGui::StyleColorsDark();
-
-            ImFontConfig fontConfig;
-            fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
-            menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size, 14, &fontConfig);
-
-            weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);
-		    ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
-
-            ImGui::GetStyle().WindowPadding = ImVec2(6, 6);
-            ImGui::GetStyle().FramePadding = ImVec2(4, 0);
-            ImGui::GetStyle().WindowRounding = 1;
-            ImGui::GetStyle().ChildRounding = 1;
-            ImGui::GetStyle().FrameRounding = 1;
-            ImGui::GetStyle().WindowBorderSize = 0;
-            ImGui::GetStyle().FrameBorderSize = 1;
-            ImGui::GetStyle().ScrollbarRounding = 0;
-            ImGui::GetStyle().ScrollbarSize = 3;
-            ImGui::GetStyle().WindowMinSize = ImVec2(4, 4);
-
-            ImVec4* colors = ImGui::GetStyle().Colors;
-            colors[ImGuiCol_WindowBg]               = ImVec4(0.15f, 0.15f, 0.16f, 1.00f);
-            colors[ImGuiCol_ChildBg]                = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_Separator]              = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_Border]                 = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
-            colors[ImGuiCol_FrameBg]                = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_FrameBgActive]          = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_Button]                 = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_ButtonHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
-            colors[ImGuiCol_ButtonActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
-            colors[ImGuiCol_Header]                 = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-            colors[ImGuiCol_HeaderHovered]          = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
-            colors[ImGuiCol_HeaderActive]           = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
-
-
-
-            ImGui_ImplOpenGL3_Init("#version 100");
-            ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
             Config::refreshConfigList();
             Lua::refreshLuaList();
             initialised = true;
         }
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame(window);
-        ImGui::NewFrame();
-
         if (Menu::menuOpen && !CONFIGBOOL("disable blur")) {
-            BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f);
+           // BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f); // didnt work on vulkan but might work now idk
         }
 
         static float timeSinceLastTick = 0.f;
         timeSinceLastTick += ImGui::GetIO().DeltaTime;
         if (timeSinceLastTick > 5.f) {
-            DiscordRPC::tick(); // tick every 5 seconds for discord RPC
+            //DiscordRPC::tick(); // tick every 5 seconds for discord RPC
             timeSinceLastTick = 0.f;
         }
 
@@ -268,6 +272,14 @@ namespace Menu {
                             CHECKBOX("linear smoothing", &CONFIGBOOL("default linear"));
                             hitboxSelectBox("default hitboxes");
                             CHECKBOX("autowall", &CONFIGBOOL("autowall"));
+                            if(CONFIGFLOAT("default fov") > 0.f && CONFIGFLOAT("default smoothing") == 0){
+                                CHECKBOX("aimstep", &CONFIGBOOL("aimstep"));
+                                CHECKBOX("silent", &CONFIGBOOL("silent"));
+                            }
+                            else{
+                                CONFIGBOOL("aimstep") = false;
+                                CONFIGBOOL("silent") = false;
+                            }
                             ENDGROUPBOX();
                             break;
                         }
@@ -417,8 +429,15 @@ namespace Menu {
                                 COLORPICKER("##healthbar color", CONFIGCOL("enemy esp healthbar color"));
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("enemy esp healthbar"));
+                                if(CONFIGBOOL("enemy esp healthbar")){
+                                    const char* barStyles[] = {"side", "bottom", "both", "both no-border"};
+                                    int barStyle = CONFIGINT("enemy esp healthbar style");
+                                    COMBOBOX("healthbar style", &barStyle, barStyles, IM_ARRAYSIZE(barStyles));
+                                    CONFIGFLOAT("enemy esp healthbar style") = barStyle;
+                                }
 
                                 CHECKBOX("visible only", &CONFIGBOOL("enemy visible only"));
+                                CHECKBOX("legit", &CONFIGBOOL("enemy legit esp"));
                                 ImGui::Separator();
                                 COLORPICKER("##glow enemy color", CONFIGCOL("glow enemy color"));
                                 ImGui::SameLine();
@@ -450,9 +469,15 @@ namespace Menu {
                                 COLORPICKER("##healthbar color", CONFIGCOL("team esp healthbar color"));
                                 ImGui::SameLine();
                                 CHECKBOX("healthbar", &CONFIGBOOL("team esp healthbar"));
+                                if(CONFIGBOOL("team esp healthbar")){
+                                    const char* barStyles[] = {"side", "bottom", "both", "both no-border"};
+                                    int barStyle = CONFIGINT("team esp healthbar style");
+                                    COMBOBOX("healthbar style", &barStyle, barStyles, IM_ARRAYSIZE(barStyles));
+                                    CONFIGFLOAT("team esp healthbar style") = barStyle;
+                                }
 
                                 CHECKBOX("visible only", &CONFIGBOOL("teammate visible only"));
-
+                                CHECKBOX("legit", &CONFIGBOOL("teammate legit esp"));
                                 ImGui::Separator();
                                 COLORPICKER("##glow teammate color", CONFIGCOL("glow teammate color"));
                                 ImGui::SameLine();
@@ -778,10 +803,6 @@ namespace Menu {
 
         Lua::curDrawList = ImGui::GetForegroundDrawList();
         Lua::handleHook("drawabove");
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 
         for (std::string file : Lua::luaFiles) {
             char temp[128] = "luafiles - ";

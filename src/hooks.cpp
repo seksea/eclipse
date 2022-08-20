@@ -20,6 +20,7 @@
 namespace Hooks {
     void init() {
         SDL::initSDL();
+        Vulkan::Hook();
 
         while (!Menu::initialised)
             usleep(500000);
@@ -46,6 +47,7 @@ namespace Hooks {
 
     void unload() {
         SDL::unloadSDL();
+        Vulkan::Unhook();
         LOG(" Unhooking CreateMove...");
         Memory::VMT::hook(Interfaces::clientMode, (void*)CreateMove::original, 25);
         LOG(" Unhooking DME...");

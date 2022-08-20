@@ -68,6 +68,8 @@ function build {
     cmake -D CMAKE_BUILD_TYPE=Release ..
     make -j $(nproc --all)
     cd ..
+    sudo cp build/libeclipse.so /usr/lib/$libname
+    sudo patchelf --set-soname $libname /usr/lib/$libname
 }
 
 function build_debug {

@@ -11,20 +11,6 @@ void outlineText(ImDrawList* drawList, ImVec2 pos, ImColor color, const char* te
     drawList->AddText(pos, color, text);
 }
 
-void normalizeAngles(QAngle& angle) {
-	while (angle.x > 89.0f)
-		angle.x -= 180.f;
-
-	while (angle.x < -89.0f)
-		angle.x += 180.f;
-
-	while (angle.y > 180.f)
-		angle.y -= 360.f;
-
-	while (angle.y < -180.f)
-		angle.y += 360.f;
-}
-
 namespace ESP {
     void draw(ImDrawList* drawList) {
 		std::lock_guard<std::mutex> lock(EntityCache::entityCacheLock);
@@ -36,7 +22,8 @@ namespace ESP {
                 continue;
             switch (e.type) {
                 case EntityCache::EntityType::PLAYER: { // Player 
-                    if (e.health > 0 && (CONFIGBOOL(e.teammate ? "teammate visible only" : "enemy visible only") ? e.visible : true)) {
+                    if (e.health > 0 && (CONFIGBOOL(e.teammate ? "teammate visible only" : "enemy visible only") ? e.visible : true) && ((CONFIGBOOL(e.teammate ? 
+                    "teammate legit esp" : "enemy legit esp")) ? e.spotted : true)) {
                         if (CONFIGBOOL(e.teammate ? "team esp box" : "enemy esp box")) {
                             drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), ImColor(0, 0, 0, 160), 0.f, 0, 3.f);
                             drawList->AddRect(ImVec2(e.boundingBox.x, e.boundingBox.y), ImVec2(e.boundingBox.z, e.boundingBox.w), CONFIGCOL(e.teammate ? "team esp box color" : "enemy esp box color"));
@@ -45,17 +32,55 @@ namespace ESP {
                             outlineText(drawList, ImVec2(e.boundingBox.x + ((e.boundingBox.z - e.boundingBox.x) - ImGui::CalcTextSize(e.info.name).x)/2, e.boundingBox.y - 13), CONFIGCOL(e.teammate ? "team esp name color" : "enemy esp name color"), e.info.name);
                         }
                         if (CONFIGBOOL(e.teammate ? "team esp healthbar" : "enemy esp healthbar")) {
-                            ImVec2 healthbarBorderMin = ImVec2(e.boundingBox.x - 6, e.boundingBox.y - 1);
-                            ImVec2 healthbarBorderMax = ImVec2(e.boundingBox.x - 2, e.boundingBox.w + 1);
-                            ImVec2 healthbarMin = ImVec2(healthbarBorderMin.x + 1, healthbarBorderMax.y + 1 - (((float)e.health / 100.f) * (healthbarBorderMax.y - healthbarBorderMin.y)));
-                            ImVec2 healthbarMax = ImVec2(healthbarBorderMax.x - 1, healthbarBorderMax.y - 1);
-                            drawList->AddRectFilled(healthbarBorderMin, healthbarBorderMax, ImColor(0, 0, 0, 160));
-                            drawList->AddRectFilled(healthbarMin, healthbarMax, CONFIGCOL(e.teammate ? "team esp healthbar color" : "enemy esp healthbar color"));
+                            int barStyle =
+                                 e.teammate ? CONFIGINT("team esp healthbar style") : CONFIGINT("enemy esp healthbar style");
+                            if (barStyle == 0 || barStyle >= 2) {
+                                ImVec2 healthbarBorderMin = ImVec2(e.boundingBox.x - 6, e.boundingBox.y - 1);
+                                ImVec2 healthbarBorderMax = ImVec2(e.boundingBox.x - 2, e.boundingBox.w + 1);
+                                ImVec2 healthbarMin =
+                                     ImVec2(healthbarBorderMin.x + 1,
+                                            healthbarBorderMax.y + 1 -
+                                                 (((float)e.health / 100.f) * (healthbarBorderMax.y - healthbarBorderMin.y)));
+                                ImVec2 healthbarMax = ImVec2(healthbarBorderMax.x - 1, healthbarBorderMax.y - 1);
+                                if(barStyle < 3)
+                                    drawList->AddRectFilled(healthbarBorderMin, healthbarBorderMax, ImColor(0, 0, 0, 160));
+                                drawList->AddRectFilled(
+                                     healthbarMin, healthbarMax,
+                                     CONFIGCOL(e.teammate ? "team esp healthbar color" : "enemy esp healthbar color"));
 
-                            if (e.health < 100) {
-                                char hpText[16];
-                                snprintf(hpText, sizeof(hpText), "%i", e.health);
-                                outlineText(drawList, ImVec2(healthbarMin.x + 1 - (ImGui::CalcTextSize(hpText).x / 2), healthbarMin.y - 13), ImColor(255, 255, 255, 200), hpText);
+                                if (e.health < 100 && barStyle < 2) {
+                                    char hpText[16];
+                                    snprintf(hpText, sizeof(hpText), "%i", e.health);
+                                    outlineText(
+                                         drawList,
+                                         ImVec2(healthbarMin.x + 1 - (ImGui::CalcTextSize(hpText).x / 2), healthbarMin.y - 13),
+                                         ImColor(255, 255, 255, 200), hpText);
+                                }
+                            }
+                            if (barStyle == 1 || barStyle >= 2) {
+                                ImVec2 healthbarBorderMin = ImVec2(e.boundingBox.x - 1, e.boundingBox.w + 6);
+                                ImVec2 healthbarBorderMax = ImVec2(e.boundingBox.z + 1, e.boundingBox.w + 2);
+                                ImVec2 healthbarMin =
+                                     ImVec2(healthbarBorderMin.x + 1,
+                                            healthbarBorderMin.y - 1);
+                                ImVec2 healthbarMax =
+                                     ImVec2(healthbarBorderMin.x + 1 +
+                                                 (((float)e.health / 100.f) * (healthbarBorderMax.x - healthbarBorderMin.x)),
+                                            healthbarBorderMax.y + 1);
+                                if(barStyle < 3)
+                                    drawList->AddRectFilled(healthbarBorderMin, healthbarBorderMax, ImColor(0, 0, 0, 160));
+                                drawList->AddRectFilled(
+                                     healthbarMin, healthbarMax,
+                                     CONFIGCOL(e.teammate ? "team esp healthbar color" : "enemy esp healthbar color"));
+
+                                if (e.health < 100) {
+                                    char hpText[16];
+                                    snprintf(hpText, sizeof(hpText), "%i", e.health);
+                                    outlineText(
+                                         drawList,
+                                         ImVec2(healthbarMin.x - 13 - (ImGui::CalcTextSize(hpText).x / 2), healthbarMin.y + 1),
+                                         ImColor(255, 255, 255, 200), hpText);
+                                }
                             }
                         }
                     }

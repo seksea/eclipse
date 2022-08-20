@@ -53,7 +53,8 @@ namespace Glow {
             
             switch (glowObject.entity->clientClass()->m_ClassID) {
                 case CCSPlayer: {
-                    if (glowObject.entity->teammate() ? CONFIGBOOL("glow teammate") : CONFIGBOOL("glow enemy")) {
+                    if (glowObject.entity->teammate() ? CONFIGBOOL("glow teammate") : CONFIGBOOL("glow enemy") && ((CONFIGBOOL(glowObject.entity->teammate() ? 
+                    "teammate legit esp" : "enemy legit esp")) ? glowObject.entity->nDT_BaseEntity__m_bSpotted() : true)) {
                         glowObject.renderWhenOccluded = true;
                         ImColor glowCol = glowObject.entity->teammate() ? CONFIGCOL("glow teammate color") : CONFIGCOL("glow enemy color");
                         glowObject.glowAlpha = glowCol.Value.w;

@@ -59,7 +59,8 @@ namespace Chams {
 
 	    const char* modelName = Interfaces::modelInfo->getModelName(pInfo.pModel);
 	    if (strstr(modelName, "models/player") && !strstr(modelName, "shadow")) {
-            if (ENEMYTEAMCONFIGSTR("ignorez chams material").length() > 0)
+            if (ENEMYTEAMCONFIGSTR("ignorez chams material").length() > 0 && ((CONFIGBOOL(ent->teammate() ? 
+                    "teammate legit esp" : "enemy legit esp")) ? ent->nDT_BaseEntity__m_bSpotted() : true))
                 chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("ignorez chams color"), ENEMYTEAMCONFIGSTR("ignorez chams material"), true);
 
             chamEntity(thisptr, ctx, state, pInfo, pCustomBoneToWorld, ENEMYTEAMCONFIGCOL("chams color"), ENEMYTEAMCONFIGSTR("chams material"));

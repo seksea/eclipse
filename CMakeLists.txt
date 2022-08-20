@@ -23,12 +23,19 @@ endif()
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
+# These are for funchook
+add_compile_definitions(DISASM_DISTORM)
+add_compile_definitions(_GNU_SOURCE)
+
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE CSOURCES "${CMAKE_SOURCE_DIR}/src/*.c")
-list(APPEND SOURCES ${CSOURCES})
+file(GLOB_RECURSE FUNCHOOK_SOURCES "${CMAKE_SOURCE_DIR}/dependencies/funchook/*.c")
+list(APPEND SOURCES ${CSOURCES} ${FUNCHOOK_SOURCES})
 
 include_directories(/usr/local/include /usr/include/freetype2)
 link_directories(/usr/local/lib src)
 
 add_library(eclipse SHARED ${SOURCES})
-target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk ssl crypto)
+target_link_libraries(eclipse dl pthread SDL2 GL freetype luajit-5.1 gamesdk ssl crypto vulkan)
+target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE
+    "${CMAKE_SOURCE_DIR}/dependencies/funchook/include")

@@ -12,6 +12,7 @@ namespace Menu {
 
     inline ImVec2 windowPos, windowSize;
 
+    void init(SDL_Event* event, const int result, SDL_Window* pWindow);
     void onPollEvent(SDL_Event* event, const int result);
-    void onSwapWindow(SDL_Window* window);
+    void render(SDL_Window* window);
 }

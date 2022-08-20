@@ -10,7 +10,7 @@ namespace Backtrack {
         static Convar* sv_maxunlag = Interfaces::cvar->findVar("sv_maxunlag");
         if (simtime < floorf(Interfaces::globals->curtime - sv_maxunlag->getFloat())) return false;
 
-        NetChannel* net = Interfaces::engine->getNetworkChannel();
+        static NetChannel* net = Interfaces::engine->getNetworkChannel();
         if (!net) {
             LOG("couldn't get netchannel...");
             return false;
@@ -56,8 +56,26 @@ namespace Backtrack {
             ticks.insert(ticks.begin(), currentTick);
             
             // Delete ticks we cant backtrack
+            static NetChannel* net = Interfaces::engine->getNetworkChannel();
+            if (!net) {
+                LOG("couldn't get netchannel...");
+                return;
+            }
             static Convar *sv_maxunlag = Interfaces::cvar->findVar("sv_maxunlag");
-            while (ticks.size() > TIME_TO_TICKS(sv_maxunlag->getFloat()) || ticks.size() > TIME_TO_TICKS(CONFIGFLOAT("backtrack")) + 1) 
+            static Convar* sv_client_min_interp_ratio = Interfaces::cvar->findVar("sv_client_min_interp_ratio");
+            static Convar* sv_client_max_interp_ratio = Interfaces::cvar->findVar("sv_client_max_interp_ratio");
+            static Convar* cl_updaterate = Interfaces::cvar->findVar("cl_updaterate");
+            static Convar* sv_maxupdaterate = Interfaces::cvar->findVar("sv_maxupdaterate");
+            static Convar* cl_interp = Interfaces::cvar->findVar("cl_interp");
+            static Convar* cl_interp_ratio = Interfaces::cvar->findVar("cl_interp_ratio");
+            float lerp =
+                 std::max(cl_interp->getFloat(),
+                          ((std::clamp(cl_interp_ratio->getFloat(), sv_client_min_interp_ratio->getFloat(),
+                                       sv_client_max_interp_ratio->getFloat()))) /
+                               ((sv_maxupdaterate->getFloat()) ? sv_maxupdaterate->getFloat() : cl_updaterate->getFloat()));
+            float realMaxUnlag = std::clamp((2.f * sv_maxunlag->getFloat() - (net->getLatency(0) + net->getLatency(1) + lerp)),
+                                            0.f, sv_maxunlag->getFloat());
+            while (ticks.size() > TIME_TO_TICKS(realMaxUnlag) || ticks.size() > TIME_TO_TICKS(CONFIGFLOAT("backtrack")) + 1) 
                 ticks.pop_back();
         }
     }
@@ -77,9 +95,10 @@ namespace Backtrack {
                             Vector(p.second.boneMatrix[8][0][3], p.second.boneMatrix[8][1][3], p.second.boneMatrix[8][2][3]));
                         
                         angleToCurrentPlayer -= viewAngles;
-                        if (angleToCurrentPlayer.y > 180.f) {
-                            angleToCurrentPlayer.y -= 360.f;
-                        }
+                        sanitizeAngles(angleToCurrentPlayer);
+                      //  if (angleToCurrentPlayer.y > 180.f) {
+                      //      angleToCurrentPlayer.y -= 360.f;
+                      //  }
 
                         if (angleToCurrentPlayer.Length() < closestDelta) {
                             closestDelta = angleToCurrentPlayer.Length();

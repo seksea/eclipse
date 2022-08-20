@@ -215,6 +215,7 @@ namespace EntityCache {
 		int health;
 		bool teammate;
 		bool visible;
+		bool spotted;
 		PlayerInfo info;
 		std::string_view weaponName;
 		CachedEntity(Entity* e) {
@@ -241,6 +242,7 @@ namespace EntityCache {
 				this->teammate = e->teammate();
 				Interfaces::engine->getPlayerInfo(this->index, this->info);
 				visible = e->visCheck();
+				spotted = e->nDT_BaseEntity__m_bSpotted();
 			}
 		}
 	};

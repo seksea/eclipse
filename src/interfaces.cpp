@@ -26,7 +26,7 @@ namespace Interfaces {
         modelInfo = getInterface<IVModelInfo>("./bin/linux64/engine_client.so", "VModelInfoClient");
         materialSystem = getInterface<IMaterialSystem>("./bin/linux64/materialsystem_client.so", "VMaterialSystem");
         studioRender = getInterface<StudioRender>("./bin/linux64/studiorender_client.so", "VStudioRender");
-        panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_gl_client.so", "PanoramaUIEngine");
+        panorama = getInterface<IPanoramaUIEngine>("./bin/linux64/panorama_client.so", "PanoramaUIEngine");
         sound = getInterface<IEngineSound>("./bin/linux64/engine_client.so", "IEngineSoundClient");
         eventManager = getInterface<IGameEventManager2>("./bin/linux64/engine_client.so", "GAMEEVENTSMANAGER002", true);
         physics = getInterface<IPhysicsSurfaceProps>("./bin/linux64/vphysics_client.so", "VPhysicsSurfaceProps");

@@ -32,6 +32,10 @@ namespace Memory {
         void detour(char* src, char* dest);
     }
 
+    namespace Johannes {
+        void* detour(void* original, void* hook, int instructionLength);
+    }
+
     inline void**& getVTable(void* c, size_t offset = 0) {
         return *reinterpret_cast<void***>((size_t)c + offset);
     }

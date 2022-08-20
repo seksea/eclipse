@@ -60,10 +60,16 @@ namespace Hooks {
         inline std::add_pointer_t<void(SDL_Window*)> swapWindow;
         inline uintptr_t pollEventAddr;
         inline std::add_pointer_t<int(SDL_Event*)> pollEvent;
+        inline SDL_Window* windowptr;
         void SwapWindow(SDL_Window* window);
         int PollEvent(SDL_Event* event);
         bool unloadSDL();
     }
+
+    namespace Vulkan {
+		void Hook();
+        void Unhook();
+	}
 
     /* Event Manager */
     class EventListener : public IGameEventListener2 {
