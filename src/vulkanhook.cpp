@@ -317,13 +317,15 @@ static VkResult VKAPI_CALL hkPresentImage(uintptr_t ecx) {
 
 namespace Hooks {
     namespace Vulkan {
-        void Hook() {
+        bool Hook() {
             const auto libDXVK = dlopen("libdxvk_d3d9.so", RTLD_LAZY | RTLD_NOLOAD);
-            if (!libDXVK) return;
+            if (!libDXVK) return false;
             void* fnPresentImage = dlsym(libDXVK, "_ZN4dxvk2vk9Presenter12presentImageEv");
             if (fnPresentImage) {
                 HOOK(PresentImage);
+				return true;
             }
+			return false;
         }
 
         void Unhook() {
@@ -364,52 +366,6 @@ static void RenderImGui_Vulkan(VkQueue queue, const VkPresentInfoKHR* pPresentIn
     if (!ImGui::GetCurrentContext()) {
 		LOG("SDL_Window has not been found! Try alt tabbing...");
 		return;
-		/*
-        ImGui::CreateContext();
-
-        ImGui::StyleColorsDark();
-
-        ImFontConfig fontConfig;
-        fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_MonoHinting | ImGuiFreeTypeBuilderFlags_Monochrome;
-        Menu::menuFont = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(tahoma_compressed_data, tahoma_compressed_size,
-                                                                              14, &fontConfig);
-
-        Menu::weaponFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(&weaponIcons[0], weaponIcons.size(), 14);
-        ImGuiFreeType::BuildFontAtlas(ImGui::GetIO().Fonts, 0x0);
-
-        ImGui::GetStyle().WindowPadding = ImVec2(6, 6);
-        ImGui::GetStyle().FramePadding = ImVec2(4, 0);
-        ImGui::GetStyle().WindowRounding = 1;
-        ImGui::GetStyle().ChildRounding = 1;
-        ImGui::GetStyle().FrameRounding = 1;
-        ImGui::GetStyle().WindowBorderSize = 0;
-        ImGui::GetStyle().FrameBorderSize = 1;
-        ImGui::GetStyle().ScrollbarRounding = 0;
-        ImGui::GetStyle().ScrollbarSize = 3;
-        ImGui::GetStyle().WindowMinSize = ImVec2(4, 4);
-
-        ImVec4* colors = ImGui::GetStyle().Colors;
-        colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.16f, 1.00f);
-        colors[ImGuiCol_ChildBg] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_Separator] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_Border] = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
-        colors[ImGuiCol_FrameBg] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_FrameBgActive] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_Button] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_ButtonHovered] = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
-        colors[ImGuiCol_ButtonActive] = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
-        colors[ImGuiCol_Header] = ImVec4(0.11f, 0.12f, 0.12f, 1.00f);
-        colors[ImGuiCol_HeaderHovered] = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
-        colors[ImGuiCol_HeaderActive] = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
-
-        ImGui_ImplSDL2_InitForVulkan(Hooks::SDL::windowptr);
-
-        ImGuiIO& io = ImGui::GetIO();
-
-        // io.IniFilename = nullptr;
-        // io.LogFilename = nullptr;
-		*/
     }
 
     for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i) {
@@ -462,10 +418,6 @@ static void RenderImGui_Vulkan(VkQueue queue, const VkPresentInfoKHR* pPresentIn
 
             ImGui_ImplVulkan_CreateFontsTexture(fd->CommandBuffer);
         }
-
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplSDL2_NewFrame(Hooks::SDL::windowptr);
-        ImGui::NewFrame();
 
         // ImGui::ShowDemoWindow( );
         Menu::render(Hooks::SDL::windowptr);

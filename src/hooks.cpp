@@ -19,8 +19,8 @@
 
 namespace Hooks {
     void init() {
+        Menu::vulkan = Vulkan::Hook();
         SDL::initSDL();
-        Vulkan::Hook();
 
         while (!Menu::initialised)
             usleep(500000);

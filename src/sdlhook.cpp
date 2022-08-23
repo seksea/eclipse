@@ -12,23 +12,24 @@ static constexpr auto relativeToAbsolute(std::uintptr_t address) noexcept {
 
 int Hooks::SDL::PollEvent(SDL_Event* event) {
     const auto result = pollEvent(event);
-    if (!windowptr && event->type == SDL_WINDOWEVENT) {
-		SDL_Window* pWindow = SDL_GetWindowFromID(event->window.windowID);
-		if (pWindow) {
-			windowptr = pWindow;
-            
-            Assert(!Menu::initialised);
-            Menu::init(event, result, windowptr);
-		}
-	}
-    if (Menu::initialised) {
+
+    if (windowptr) {
         Menu::onPollEvent(event, result);
+    } else if (event->type == SDL_WINDOWEVENT) {
+        SDL_Window* pWindow = SDL_GetWindowFromID(event->window.windowID);
+        if (pWindow) {
+            windowptr = pWindow;
+
+            Menu::init(event, result, windowptr);
+        }
     }
+
     return result;
 }
 
 void Hooks::SDL::SwapWindow(SDL_Window* window) {
-    //Menu::render();
+    if(!Menu::vulkan && Menu::initialised)
+        Menu::render(window);
     swapWindow(window);
 }
 
@@ -37,7 +38,6 @@ bool Hooks::SDL::initSDL() {
     LOG("Hooking SDL...");
     const auto libSDL = dlopen("libSDL2-2.0.so.0", RTLD_LAZY | RTLD_NOLOAD);
 
-/*
     swapWindowAddr = relativeToAbsolute<uintptr_t>(uintptr_t(dlsym(libSDL, "SDL_GL_SwapWindow")) + 2);
     if (swapWindowAddr) {
         swapWindow = *reinterpret_cast<decltype(swapWindow)*>(swapWindowAddr);
@@ -49,7 +49,6 @@ bool Hooks::SDL::initSDL() {
     }
 
     LOG("SwapWindow %lx", swapWindowAddr);
-*/
 
     pollEventAddr = relativeToAbsolute<uintptr_t>(uintptr_t(dlsym(libSDL, "SDL_PollEvent")) + 2);
     if (pollEventAddr) {

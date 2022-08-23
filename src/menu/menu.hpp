@@ -3,6 +3,7 @@
 
 namespace Menu {
     inline bool initialised = false;
+    inline bool vulkan = false;
     inline bool menuOpen = true;
     inline int curTab = 0;
     inline char curConfigLoaded[128] = "";

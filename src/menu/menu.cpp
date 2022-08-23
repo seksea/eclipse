@@ -32,8 +32,9 @@
 namespace Menu {
     void init(SDL_Event* event, const int result, SDL_Window* pWindow) {
         if (!ImGui::GetCurrentContext()) {
-            ImGui::CreateContext();
+            if(!vulkan) gl3wInit();
 
+            ImGui::CreateContext();
             ImGui::StyleColorsDark();
 
             ImFontConfig fontConfig;
@@ -70,7 +71,17 @@ namespace Menu {
             colors[ImGuiCol_HeaderHovered] = ImVec4(0.13f, 0.13f, 0.14f, 1.00f);
             colors[ImGuiCol_HeaderActive] = ImVec4(0.14f, 0.14f, 0.15f, 1.00f);
 
-            ImGui_ImplSDL2_InitForVulkan(pWindow);
+            if(vulkan) {
+                ImGui_ImplSDL2_InitForVulkan(pWindow);
+            } else {
+                ImGui_ImplOpenGL3_Init("#version 100");
+                ImGui_ImplSDL2_InitForOpenGL(pWindow, nullptr);
+            }
+
+            
+            Config::refreshConfigList();
+            Lua::refreshLuaList();
+            initialised = true;
 
             ImGuiIO& io = ImGui::GetIO();
 
@@ -120,11 +131,14 @@ namespace Menu {
     }*/
 
     void render(SDL_Window* window) {
-        if (!initialised) {
-            Config::refreshConfigList();
-            Lua::refreshLuaList();
-            initialised = true;
+        if(vulkan){
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+        } else {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
         }
+        ImGui::NewFrame();
 
         if (Menu::menuOpen && !CONFIGBOOL("disable blur")) {
            // BlurEffect::draw(ImGui::GetBackgroundDrawList(), 1.f); // didnt work on vulkan but might work now idk
@@ -803,6 +817,11 @@ namespace Menu {
 
         Lua::curDrawList = ImGui::GetForegroundDrawList();
         Lua::handleHook("drawabove");
+
+        if (!vulkan) {
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
 
         for (std::string file : Lua::luaFiles) {
             char temp[128] = "luafiles - ";

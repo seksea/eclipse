@@ -67,7 +67,7 @@ namespace Hooks {
     }
 
     namespace Vulkan {
-		void Hook();
+		bool Hook();
         void Unhook();
 	}
 
