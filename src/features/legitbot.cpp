@@ -318,6 +318,34 @@ namespace Legitbot {
         }
     }
 
+    inline Vector2D anglePixels(QAngle angDelta) {
+        static Convar* sensitivity = Interfaces::cvar->findVar("sensitivity");
+        static Convar* m_yaw = Interfaces::cvar->findVar("m_yaw");
+        static Convar* m_pitch = Interfaces::cvar->findVar("m_pitch");
+
+        sanitizeAngles(angDelta);
+
+        float pixelMovePitch = (-angDelta.x) / (m_pitch->getFloat() * sensitivity->getFloat());
+        float pixelMoveYaw = (angDelta.y) / (m_yaw->getFloat() * sensitivity->getFloat());
+
+        return Vector2D(pixelMoveYaw, pixelMovePitch);
+    }
+
+    inline Vector2D anglePixels(QAngle angBegin, QAngle angEnd) { return anglePixels(angEnd - angBegin); }
+
+    inline QAngle pixelAngles(Vector2D vecPixels) {
+        static Convar* sensitivity = Interfaces::cvar->findVar("sensitivity");
+        static Convar* m_yaw = Interfaces::cvar->findVar("m_yaw");
+        static Convar* m_pitch = Interfaces::cvar->findVar("m_pitch");
+
+        float pitch = (-vecPixels.y) * (m_pitch->getFloat() * sensitivity->getFloat());
+        float yaw = (vecPixels.x) * (m_yaw->getFloat() * sensitivity->getFloat());
+
+        return QAngle(pitch, yaw, 0.f);
+    }
+
+    inline QAngle pixelAngles(float x, float y) { return pixelAngles(Vector2D(x, y)); }
+
     void run(CUserCmd* cmd) {
         aimbot(cmd);
         // avoid kicks when raging in casual
@@ -332,6 +360,12 @@ namespace Legitbot {
             }
         }
         sanitizeAngles(cmd->viewangles);
+
+        // prevent aimbot from setting viewangles that are impossible with current mouse sensitivity (might help with trust factor, or will in future)
+        auto pixels = anglePixels(lastViewangles, cmd->viewangles);
+        cmd->viewangles = lastViewangles + pixelAngles(pixels);
+        sanitizeAngles(cmd->viewangles);
+
         lastViewangles = cmd->viewangles;
         triggerbot(cmd);
     }
