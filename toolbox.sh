@@ -33,11 +33,12 @@ function unload {
 
 function load {
     echo "Loading cheat..."
-    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope > /dev/null
+    # https://www.kernel.org/doc/Documentation/security/Yama.txt
+    echo "2" | sudo tee /proc/sys/kernel/yama/ptrace_scope # Only allows root to inject code. This is temporary until reboot.
     sudo cp build/libeclipse.so /usr/lib/$libname
     sudo strip -s -v /usr/lib/$libname
     sudo patchelf --set-soname $libname /usr/lib/$libname
-    $gdb -n -q -batch \
+    sudo $gdb -n -q -batch \
     -ex "set auto-load safe-path /usr/lib/" \
     -ex "attach $csgo_pid" \
     -ex "set \$dlopen = (void*(*)(char*, int)) dlopen" \
@@ -48,17 +49,18 @@ function load {
 
 function load_debug {
     echo "Loading cheat..."
-    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+    # https://www.kernel.org/doc/Documentation/security/Yama.txt
+    echo "2" | sudo tee /proc/sys/kernel/yama/ptrace_scope # Only allows root to inject code. This is temporary until reboot.
     sudo cp build/libeclipse.so /usr/lib/$libname
     sudo patchelf --set-soname $libname /usr/lib/$libname
-    $gdb -n -q -batch \
+    sudo $gdb -n -q -batch \
         -ex "set auto-load safe-path /usr/lib:/usr/lib/" \
         -ex "attach $csgo_pid" \
         -ex "set \$dlopen = (void*(*)(char*, int)) dlopen" \
         -ex "call \$dlopen(\"/usr/lib/$libname\", 1)" \
         -ex "detach" \
         -ex "quit"
-    $gdb -p "$csgo_pid"
+    sudo $gdb -p "$csgo_pid"
 }
 
 function build {
