@@ -17,7 +17,7 @@ mkdir -p --mode=000 /tmp/dumps
 
 function unload {
     echo "Unloading cheat..."
-    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+    echo "2" | sudo tee /proc/sys/kernel/yama/ptrace_scope
     if grep -q "$libname" "/proc/$csgo_pid/maps"; then
         $gdb -n -q -batch -ex "attach $csgo_pid" \
             -ex "set \$dlopen = (void*(*)(char*, int)) dlopen" \
