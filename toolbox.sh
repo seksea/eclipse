@@ -19,7 +19,7 @@ function unload {
     echo "Unloading cheat..."
     echo "2" | sudo tee /proc/sys/kernel/yama/ptrace_scope
     if grep -q "$libname" "/proc/$csgo_pid/maps"; then
-        $gdb -n -q -batch -ex "attach $csgo_pid" \
+        sudo $gdb -n -q -batch -ex "attach $csgo_pid" \
             -ex "set \$dlopen = (void*(*)(char*, int)) dlopen" \
             -ex "set \$dlclose = (int(*)(void*)) dlclose" \
             -ex "set \$library = \$dlopen(\"/usr/lib/$libname\", 6)" \
