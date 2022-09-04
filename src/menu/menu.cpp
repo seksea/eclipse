@@ -85,8 +85,8 @@ namespace Menu {
 
             ImGuiIO& io = ImGui::GetIO();
 
-            // io.IniFilename = nullptr;
-            // io.LogFilename = nullptr;
+            io.IniFilename = nullptr;
+            io.LogFilename = nullptr;
         }
     }
 
