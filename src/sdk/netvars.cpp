@@ -31,7 +31,16 @@ namespace Netvars {
         for (ClientClass* cur = Interfaces::client->getAllClasses(); cur; cur = cur->m_pNext) {
             dumpOffsetsFromTable(cur->m_pRecvTable);
         }
-		FILE* f = fopen("netvars.txt", "w");
+
+		char filename[12] = "netvars.txt";
+		char path[512];
+        strcpy(path, getenv("HOME"));
+        strcat(path, "/.eclipse/");
+        std::filesystem::create_directory(path);
+        char filepath[512];
+        strcpy(filepath, path);
+        strcat(filepath, filename);
+		FILE* f = fopen(filepath, "w");
 		for (auto& nvar: netvars) {
 			char buf[1024];
             snprintf(buf, sizeof(buf), "	NETVAR(\"%s\", \"%s\", n%s__%s, %s) \\\n", 
