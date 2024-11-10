@@ -1,6 +1,7 @@
 [![YouTube](http://i.ytimg.com/vi/gXosAXXt2UM/hqdefault.jpg)](https://www.youtube.com/watch?v=gXosAXXt2UM)
 
 <p align="center">
+  <a align="center" href="https://www.youtube.com/watch?v=gXosAXXt2UM"><img src="http://i.ytimg.com/vi/gXosAXXt2UM/hqdefault.jpg" alt="Youtube Video"></a>
   <p align="center">Previously private gameplay enhancer for Counter-Strike: Global Offensive (csgo_legacy) on Linux.</p>
   <div align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-purple.svg" alt="MIT License"></a>
