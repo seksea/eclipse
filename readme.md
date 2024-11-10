@@ -1,3 +1,5 @@
+[![YouTube](http://i.ytimg.com/vi/gXosAXXt2UM/hqdefault.jpg)](https://www.youtube.com/watch?v=gXosAXXt2UM)
+
 <p align="center">
   <p align="center">Previously private gameplay enhancer for Counter-Strike: Global Offensive (csgo_legacy) on Linux.</p>
   <div align="center">
@@ -23,9 +25,8 @@
 - [Donations](#donations)
   - [Donate](#donate)
 
-> [!NOTE] I have not tested this at all and I am unsure if it even still works on the current `csgo_legacy`
-
-[![YouTube](http://i.ytimg.com/vi/gXosAXXt2UM/hqdefault.jpg)](https://www.youtube.com/watch?v=gXosAXXt2UM)
+> [!NOTE]
+> I have not tested this at all and I am unsure if it even still works on the current `csgo_legacy`
 
 ## Features
 
